@@ -1,0 +1,32 @@
+controller:
+  # Use LoadBalancer service type to get an external IP
+  service:
+    type: LoadBalancer
+    annotations:
+      metallb.universe.tf/address-pool: default-pool
+  
+  # Performance optimization
+  config:
+    ssl-redirect: "false"  # We'll enable after cert-manager
+    use-forwarded-headers: "true"
+    # Allow HTTP traffic even when TLS is configured but not ready
+    strict-host: "false"
+    # Process ingresses even with pending certificates
+    no-tls-redirect-locations: "true"
+    
+  # Resource limits appropriate for homelab
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+      
+  # Monitoring
+  metrics:
+    enabled: true
+    service:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10254"

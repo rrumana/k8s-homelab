@@ -1,0 +1,12 @@
+# Kubernetes Secrets - DO NOT COMMIT TO VERSION CONTROL
+secrets/
+*.secret.yaml
+*-secrets.yaml
+
+# Temporary files
+*.tmp
+*.temp
+
+# Local configuration overrides
+local/
+*.local.yaml

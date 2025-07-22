@@ -1,0 +1,34 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+bases:
+  - ../../../base/immich
+
+# Production-specific patches
+patches:
+  - target:
+      kind: Deployment
+      name: immich-server
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+      - op: add
+        path: /spec/template/spec/affinity
+        value:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - immich-server
+                topologyKey: kubernetes.io/hostname
+
+# Production secrets management
+secretGenerator:
+  - name: immich-secrets
+    env: secrets.env

@@ -1,0 +1,28 @@
+# Longhorn configuration
+defaultSettings:
+  # Replicas for data protection
+  defaultReplicaCount: 2
+  
+  # Backup configuration (optional S3 endpoint)
+  backupTarget: ""
+  backupTargetCredentialSecret: ""
+  
+  # Performance settings
+  guaranteedEngineManagerCPU: 0.1
+  guaranteedReplicaManagerCPU: 0.1
+
+# UI configuration
+ui:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+# Storage class configuration
+persistence:
+  defaultClass: true
+  defaultClassReplicaCount: 2
+  reclaimPolicy: Delete

@@ -1,0 +1,39 @@
+# Loki configuration for homelab
+loki:
+  auth_enabled: false
+  
+  config:
+    # Storage configuration
+    storage_config:
+      boltdb_shipper:
+        active_index_directory: /loki/boltdb-shipper-active
+        cache_location: /loki/boltdb-shipper-cache
+        shared_store: filesystem
+      filesystem:
+        directory: /loki/chunks
+    
+    # Retention policy
+    table_manager:
+      retention_deletes_enabled: true
+      retention_period: 168h  # 7 days
+    
+    # Performance limits
+    limits_config:
+      enforce_metric_name: false
+      reject_old_samples: true
+      reject_old_samples_max_age: 168h
+      max_cache_freshness_per_query: 10m
+
+# Single binary mode for simplicity
+singleBinary:
+  replicas: 1
+  persistence:
+    enabled: true
+    size: 20Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi

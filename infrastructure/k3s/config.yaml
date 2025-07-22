@@ -1,0 +1,25 @@
+# /etc/rancher/k3s/config.yaml
+# This is the correct format for k3s configuration
+
+# Disable components we want to replace
+disable:
+  - traefik
+  - servicelb
+
+# Cluster networking configuration
+cluster-cidr: "10.42.0.0/16"
+service-cidr: "10.43.0.0/16"
+
+# Security settings
+secrets-encryption: true
+
+# Performance optimizations
+kube-apiserver-arg:
+  - "default-not-ready-toleration-seconds=10"
+  - "default-unreachable-toleration-seconds=10"
+
+# Storage location
+data-dir: "/var/lib/rancher/k3s"
+
+# Kubeconfig permissions
+write-kubeconfig-mode: "0600"

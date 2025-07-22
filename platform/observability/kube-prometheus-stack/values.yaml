@@ -1,0 +1,61 @@
+# Prometheus configuration
+prometheus:
+  prometheusSpec:
+    # Retention and storage
+    retention: 30d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 50Gi
+    
+    # Resource allocation
+    resources:
+      requests:
+        cpu: 500m
+        memory: 2Gi
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+    
+    # Scrape configurations
+    additionalScrapeConfigs:
+    - job_name: 'k3s'
+      kubernetes_sd_configs:
+      - role: node
+      relabel_configs:
+      - source_labels: [__address__]
+        regex: '(.*):10250'
+        replacement: '${1}:10249'
+        target_label: __address__
+
+# Grafana configuration
+grafana:
+  persistence:
+    enabled: true
+    size: 10Gi
+  
+  # Pre-configured dashboards
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 10
+        options:
+          path: /var/lib/grafana/dashboards/default
+  
+  # Resource allocation
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi

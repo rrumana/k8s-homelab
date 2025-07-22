@@ -1,0 +1,38 @@
+# ArgoCD configuration for homelab
+configs:
+  params:
+    # Increase sync frequency for faster feedback
+    application.instanceLabelKey: argocd.argoproj.io/instance
+    controller.status.processors: 10
+    controller.operation.processors: 5
+    
+  repositories:
+    k8s-homelab:
+      url: https://github.com/rrumana/k8s-homelab
+      name: k8s-homelab
+      type: git
+
+# Resource allocation
+controller:
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+server:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+# Enable metrics for monitoring
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
