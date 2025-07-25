@@ -1,0 +1,27 @@
+# platform/gitops/argocd/apps/metallb-config-app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metallb-config
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  
+  source:
+    repoURL: https://github.com/rrumana/k8s-homelab
+    targetRevision: main
+    path: platform/networking/metallb/config
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: metallb-system
+  
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    # Sync after MetalLB is installed
+    syncOptions:
+      - CreateNamespace=false

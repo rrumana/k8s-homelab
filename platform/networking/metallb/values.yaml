@@ -1,0 +1,36 @@
+controller:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 50Mi
+    limits:
+      cpu: 100m
+      memory: 100Mi
+  
+  # Enable Prometheus metrics
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+speaker:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 50Mi
+    limits:
+      cpu: 100m
+      memory: 100Mi
+  
+  # Enable Prometheus metrics
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  
+  tolerateMaster: true
+
+# CRDs are included in the chart
+crds:
+  enabled: true
+  validationFailurePolicy: Fail
