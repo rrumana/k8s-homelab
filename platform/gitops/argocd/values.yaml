@@ -12,6 +12,16 @@ configs:
       name: k8s-homelab
       type: git
 
+# Enable Helm support in repo server
+repoServer:
+  env:
+    - name: KUSTOMIZE_PLUGIN_HOME
+      value: /kustomize-plugins
+    - name: XDG_CONFIG_HOME
+      value: /kustomize-plugins
+  extraArgs:
+    - --enable-helm
+
 # Resource allocation
 controller:
   resources:

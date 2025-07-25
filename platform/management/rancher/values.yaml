@@ -4,8 +4,8 @@ hostname: rancher.k8s.rcrumana.xyz
 # Replicas for HA (adjust based on your cluster size)
 replicas: 3
 
-# Use specific version for stability
-rancherImageTag: v2.8.5
+# Use latest version for most up-to-date features
+# rancherImageTag: latest  # Commented out to use chart default (latest)
 
 # Ingress configuration
 ingress:
