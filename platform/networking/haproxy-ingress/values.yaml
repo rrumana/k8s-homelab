@@ -5,16 +5,20 @@ controller:
     annotations:
       metallb.universe.tf/address-pool: default-pool
   
-  # Performance optimization
+  # HAProxy configuration
   config:
-    ssl-redirect: "false"  # We'll enable after cert-manager
+    ssl-redirect: "true"
     use-forwarded-headers: "true"
-    # Allow HTTP traffic even when TLS is configured but not ready
-    strict-host: "false"
-    # Process ingresses even with pending certificates
-    no-tls-redirect-locations: "true"
-    
-  # Resource limits appropriate for homelab
+    compute-full-forwarded-for: "true"
+    forwardfor: "add"
+    timeout-server: "300s"
+    timeout-connect: "30s"
+    timeout-client: "300s"
+    ssl-options: "no-sslv3 no-tlsv10 no-tlsv11"
+    ssl-default-bind-ciphers: "ECDHE+AESGCM:ECDHE+AES256:ECDHE+AES128:!PSK:!DHE:!RSA:!DSS:!aNull:!MD5"
+    check-interval: "2s"
+  
+  # Resource limits
   resources:
     requests:
       cpu: 100m
@@ -22,11 +26,18 @@ controller:
     limits:
       cpu: 500m
       memory: 512Mi
-      
-  # Monitoring
-  metrics:
+  
+  replicaCount: 1
+  
+  logs:
     enabled: true
-    service:
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "10254"
+
+# Default backend
+defaultBackend:
+  enabled: false
+
+# ServiceMonitor for Prometheus
+serviceMonitor:
+  enabled: true
+  namespace: ingress-haproxy
+  interval: 30s

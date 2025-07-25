@@ -1,0 +1,16 @@
+# platform/management/rancher/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: cattle-system
+
+resources:
+  - namespace.yaml
+
+helmCharts:
+  - name: rancher
+    repo: https://releases.rancher.com/server-charts/stable
+    version: 2.8.5
+    releaseName: rancher
+    namespace: cattle-system
+    valuesFile: values.yaml

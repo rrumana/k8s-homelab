@@ -4,13 +4,16 @@ metadata:
   name: root-app
   namespace: argocd
   finalizers:
-  - resources-finalizer.argocd.argoproj.io
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
     repoURL: https://github.com/rrumana/k8s-homelab
     targetRevision: HEAD
     path: platform/gitops/argocd/apps
+    directory:
+      recurse: true
+      include: '*-app.yaml'
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
@@ -18,5 +21,32 @@ spec:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-    - CreateNamespace=true
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-server-ingress
+  namespace: argocd
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    # Critical: ArgoCD serves its own TLS
+    haproxy-ingress.github.io/server-protocol: "h2"
+    haproxy-ingress.github.io/secure-backends: "true"
+    haproxy-ingress.github.io/backend-server-options: "ssl verify none"
+spec:
+  ingressClassName: haproxy
+  tls:
+  - hosts:
+    - argocd.k8s.rcrumana.xyz
+    secretName: argocd-server-tls
+  rules:
+  - host: argocd.k8s.rcrumana.xyz
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: argocd-server
+            port:
+              number: 443

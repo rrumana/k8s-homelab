@@ -4,13 +4,14 @@ metadata:
   name: hello-world
   namespace: test
   annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    haproxy-ingress.github.io/ssl-redirect: "false"  # Keep false until certs work
 spec:
   ingressClassName: haproxy
   tls:
   - hosts:
-    - hello.k8s.rcrumana.xyz  # Note the k8s subdomain
-    secretName: hello-world-tls
+    - hello.k8s.rcrumana.xyz
+    secretName: hello-world-server-tls
   rules:
   - host: hello.k8s.rcrumana.xyz
     http:
