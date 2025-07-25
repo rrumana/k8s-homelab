@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: https://github.com/rrumana/k8s-homelab
     targetRevision: main
-    path: platform/networking/metallb/config
+    path: platform/networking/metallb/config.yaml
   
   destination:
     server: https://kubernetes.default.svc
