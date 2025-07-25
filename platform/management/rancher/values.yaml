@@ -15,7 +15,7 @@ ingress:
     source: secret
     secretName: rancher-tls
   extraAnnotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod-dns"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 
 # Resources
 resources:
