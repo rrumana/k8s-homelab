@@ -1,49 +1,27 @@
+# platform/gitops/argocd/apps/rancher-app.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: rancher-helm
+  name: rancher
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
+  
   source:
     repoURL: https://releases.rancher.com/server-charts/stable
     targetRevision: "*"
     chart: rancher
     helm:
       releaseName: rancher
-      values: |
-        hostname: rancher.k8s.rcrumana.xyz
-        replicas: 2
-        ingress:
-          enabled: true
-          ingressClassName: haproxy
-          tls:
-            source: secret
-            secretName: rancher-tls
-          extraAnnotations:
-            cert-manager.io/cluster-issuer: "letsencrypt-prod"
-        resources:
-          requests:
-            cpu: 500m
-            memory: 1Gi
-          limits:
-            cpu: 100m
-            memory: 2Gi
-        bootstrapPassword: "changeme123!"
-        auditLog:
-          level: 1
-        global:
-          cattle:
-            psp:
-              enabled: false
-        persistence:
-          enabled: true
-          size: 10Gi
+      valueFiles:
+        - https://raw.githubusercontent.com/rrumana/k8s-homelab/main/platform/management/rancher/values.yaml
+  
   destination:
     server: https://kubernetes.default.svc
     namespace: cattle-system
+  
   syncPolicy:
     automated:
       prune: true

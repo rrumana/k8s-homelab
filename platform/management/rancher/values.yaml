@@ -1,0 +1,37 @@
+# platform/management/rancher/values.yaml
+hostname: rancher.k8s.rcrumana.xyz
+
+replicas: 2
+
+ingress:
+  enabled: true
+  ingressClassName: haproxy
+  tls:
+    source: secret
+    secretName: rancher-tls
+  extraAnnotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+# Resource allocation
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+
+bootstrapPassword: "changeme123!"
+
+auditLog:
+  level: 1
+
+
+global:
+  cattle:
+    psp:
+      enabled: false
+
+persistence:
+  enabled: true
+  size: 10Gi
