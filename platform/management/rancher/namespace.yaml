@@ -1,7 +1,0 @@
-# platform/management/rancher/namespace.yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: cattle-system
-  labels:
-    name: cattle-system
