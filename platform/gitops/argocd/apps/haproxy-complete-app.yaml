@@ -15,7 +15,7 @@ spec:
   sources:
     # Source 1: HAProxy Helm Chart
     - repoURL: https://haproxy-ingress.github.io/charts
-      targetRevision: "0.14.6"
+      targetRevision: "*"
       chart: haproxy-ingress
       helm:
         releaseName: haproxy-ingress
