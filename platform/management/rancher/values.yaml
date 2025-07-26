@@ -5,7 +5,7 @@ replicas: 2
 
 ingress:
   enabled: true
-  ingressClassName: haproxy-restricted
+  ingressClassName: haproxy
   tls:
     source: secret
     secretName: rancher-tls
