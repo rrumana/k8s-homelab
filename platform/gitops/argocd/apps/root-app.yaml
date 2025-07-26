@@ -34,7 +34,7 @@ metadata:
     haproxy-ingress.github.io/secure-backends: "true"
     haproxy-ingress.github.io/backend-server-options: "ssl verify none"
 spec:
-  ingressClassName: haproxy
+  ingressClassName: haproxy-public
   tls:
   - hosts:
     - argocd.k8s.rcrumana.xyz
