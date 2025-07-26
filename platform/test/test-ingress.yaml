@@ -6,7 +6,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
-  ingressClassName: haproxy
+  ingressClassName: haproxy-public
   tls:
   - hosts:
     - hello.k8s.rcrumana.xyz
