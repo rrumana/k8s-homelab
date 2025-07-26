@@ -24,6 +24,3 @@ data:
   # CRITICAL: IP whitelist for local network only
   # Adjust these ranges to match your network
   whitelist-source-range: "192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
-  
-  # All the security features from public, plus...
-  ssl-redirect: "true"
