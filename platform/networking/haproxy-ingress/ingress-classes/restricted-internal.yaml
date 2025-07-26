@@ -10,12 +10,6 @@ metadata:
     ingressclass.kubernetes.io/is-default-class: "false"
 spec:
   controller: haproxy-ingress.github.io/controller
-  parameters:
-    apiGroup: v1
-    kind: ConfigMap
-    name: haproxy-restricted-config
-    namespace: ingress-haproxy
-
 ---
 apiVersion: v1
 kind: ConfigMap
