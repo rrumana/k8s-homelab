@@ -8,15 +8,7 @@ controller:
   # HAProxy configuration
   config:
     ssl-redirect: "true"
-    use-forwarded-headers: "true"
-    compute-full-forwarded-for: "true"
-    forwardfor: "add"
-    timeout-server: "300s"
-    timeout-connect: "30s"
-    timeout-client: "300s"
-    ssl-options: "no-sslv3 no-tlsv10 no-tlsv11"
-    ssl-default-bind-ciphers: "ECDHE+AESGCM:ECDHE+AES256:ECDHE+AES128:!PSK:!DHE:!RSA:!DSS:!aNull:!MD5"
-    check-interval: "2s"
+
   
   # Resource limits
   resources:
