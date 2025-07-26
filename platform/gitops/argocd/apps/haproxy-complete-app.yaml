@@ -20,7 +20,7 @@ spec:
       helm:
         releaseName: haproxy-ingress
         valueFiles:
-          - $values/platform/networking/haproxy-ingress/deployment/values.yaml
+          - $values/platform/networking/haproxy-ingress/values.yaml
     
     # Source 2: Values from your Git repo
     - repoURL: https://github.com/rrumana/k8s-homelab
