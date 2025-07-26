@@ -1,0 +1,54 @@
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: haproxy-public
+  labels:
+    app.kubernetes.io/name: haproxy-ingress
+    app.kubernetes.io/component: ingress-class
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "true"
+spec:
+  controller: haproxy-ingress.github.io/controller
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: haproxy-public-config
+  namespace: ingress-haproxy
+  labels:
+    app.kubernetes.io/name: haproxy-ingress
+    app.kubernetes.io/component: ingress-class-config
+data:
+  # Security headers for all public services
+  # These protect against common web vulnerabilities
+  ssl-redirect: "true"
+  hsts: "true"
+  hsts-max-age: "31536000"
+  hsts-include-subdomains: "true"
+  
+  # Modern SSL configuration
+  ssl-options: "no-sslv3 no-tlsv10 no-tlsv11"
+  ssl-default-bind-ciphers: "ECDHE+AESGCM:ECDHE+AES256:ECDHE+AES128:!PSK:!DHE:!RSA:!DSS:!aNull:!MD5"
+  
+  # Performance optimizations
+  timeout-client: "30s"
+  timeout-connect: "10s"
+  timeout-server: "30s"
+  timeout-http-request: "10s"
+  timeout-http-keep-alive: "10s"
+  
+  # Enable compression for better performance
+  compression-algo: "gzip"
+  compression-type: "text/html text/plain text/css application/javascript application/json"
+  
+  # Rate limiting to prevent abuse
+  # 100 requests per 10 seconds per IP
+  rate-limit-requests: "100"
+  rate-limit-period: "10s"
+  
+  # Security headers
+  response-header: |
+    set X-Frame-Options "SAMEORIGIN"
+    set X-Content-Type-Options "nosniff"
+    set X-XSS-Protection "1; mode=block"
+    set Referrer-Policy "strict-origin-when-cross-origin"

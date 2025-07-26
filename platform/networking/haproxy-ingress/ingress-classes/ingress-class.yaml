@@ -1,0 +1,62 @@
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: haproxy-restricted
+  labels:
+    app.kubernetes.io/name: haproxy-ingress
+    app.kubernetes.io/component: ingress-class
+    security.rcrumana.xyz/access-level: "restricted"
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "false"
+spec:
+  controller: haproxy-ingress.github.io/controller
+  parameters:
+    apiGroup: v1
+    kind: ConfigMap
+    name: haproxy-restricted-config
+    namespace: ingress-haproxy
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: haproxy-restricted-config
+  namespace: ingress-haproxy
+  labels:
+    app.kubernetes.io/name: haproxy-ingress
+    app.kubernetes.io/component: ingress-class-config
+    security.rcrumana.xyz/access-level: "restricted"
+data:
+  # CRITICAL: IP whitelist for local network only
+  # Adjust these ranges to match your network
+  whitelist-source-range: "192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
+  
+  # All the security features from public, plus...
+  ssl-redirect: "true"
+  hsts: "true"
+  hsts-max-age: "31536000"
+  hsts-include-subdomains: "true"
+  ssl-options: "no-sslv3 no-tlsv10 no-tlsv11"
+  ssl-default-bind-ciphers: "ECDHE+AESGCM:ECDHE+AES256:ECDHE+AES128:!PSK:!DHE:!RSA:!DSS:!aNull:!MD5"
+  
+  # Longer timeouts for management interfaces
+  # Management UIs often have long-running operations
+  timeout-client: "300s"
+  timeout-connect: "30s"
+  timeout-server: "300s"
+  timeout-http-request: "30s"
+  
+  # Stricter rate limiting for internal services
+  rate-limit-requests: "50"
+  rate-limit-period: "10s"
+  
+  # Enhanced security headers for internal services
+  response-header: |
+    set X-Frame-Options "DENY"
+    set X-Content-Type-Options "nosniff"
+    set X-XSS-Protection "1; mode=block"
+    set Referrer-Policy "no-referrer"
+    set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    
+  # Enable detailed logging for security auditing
+  log-format: "capture request header User-Agent len 256"

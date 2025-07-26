@@ -5,9 +5,8 @@ metadata:
   namespace: test
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    haproxy-ingress.github.io/ssl-redirect: "false"  # Keep false until certs work
 spec:
-  ingressClassName: haproxy
+  ingressClassName: haproxy-public
   tls:
   - hosts:
     - hello.k8s.rcrumana.xyz
