@@ -1,0 +1,11 @@
+# docs/templates/haproxy-annotations.yaml
+# Public service annotations
+public-annotations: &public
+  cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  haproxy-ingress.github.io/ssl-redirect: "true"
+
+# Restricted service annotations  
+restricted-annotations: &restricted
+  cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  haproxy-ingress.github.io/ssl-redirect: "true"
+  haproxy-ingress.github.io/whitelist-source-range: "192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"

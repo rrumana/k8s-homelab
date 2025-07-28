@@ -5,7 +5,8 @@ resources:
   - default-public.yaml
   - restricted-internal.yaml
 
-# Add common labels to all resources for easier management
-commonLabels:
-  app.kubernetes.io/managed-by: argocd
-  app.kubernetes.io/part-of: haproxy-ingress
+labels:
+- pairs:
+    app.kubernetes.io/managed-by: argocd
+    app.kubernetes.io/part-of: haproxy-ingress
+  includeSelectors: false  # Don't add to selectors, only to metadata

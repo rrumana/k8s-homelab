@@ -1,16 +1,16 @@
+# platform/networking/haproxy-ingress/values.yaml
 controller:
-  # Use LoadBalancer service type to get an external IP
+  configMap: haproxy-ingress-config
+  
+  # Your existing service configuration
   service:
     type: LoadBalancer
     annotations:
       metallb.universe.tf/address-pool: default-pool
   
-  # HAProxy configuration
   config:
     ssl-redirect: "true"
-
   
-  # Resource limits
   resources:
     requests:
       cpu: 100m
@@ -23,12 +23,11 @@ controller:
   
   logs:
     enabled: true
+    level: info  # Add this for better debugging
 
-# Default backend
 defaultBackend:
   enabled: false
 
-# ServiceMonitor for Prometheus
 serviceMonitor:
   enabled: true
   namespace: ingress-haproxy
