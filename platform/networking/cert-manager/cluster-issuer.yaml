@@ -37,7 +37,7 @@ spec:
     server: https://acme-v02.api.letsencrypt.org/directory
     email: ryan.rumana@gmail.com
     privateKeySecretRef:
-      name: letsencrypt-prod
+      name: letsencrypt-prod-public
     solvers:
     - http01:
         ingress:
