@@ -11,7 +11,7 @@ spec:
     solvers:
     - http01:
         ingress:
-          class: haproxy
+          class: haproxy-restricted
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -26,4 +26,19 @@ spec:
     solvers:
     - http01:
         ingress:
-          class: haproxy
+          class: haproxy-restricted
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod-public
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: ryan.rumana@gmail.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class: haproxy-public
