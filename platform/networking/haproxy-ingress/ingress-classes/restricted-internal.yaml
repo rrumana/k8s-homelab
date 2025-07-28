@@ -6,21 +6,5 @@ metadata:
     app.kubernetes.io/name: haproxy-ingress
     app.kubernetes.io/component: ingress-class
     security.rcrumana.xyz/access-level: "restricted"
-  annotations:
-    ingressclass.kubernetes.io/is-default-class: "false"
 spec:
   controller: haproxy-ingress.github.io/controller
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: haproxy-restricted-config
-  namespace: ingress-haproxy
-  labels:
-    app.kubernetes.io/name: haproxy-ingress
-    app.kubernetes.io/component: ingress-class-config
-    security.rcrumana.xyz/access-level: "restricted"
-data:
-  # CRITICAL: IP whitelist for local network only
-  # Adjust these ranges to match your network
-  whitelist-source-range: "192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
