@@ -10,6 +10,7 @@ controller:
   
   config:
     ssl-redirect: "true"
+    default-ssl-certificate: "ingress-haproxy/hello-world-server-tls"
   
   resources:
     requests:
@@ -27,8 +28,6 @@ controller:
 
 defaultBackend:
   enabled: false
-
-defaultSSLCertificate: "ingress-haproxy/hello-world-server-tls"
 
 serviceMonitor:
   enabled: true
