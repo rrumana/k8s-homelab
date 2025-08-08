@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/rrumana/k8s-homelab
-    targetRevision: HEAD
+    targetRevision: main
     path: platform/gitops/argocd/apps
     directory:
       recurse: true

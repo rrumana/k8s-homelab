@@ -1,10 +1,10 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: wildcard-k8s-rcrumana-xyz
+  name: wildcard-default-cert-tls 
   namespace: ingress-haproxy
 spec:
-  secretName: wildcard-k8s-rcrumana-xyz-tls
+  secretName: wildcard-default-cert-tls 
   dnsNames:
     - '*.k8s.rcrumana.xyz'
     - 'k8s.rcrumana.xyz'
