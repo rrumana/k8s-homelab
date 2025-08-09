@@ -52,7 +52,6 @@ spec:
     solvers:
     - dns01:
         cloudflare:
-          email: ryan.rumana@gmail.com
           apiTokenSecretRef:
             name: cloudflare-api-token-secret
             key: api-token
