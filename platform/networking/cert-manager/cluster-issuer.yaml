@@ -50,7 +50,12 @@ spec:
     privateKeySecretRef:
       name: letsencrypt-dns-cloudflare
     solvers:
-    - dns01:
+    - selector:
+        dnsZones:
+        - k8s.rcrumana.xyz
+        - rcrumana.xyz
+      dns01:
+        cnameStrategy: Follow
         cloudflare:
           apiTokenSecretRef:
             name: cloudflare-api-token-secret
