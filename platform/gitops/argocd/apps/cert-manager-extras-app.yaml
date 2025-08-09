@@ -1,0 +1,35 @@
+# cert-manager-extras Application
+# Purpose: Reconcile cert-manager ClusterIssuers and Certificates (e.g., DNS-01 Cloudflare)
+#          declaratively via Argo CD so issuance is tracked in Git and continuously applied.
+# Context: root-app watches *-app.yaml in platform/gitops/argocd/apps; this file ensures
+#          manifests under platform/networking/cert-manager are managed by Argo.
+# Note: Cloudflare API token Secret remains manually applied (not managed by Argo), per docs.
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager-extras
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: cert-manager
+    app.kubernetes.io/managed-by: argocd
+  annotations:
+    # Ensure this syncs after the cert-manager chart installs CRDs
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/rrumana/k8s-homelab
+    targetRevision: main
+    path: platform/networking/cert-manager
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

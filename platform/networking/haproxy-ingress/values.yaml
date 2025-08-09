@@ -10,6 +10,7 @@ controller:
   
   config:
     ssl-redirect: "true"
+    default-ssl-certificate: "ingress-haproxy/wildcard-default-cert-tls"
   
   resources:
     requests:
