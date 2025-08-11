@@ -4,7 +4,9 @@ loki:
   auth_enabled: false
 
   # Full Loki config injected via ConfigMap
-  config:
+  config: |
+    auth_enabled: false
+
     server:
       http_listen_port: 3100
 
@@ -19,13 +21,13 @@ loki:
 
     schema_config:
       configs:
-        - from: 2024-01-01
-          store: boltdb-shipper
-          object_store: filesystem
-          schema: v13
-          index:
-            prefix: loki_index_
-            period: 24h
+      - from: 2024-01-01
+        store: boltdb-shipper
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
 
     storage_config:
       boltdb_shipper:
