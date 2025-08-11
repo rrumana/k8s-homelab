@@ -2,31 +2,33 @@
 # Namespace will be managed by Argo CD Application (CreateNamespace=true)
 
 tempo:
-  server:
-    http_listen_port: 3200
+  # Provide a minimal valid config for Tempo single-binary
+  # This schema matches the grafana/tempo chart expectations
+  config: |
+    server:
+      http_listen_port: 3200
+    distributor:
+      receivers:
+        otlp:
+          protocols:
+            http:
+            grpc:
+    storage:
+      trace:
+        backend: local
+        local:
+          path: /var/tempo/traces
+    compactor:
+      compaction:
+        block_retention: 168h
+    metrics_generator:
+      enabled: false
 
-  # Local filesystem trace storage suitable for homelab
-  storage:
-    trace:
-      backend: local
-      local:
-        path: /var/tempo/traces
-
-  # Retention for traces
-  retention:
-    # Global default retention period
-    max_traces: 168h  # 7 days
-
-  # Optionally disable metrics generator to reduce resource usage
-  metricsGenerator:
-    enabled: false
-
-# Persistence for local backend
-persistence:
-  enabled: true
-  accessModes:
-    - ReadWriteOnce
-  size: 20Gi
+  persistence:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 20Gi
 
 # Resources suitable for a small homelab
 resources:
@@ -47,3 +49,23 @@ serviceMonitor:
   enabled: true
   additionalLabels:
     release: kube-prometheus-stack
+
+# Keep the Helm chart-level flag disabled to avoid the separate metrics generator deployment
+metricsGenerator:
+  enabled: false
+  additionalLabels:
+    release: kube-prometheus-stack
+
+# Ensure PVC write permissions for Tempo (statefulset runs as non-root by default)
+podSecurityContext:
+  fsGroup: 10001
+  fsGroupChangePolicy: OnRootMismatch
+
+securityContext:
+  runAsUser: 10001
+  runAsGroup: 10001
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL

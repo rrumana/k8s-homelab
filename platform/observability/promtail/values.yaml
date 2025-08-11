@@ -84,5 +84,15 @@ resources:
     memory: 256Mi
 
 # Mount container log directories (chart defaults handle host mounts)
+# Add an explicit readiness probe to avoid startup timeouts
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: http-metrics
+  initialDelaySeconds: 10
+  timeoutSeconds: 5
+  periodSeconds: 10
+  failureThreshold: 6
+
 extraVolumes: []
 extraVolumeMounts: []
