@@ -18,6 +18,13 @@ spec:
         value: --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
       - name: extraArgs[1]
         value: --dns01-recursive-nameservers-only
+      # Force cert-manager pods to use public recursive resolvers (avoid local DNS interception)
+      - name: podDnsPolicy
+        value: "None"
+      - name: podDnsConfig.nameservers[0]
+        value: "1.1.1.1"
+      - name: podDnsConfig.nameservers[1]
+        value: "8.8.8.8"
   destination:
     server: https://kubernetes.default.svc
     namespace: cert-manager
