@@ -1,9 +1,8 @@
-# Loki (single-binary) values for homelab
-# Namespace will be managed by Argo CD Application (CreateNamespace=true)
-loki:
-  auth_enabled: false
+# Loki values for homelab (single-binary) using chart-supported string config
+# Important: grafana/loki chart expects loki.config to be a YAML STRING when overriding the entire config.
+# We intentionally avoid mixing other loki.* structured keys to prevent template type conflicts.
 
-  # Full Loki config injected via ConfigMap
+loki:
   config: |
     auth_enabled: false
 
@@ -21,13 +20,13 @@ loki:
 
     schema_config:
       configs:
-      - from: 2024-01-01
-        store: boltdb-shipper
-        object_store: filesystem
-        schema: v13
-        index:
-          prefix: loki_index_
-          period: 24h
+        - from: 2024-01-01
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v13
+          index:
+            prefix: loki_index_
+            period: 24h
 
     storage_config:
       boltdb_shipper:
@@ -47,14 +46,14 @@ loki:
       reject_old_samples_max_age: 168h
       max_cache_freshness_per_query: 10m
 
-# Enable persistence for chunks and index
+# Persistence for filesystem store
 persistence:
   enabled: true
   size: 50Gi
   accessModes:
     - ReadWriteOnce
 
-# Basic resources for homelab
+# Resources appropriate for homelab
 resources:
   requests:
     cpu: 200m
@@ -63,12 +62,12 @@ resources:
     cpu: 1000m
     memory: 2Gi
 
-# ServiceMonitor for Prometheus discovery
+# ServiceMonitor so kube-prometheus-stack can scrape Loki metrics
 serviceMonitor:
   enabled: true
   additionalLabels:
     release: kube-prometheus-stack
 
-# Do not expose Loki externally; Grafana accesses via ClusterIP
+# Do not expose Loki externally; clients (Grafana/Promtail) use in-cluster Service
 ingress:
   enabled: false
