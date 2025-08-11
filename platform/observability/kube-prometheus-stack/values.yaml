@@ -42,8 +42,6 @@ prometheus:
       cert-manager.io/cluster-issuer: "letsencrypt-prod"
       haproxy-ingress.github.io/whitelist-source-range: "192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
       haproxy-ingress.github.io/server-protocol: "h2"
-      haproxy-ingress.github.io/secure-backends: "true"
-      haproxy-ingress.github.io/backend-server-options: "ssl verify none"
     hosts:
       - prometheus.k8s.rcrumana.xyz
     tls:
@@ -87,8 +85,6 @@ grafana:
       cert-manager.io/cluster-issuer: "letsencrypt-prod"
       haproxy-ingress.github.io/whitelist-source-range: "192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
       haproxy-ingress.github.io/server-protocol: "h2"
-      haproxy-ingress.github.io/secure-backends: "true"
-      haproxy-ingress.github.io/backend-server-options: "ssl verify none"
     hosts:
       - grafana.k8s.rcrumana.xyz
     tls:
@@ -116,8 +112,6 @@ alertmanager:
       cert-manager.io/cluster-issuer: "letsencrypt-prod"
       haproxy-ingress.github.io/whitelist-source-range: "192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
       haproxy-ingress.github.io/server-protocol: "h2"
-      haproxy-ingress.github.io/secure-backends: "true"
-      haproxy-ingress.github.io/backend-server-options: "ssl verify none"
     hosts:
       - alertmanager.k8s.rcrumana.xyz
     tls:

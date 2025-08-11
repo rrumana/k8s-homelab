@@ -1,50 +1,58 @@
-# Loki values for homelab (single-binary) using chart-supported string config
-# Important: grafana/loki chart expects loki.config to be a YAML STRING when overriding the entire config.
-# We intentionally avoid mixing other loki.* structured keys to prevent template type conflicts.
+# Loki values for homelab (single-binary) using chart-native keys
+# Reason: grafana/loki chart validate.yaml requires loki.schemaConfig (camelCase) or loki.useTestSchema=true.
+# Avoid overriding loki.config (string) to prevent type conflicts with the chart's calculated config.
 
 loki:
-  config: |
-    auth_enabled: false
+  auth_enabled: false
+  # Satisfy chart validation and keep a real schema for persistence
+  # If you prefer ephem/test, set useTestSchema: true and remove schemaConfig.
+  useTestSchema: false
 
-    server:
-      http_listen_port: 3100
+  # Chart-native schema config (rendered to schema_config in generated loki.yaml)
+  schemaConfig:
+    configs:
+      - from: 2024-01-01
+        store: boltdb-shipper
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
 
-    ingester:
-      lifecycler:
-        ring:
-          kvstore:
-            store: inmemory
-          replication_factor: 1
-      chunk_idle_period: 5m
-      max_transfer_retries: 0
+  # Rendered as storage_config
+  storage_config:
+    boltdb_shipper:
+      active_index_directory: /loki/boltdb-shipper-active
+      cache_location: /loki/boltdb-shipper-cache
+      shared_store: filesystem
+    filesystem:
+      directory: /loki/chunks
 
-    schema_config:
-      configs:
-        - from: 2024-01-01
-          store: boltdb-shipper
-          object_store: filesystem
-          schema: v13
-          index:
-            prefix: loki_index_
-            period: 24h
+  # Rendered as server
+  server:
+    http_listen_port: 3100
 
-    storage_config:
-      boltdb_shipper:
-        active_index_directory: /loki/boltdb-shipper-active
-        cache_location: /loki/boltdb-shipper-cache
-        shared_store: filesystem
-      filesystem:
-        directory: /loki/chunks
+  # Rendered as ingester
+  ingester:
+    lifecycler:
+      ring:
+        kvstore:
+          store: inmemory
+        replication_factor: 1
+    chunk_idle_period: 5m
+    max_transfer_retries: 0
 
-    table_manager:
-      retention_deletes_enabled: true
-      retention_period: 168h  # 7 days
+  # Rendered as limits_config
+  limits_config:
+    enforce_metric_name: false
+    reject_old_samples: true
+    reject_old_samples_max_age: 168h
+    max_cache_freshness_per_query: 10m
 
-    limits_config:
-      enforce_metric_name: false
-      reject_old_samples: true
-      reject_old_samples_max_age: 168h
-      max_cache_freshness_per_query: 10m
+  # Rendered as table_manager
+  table_manager:
+    retention_deletes_enabled: true
+    retention_period: 168h  # 7 days
 
 # Persistence for filesystem store
 persistence:
