@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/yourusername/k8s-homelab
+    repoURL: https://github.com/rrumana/k8s-homelab
     targetRevision: main
     path: apps/overlays/production/plex
   destination:
