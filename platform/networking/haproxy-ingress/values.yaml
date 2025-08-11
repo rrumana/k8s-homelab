@@ -10,6 +10,7 @@ controller:
   
   config:
     ssl-redirect: "true"
+    default-ssl-certificate: "ingress-haproxy/cloudflare-origin-default-cert"
     ssl-options: "no-sslv3 no-tlsv10 no-tlsv11"
     ssl-ciphers: "ECDHE+AESGCM:ECDHE+AES256:ECDHE+AES128:!DHE:!RSA:!AES128:!RC4:!DES:!3DES:!MD5:!DSS"
     # Enable SNI debugging
