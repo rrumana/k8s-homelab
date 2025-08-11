@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plex
+  labels:
+    app: plex
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: plex
+  template:
+    metadata:
+      labels:
+        app: plex
+    spec:
+      containers:
+      - name: plex
+        image: lscr.io/linuxserver/plex:latest
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "America/Los_Angeles"
+        - name: VERSION
+          value: "latest"
+        - name: PLEX_CLAIM
+          value: "claim-jXY9Ymn2s6gyziCKYjWH"
+        ports:
+        - name: web
+          containerPort: 32400
+          protocol: TCP
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: tv
+          mountPath: /tv
+        - name: movies
+          mountPath: /movies
+        - name: music
+          mountPath: /music
+        - name: dri
+          mountPath: /dev/dri
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "4"
+      volumes:
+      - name: config
+        hostPath:
+          path: /home/rcrumana/Dev/docker/plex/config
+          type: DirectoryOrCreate
+      - name: tv
+        hostPath:
+          path: /media/Torrent/Shows
+          type: Directory
+      - name: movies
+        hostPath:
+          path: /media/Torrent/Movies
+          type: Directory
+      - name: music
+        hostPath:
+          path: /media/Torrent/Music
+          type: Directory
+      - name: dri
+        hostPath:
+          path: /dev/dri
+          type: Directory
