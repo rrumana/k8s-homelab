@@ -10,7 +10,7 @@ controller:
   
   config:
     ssl-redirect: "true"
-    default-ssl-certificate: "ingress-haproxy/wildcard-default-cert-tls"
+    default-ssl-certificate: "ingress-haproxy/cloudflare-origin-default-cert"
   
   resources:
     requests:

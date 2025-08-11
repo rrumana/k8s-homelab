@@ -10,3 +10,5 @@ secrets/
 # Local configuration overrides
 local/
 *.local.yaml
+# Ignore per-operator origin cert secret (manual apply)
+secrets/cloudflare-origin-default-cert.yaml
