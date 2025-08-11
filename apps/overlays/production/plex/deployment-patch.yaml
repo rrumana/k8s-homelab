@@ -10,4 +10,4 @@ spec:
       - name: plex
         env:
         - name: ADVERTISE_IP
-          value: "https://plex.k8s.rcrumana.xyz:443,http://plex.k8s.rcrumana.xyz:80"
+          value: "http://99.113.188.114:32400/"
