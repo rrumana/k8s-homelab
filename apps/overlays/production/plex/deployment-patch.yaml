@@ -11,5 +11,3 @@ spec:
         env:
         - name: ADVERTISE_IP
           value: "https://plex.k8s.rcrumana.xyz:443,http://plex.k8s.rcrumana.xyz:80"
-        - name: ALLOWED_NETWORKS
-          value: "192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
