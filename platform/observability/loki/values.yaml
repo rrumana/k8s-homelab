@@ -1,9 +1,32 @@
-# Loki configuration for homelab
+# Loki (single-binary) values for homelab
+# Namespace will be managed by Argo CD Application (CreateNamespace=true)
 loki:
   auth_enabled: false
-  
+
+  # Full Loki config injected via ConfigMap
   config:
-    # Storage configuration
+    server:
+      http_listen_port: 3100
+
+    ingester:
+      lifecycler:
+        ring:
+          kvstore:
+            store: inmemory
+          replication_factor: 1
+      chunk_idle_period: 5m
+      max_transfer_retries: 0
+
+    schema_config:
+      configs:
+        - from: 2024-01-01
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v13
+          index:
+            prefix: loki_index_
+            period: 24h
+
     storage_config:
       boltdb_shipper:
         active_index_directory: /loki/boltdb-shipper-active
@@ -11,29 +34,39 @@ loki:
         shared_store: filesystem
       filesystem:
         directory: /loki/chunks
-    
-    # Retention policy
+
     table_manager:
       retention_deletes_enabled: true
       retention_period: 168h  # 7 days
-    
-    # Performance limits
+
     limits_config:
       enforce_metric_name: false
       reject_old_samples: true
       reject_old_samples_max_age: 168h
       max_cache_freshness_per_query: 10m
 
-# Single binary mode for simplicity
-singleBinary:
-  replicas: 1
-  persistence:
-    enabled: true
-    size: 20Gi
-  resources:
-    requests:
-      cpu: 100m
-      memory: 256Mi
-    limits:
-      cpu: 500m
-      memory: 512Mi
+# Enable persistence for chunks and index
+persistence:
+  enabled: true
+  size: 50Gi
+  accessModes:
+    - ReadWriteOnce
+
+# Basic resources for homelab
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+
+# ServiceMonitor for Prometheus discovery
+serviceMonitor:
+  enabled: true
+  additionalLabels:
+    release: kube-prometheus-stack
+
+# Do not expose Loki externally; Grafana accesses via ClusterIP
+ingress:
+  enabled: false

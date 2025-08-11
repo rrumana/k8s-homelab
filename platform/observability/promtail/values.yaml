@@ -1,0 +1,88 @@
+# Promtail values for homelab
+# Deploys as a DaemonSet on all nodes and forwards logs to Loki
+# Namespace is created by Argo CD Application (CreateNamespace=true)
+
+# Promtail configuration
+config:
+  server:
+    http_listen_port: 3101
+    grpc_listen_port: 0
+
+  positions:
+    filename: /run/promtail/positions.yaml
+
+  clients:
+    - url: http://loki.observability.svc.cluster.local:3100/loki/api/v1/push
+
+  scrape_configs:
+    # Discover pod logs via Kubernetes API
+    - job_name: kubernetes-pods
+      pipeline_stages:
+        - cri: {}
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+        # Keep only running pods
+        - action: keep
+          source_labels: [__meta_kubernetes_pod_phase]
+          regex: Running
+        # Extract labels
+        - action: replace
+          source_labels: [__meta_kubernetes_namespace]
+          target_label: namespace
+        - action: replace
+          source_labels: [__meta_kubernetes_pod_name]
+          target_label: pod
+        - action: replace
+          source_labels: [__meta_kubernetes_pod_container_name]
+          target_label: container
+        - action: replace
+          source_labels: [__meta_kubernetes_pod_node_name]
+          target_label: node
+        - action: replace
+          source_labels: [__meta_kubernetes_pod_uid]
+          target_label: pod_uid
+        # Drop the verbose stream labels from path
+        - action: replace
+          replacement: /var/log/pods/*$1/*.log
+          separator: /
+          source_labels:
+            - __meta_kubernetes_pod_uid
+            - __meta_kubernetes_pod_container_name
+          target_label: __path__
+        # Optional: keep only container logs
+        - action: keep
+          source_labels: [__meta_kubernetes_pod_container_name]
+          regex: .+
+
+# Enable ServiceMonitor so kube-prometheus-stack can scrape Promtail metrics
+serviceMonitor:
+  enabled: true
+  additionalLabels:
+    release: kube-prometheus-stack
+
+# RBAC (enabled by default in chart); ensure cluster-wide permissions
+rbac:
+  create: true
+
+# Tolerations so it can run on control-plane nodes if tainted
+tolerations:
+  - key: "node-role.kubernetes.io/master"
+    operator: "Exists"
+    effect: "NoSchedule"
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Exists"
+    effect: "NoSchedule"
+
+# Resources appropriate for homelab
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 300m
+    memory: 256Mi
+
+# Mount container log directories (chart defaults handle host mounts)
+extraVolumes: []
+extraVolumeMounts: []

@@ -1,0 +1,49 @@
+# Tempo (single-binary) values for homelab
+# Namespace will be managed by Argo CD Application (CreateNamespace=true)
+
+tempo:
+  server:
+    http_listen_port: 3200
+
+  # Local filesystem trace storage suitable for homelab
+  storage:
+    trace:
+      backend: local
+      local:
+        path: /var/tempo/traces
+
+  # Retention for traces
+  retention:
+    # Global default retention period
+    max_traces: 168h  # 7 days
+
+  # Optionally disable metrics generator to reduce resource usage
+  metricsGenerator:
+    enabled: false
+
+# Persistence for local backend
+persistence:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+  size: 20Gi
+
+# Resources suitable for a small homelab
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+
+# Service for in-cluster access (Grafana datasource)
+service:
+  type: ClusterIP
+  port: 3200
+
+# Enable ServiceMonitor for Prometheus scraping
+serviceMonitor:
+  enabled: true
+  additionalLabels:
+    release: kube-prometheus-stack

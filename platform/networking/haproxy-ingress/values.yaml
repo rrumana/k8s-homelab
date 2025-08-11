@@ -39,3 +39,5 @@ serviceMonitor:
   enabled: true
   namespace: ingress-haproxy
   interval: 30s
+  additionalLabels:
+    release: kube-prometheus-stack

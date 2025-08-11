@@ -10,7 +10,7 @@ prometheus:
           resources:
             requests:
               storage: 50Gi
-    
+
     # Resource allocation
     resources:
       requests:
@@ -19,7 +19,7 @@ prometheus:
       limits:
         cpu: 2000m
         memory: 4Gi
-    
+
     # Scrape configurations
     additionalScrapeConfigs:
     - job_name: 'k3s'
@@ -31,12 +31,32 @@ prometheus:
         replacement: '${1}:10249'
         target_label: __address__
 
+    # Allow scraping ServiceMonitors/PodMonitors cluster-wide
+    serviceMonitorSelectorNilUsesHelmValues: true
+    podMonitorSelectorNilUsesHelmValues: true
+
+  ingress:
+    enabled: true
+    ingressClassName: haproxy-restricted
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      haproxy-ingress.github.io/whitelist-source-range: "192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
+      haproxy-ingress.github.io/server-protocol: "h2"
+      haproxy-ingress.github.io/secure-backends: "true"
+      haproxy-ingress.github.io/backend-server-options: "ssl verify none"
+    hosts:
+      - prometheus.k8s.rcrumana.xyz
+    tls:
+      - secretName: prometheus-tls
+        hosts:
+          - prometheus.k8s.rcrumana.xyz
+
 # Grafana configuration
 grafana:
   persistence:
     enabled: true
     size: 10Gi
-  
+
   # Pre-configured dashboards
   dashboardProviders:
     dashboardproviders.yaml:
@@ -50,7 +70,7 @@ grafana:
         updateIntervalSeconds: 10
         options:
           path: /var/lib/grafana/dashboards/default
-  
+
   # Resource allocation
   resources:
     requests:
@@ -59,3 +79,48 @@ grafana:
     limits:
       cpu: 200m
       memory: 256Mi
+
+  ingress:
+    enabled: true
+    ingressClassName: haproxy-restricted
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      haproxy-ingress.github.io/whitelist-source-range: "192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
+      haproxy-ingress.github.io/server-protocol: "h2"
+      haproxy-ingress.github.io/secure-backends: "true"
+      haproxy-ingress.github.io/backend-server-options: "ssl verify none"
+    hosts:
+      - grafana.k8s.rcrumana.xyz
+    tls:
+      - secretName: grafana-tls
+        hosts:
+          - grafana.k8s.rcrumana.xyz
+
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki.observability.svc.cluster.local:3100
+      isDefault: false
+    - name: Tempo
+      type: tempo
+      access: proxy
+      url: http://tempo.observability.svc.cluster.local:3200
+
+# Alertmanager configuration
+alertmanager:
+  ingress:
+    enabled: true
+    ingressClassName: haproxy-restricted
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      haproxy-ingress.github.io/whitelist-source-range: "192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
+      haproxy-ingress.github.io/server-protocol: "h2"
+      haproxy-ingress.github.io/secure-backends: "true"
+      haproxy-ingress.github.io/backend-server-options: "ssl verify none"
+    hosts:
+      - alertmanager.k8s.rcrumana.xyz
+    tls:
+      - secretName: alertmanager-tls
+        hosts:
+          - alertmanager.k8s.rcrumana.xyz
