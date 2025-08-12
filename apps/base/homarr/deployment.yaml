@@ -46,7 +46,7 @@ spec:
           value: "--max-old-space-size=768"
           resources:
             requests: { cpu: 50m, memory: 256Mi }
-            limits:   { cpu: "1", memory: 1Gi }
+            limits:   { cpu: "1", memory: 4Gi }
       volumes:
         - name: appdata
           persistentVolumeClaim:
