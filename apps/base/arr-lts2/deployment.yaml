@@ -55,7 +55,7 @@ spec:
             - { name: TORRENTING_PORT, value: "6883" }
             - { name: DOCKER_MODS, value: "ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest" }
           ports:
-            - { name: webui, containerPort: 8021, protocol: TCP }
+            - { name: webui, containerPort: 8022, protocol: TCP }
           volumeMounts:
             - { name: qbit-config, mountPath: /config }
             - { name: downloads,   mountPath: /downloads }
