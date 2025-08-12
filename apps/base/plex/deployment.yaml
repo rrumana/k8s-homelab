@@ -48,11 +48,11 @@ spec:
           mountPath: /dev/dri
         resources:
           requests:
-            memory: "1Gi"
+            memory: "512Mi"
             cpu: "500m"
           limits:
             memory: "4Gi"
-            cpu: "4"
+            cpu: "24"
       volumes:
       - name: config
         hostPath:

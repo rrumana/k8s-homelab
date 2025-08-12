@@ -4,29 +4,14 @@ kind: Kustomization
 namespace: immich
 
 resources:
-  - namespace.yaml
-  - postgres/
-  - redis/
-  - server/
-  - machine-learning/
+  - server-deployment.yaml
+  - ml-deployment.yaml
+  - redis-deployment.yaml
+  - postgres-deployment.yaml
+  - services.yaml
+  - configmap.yaml
+  - ingress.yaml
 
-# Common labels for all resources
 commonLabels:
   app.kubernetes.io/name: immich
-  app.kubernetes.io/instance: homelab
-
-# Configure resource requests/limits
-patches:
-  - target:
-      kind: Deployment
-      name: ".*"
-    patch: |-
-      - op: add
-        path: /spec/template/spec/containers/0/resources
-        value:
-          requests:
-            memory: "256Mi"
-            cpu: "100m"
-          limits:
-            memory: "2Gi"
-            cpu: "2000m"
+  app.kubernetes.io/managed-by: argocd

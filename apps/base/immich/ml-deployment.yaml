@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: immich-machine-learning
+  labels:
+    app: immich
+    component: machine-learning
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: immich
+      component: machine-learning
+  template:
+    metadata:
+      labels:
+        app: immich
+        component: machine-learning
+    spec:
+      containers:
+      - name: immich-machine-learning
+        image: ghcr.io/immich-app/immich-machine-learning:release
+        envFrom:
+        - configMapRef:
+            name: immich-config
+        - secretRef:
+            name: immich-secret
+        volumeMounts:
+        - name: model-cache
+          mountPath: /cache
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "4Gi"
+            cpu: "24"
+      volumes:
+      - name: model-cache
+        hostPath:
+          path: /media/Cloud/Immich/model-cache
+          type: DirectoryOrCreate
