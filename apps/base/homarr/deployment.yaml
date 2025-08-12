@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homarr
+  namespace: homarr
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: homarr }
+  template:
+    metadata:
+      labels: { app: homarr }
+    spec:
+      serviceAccountName: homarr
+      containers:
+        - name: homarr
+          image: ghcr.io/homarr-labs/homarr:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SECRET_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: homarr-env
+                  key: SECRET_ENCRYPTION_KEY
+            - name: TZ
+              value: "America/Los_Angeles"
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+          ports:
+            - name: http
+              containerPort: 7575
+          volumeMounts:
+            - name: appdata
+              mountPath: /appdata
+          readinessProbe:
+            httpGet: { path: /, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /, port: http }
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits:   { cpu: 500m, memory: 512Mi }
+      volumes:
+        - name: appdata
+          persistentVolumeClaim:
+            claimName: homarr-appdata
