@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/rrumana/k8s-homelab
     targetRevision: main
-    path: k8s/apps/homarr
+    path: apps/base/homarr
   destination:
     server: https://kubernetes.default.svc
     namespace: homarr
