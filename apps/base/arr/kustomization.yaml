@@ -14,7 +14,6 @@ resources:
   - service-prowlarr.yaml
   - ingress-prowlarr.yaml
   - service-flaresolverr.yaml
-  - ingress-flaresolverr.yaml
 commonLabels:
   app.kubernetes.io/name: arr
   app.kubernetes.io/managed-by: argocd
