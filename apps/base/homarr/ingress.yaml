@@ -4,14 +4,14 @@ metadata:
   name: homarr
   namespace: homarr
   annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-production"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
-  ingressClassName: haproxy-public
+  ingressClassName: haproxy-restricted
   tls:
-    - hosts: ["homarr.k8s.rcrumana.xyz"]  # adjust to your domain
+    - hosts: ["homarr.k8s.rcrumana.xyz"]
       secretName: homarr-tls
   rules:
-    - host: homarr.k8s.rcrumana.xyz       # adjust to your domain
+    - host: homarr.k8s.rcrumana.xyz
       http:
         paths:
           - path: /
