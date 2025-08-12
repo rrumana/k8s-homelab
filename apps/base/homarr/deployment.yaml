@@ -46,8 +46,6 @@ spec:
             httpGet: { path: /api/health/live, port: http }
             failureThreshold: 60
             periodSeconds: 5
-        - name: NODE_OPTIONS
-          value: "--max-old-space-size=768"
           resources:
             requests: { cpu: 50m, memory: 256Mi }
             limits:   { cpu: "1", memory: 2Gi }
