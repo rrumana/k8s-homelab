@@ -29,7 +29,6 @@ spec:
               mountPath: /data/db
             - name: init-mongo
               mountPath: /docker-entrypoint-initdb.d/init-mongo.js
-              subPath: init-mongo.js
               readOnly: true
           resources:
             requests:
