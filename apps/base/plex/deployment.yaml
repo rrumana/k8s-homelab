@@ -16,7 +16,6 @@ spec:
       labels:
         app: plex
     spec:
-      hostNetwork: true  # Use host networking like Docker
       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: plex
