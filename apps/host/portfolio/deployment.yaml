@@ -16,10 +16,12 @@ spec:
       labels:
         app: portfolio
     spec:
+      imagePullSecrets:
+        - name: ghcr-creds
       containers:
         - name: portfolio
-          image: portfolio:latest
-          imagePullPolicy: Always
+          image: ghcr.io/rrumana/portfolio:latest
+          imagePullPolicy: IfNotPresent
           env:
             - name: RUST_LOG
               value: "info"
