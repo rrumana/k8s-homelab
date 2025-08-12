@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: qbit
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    haproxy-ingress.github.io/backend-protocol: "http"
+spec:
+  ingressClassName: haproxy-public
+  tls:
+    - hosts: [ "qbit.k8s.rcrumana.xyz" ]
+      secretName: qbit-tls
+  rules:
+    - host: qbit.k8s.rcrumana.xyz
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: qbit
+                port:
+                  number: 80

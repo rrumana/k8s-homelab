@@ -1,0 +1,137 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arr-stack
+  labels: { app: arr-stack }
+spec:
+  replicas: 1
+  strategy: { type: Recreate }
+  selector:
+    matchLabels: { app: arr-stack }
+  template:
+    metadata:
+      labels: { app: arr-stack }
+    spec:
+      volumes:
+        - name: dev-net-tun
+          hostPath: { path: /dev/net/tun, type: CharDevice }
+        - name: gluetun
+          hostPath: { path: /home/rcrumana/Dev/docker/gluetun, type: DirectoryOrCreate }
+        - name: qbit-config
+          hostPath: { path: /home/rcrumana/Dev/docker/qbittorrent, type: DirectoryOrCreate }
+        - name: sonarr-config
+          hostPath: { path: /home/rcrumana/Dev/docker/sonarr, type: DirectoryOrCreate }
+        - name: radarr-config
+          hostPath: { path: /home/rcrumana/Dev/docker/radarr, type: DirectoryOrCreate }
+        - name: lidarr-config
+          hostPath: { path: /home/rcrumana/Dev/docker/lidarr, type: DirectoryOrCreate }
+        - name: prowlarr-config
+          hostPath: { path: /home/rcrumana/Dev/docker/prowlarr, type: DirectoryOrCreate }
+        - name: media
+          hostPath: { path: /media, type: Directory }
+        - name: downloads
+          hostPath: { path: /media/Torrent/Downloads, type: Directory }
+        - name: movies
+          hostPath: { path: /media/Torrent/Movies, type: Directory }
+        - name: shows
+          hostPath: { path: /media/Torrent/Shows, type: Directory }
+      containers:
+        - name: gluetun
+          image: qmcgaw/gluetun:latest
+          securityContext:
+            privileged: true
+            capabilities: { add: ["NET_ADMIN"] }
+          envFrom:
+            - secretRef: { name: gluetun-env }
+          env:
+            - { name: FIREWALL_INPUT_PORTS, value: "8020" }
+            - { name: FIREWALL_VPN_INPUT_PORTS, value: "6881" }
+            - { name: HEALTH_TARGET_ADDRESS, value: "127.0.0.1:9999" }
+          volumeMounts:
+            - { name: dev-net-tun, mountPath: /dev/net/tun }
+            - { name: gluetun, mountPath: /gluetun }
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "24", memory: "2Gi" }        
+        - name: qbittorrent
+          image: lscr.io/linuxserver/qbittorrent
+          env:
+            - { name: PUID, value: "1000" }
+            - { name: PGID, value: "1000" }
+            - { name: TZ,   value: "America/Los_Angeles" }
+            - { name: WEBUI_PORT, value: "8020" }
+            - { name: TORRENTING_PORT, value: "6881" }
+            - { name: DOCKER_MODS, value: "ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest" }
+          ports:
+            - { name: webui, containerPort: 8020, protocol: TCP }
+          volumeMounts:
+            - { name: qbit-config, mountPath: /config }
+            - { name: downloads,   mountPath: /downloads }
+            - { name: movies,      mountPath: /movies }
+            - { name: shows,       mountPath: /shows }
+            - { name: media,       mountPath: /media }
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "24", memory: "2Gi" }  
+        - name: sonarr
+          image: lscr.io/linuxserver/sonarr:latest
+          env:
+            - { name: PUID, value: "1000" }
+            - { name: PGID, value: "1000" }
+            - { name: TZ,   value: "America/Los_Angeles" }
+          volumeMounts:
+            - { name: sonarr-config, mountPath: /config }
+            - { name: shows,         mountPath: /tv }
+            - { name: downloads,     mountPath: /downloads }
+            - { name: media,         mountPath: /media }
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "24", memory: "2Gi" }  
+        - name: radarr
+          image: lscr.io/linuxserver/radarr:latest
+          env:
+            - { name: PUID, value: "1000" }
+            - { name: PGID, value: "1000" }
+            - { name: TZ,   value: "America/Los_Angeles" }
+          volumeMounts:
+            - { name: radarr-config, mountPath: /config }
+            - { name: movies,        mountPath: /movies }
+            - { name: downloads,     mountPath: /downloads }
+            - { name: media,         mountPath: /media }
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "24", memory: "2Gi" }  
+        - name: lidarr
+          image: lscr.io/linuxserver/lidarr:latest
+          env:
+            - { name: PUID, value: "1000" }
+            - { name: PGID, value: "1000" }
+            - { name: TZ,   value: "America/Los_Angeles" }
+          volumeMounts:
+            - { name: lidarr-config, mountPath: /config }
+            - { name: media,         mountPath: /media }
+            - { name: downloads,     mountPath: /downloads }
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "24", memory: "2Gi" }  
+        - name: prowlarr
+          image: lscr.io/linuxserver/prowlarr:latest
+          env:
+            - { name: PUID, value: "1000" }
+            - { name: PGID, value: "1000" }
+            - { name: TZ,   value: "America/Los_Angeles" }
+          volumeMounts:
+            - { name: prowlarr-config, mountPath: /config }
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "24", memory: "2Gi" }  
+        - name: flaresolverr
+          image: 21hsmw/flaresolverr:nodriver
+          env:
+            - { name: LOG_LEVEL, value: "info" }
+            - { name: LOG_HTML,  value: "false" }
+            - { name: CAPTCHA_SOLVER, value: "none" }
+            - { name: TZ,   value: "America/Los_Angeles" }
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "24", memory: "2Gi" }  

@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: arr
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/rrumana/k8s-homelab
+    targetRevision: main
+    path: apps/base/arr
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: arr
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
