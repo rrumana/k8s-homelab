@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: arr-lts
-  labels: { app: arr-lts }
+  name: arr-lts2
+  labels: { app: arr-lts2 }
 spec:
   replicas: 1
   strategy: { type: Recreate }
   selector:
-    matchLabels: { app: arr-lts }
+    matchLabels: { app: arr-lts2 }
   template:
     metadata:
-      labels: { app: arr-lts }
+      labels: { app: arr-lts2 }
     spec:
       volumes:
         - name: dev-net-tun
           hostPath: { path: /dev/net/tun, type: CharDevice }
         - name: gluetun
-          hostPath: { path: /home/rcrumana/Dev/docker/gluetun_lts, type: DirectoryOrCreate }
+          hostPath: { path: /home/rcrumana/Dev/docker/gluetun_lts2, type: DirectoryOrCreate }
         - name: qbit-config
-          hostPath: { path: /home/rcrumana/Dev/docker/qbittorrent_lts, type: DirectoryOrCreate }
+          hostPath: { path: /home/rcrumana/Dev/docker/qbittorrent_lts2, type: DirectoryOrCreate }
         - name: media
           hostPath: { path: /media, type: Directory }
         - name: downloads
@@ -36,8 +36,8 @@ spec:
           envFrom:
             - secretRef: { name: gluetun-env }
           env:
-            - { name: FIREWALL_INPUT_PORTS, value: "8021" }
-            - { name: FIREWALL_VPN_INPUT_PORTS, value: "6882" }
+            - { name: FIREWALL_INPUT_PORTS, value: "8022" }
+            - { name: FIREWALL_VPN_INPUT_PORTS, value: "6883" }
             - { name: HEALTH_TARGET_ADDRESS, value: "127.0.0.1:9999" }
           volumeMounts:
             - { name: dev-net-tun, mountPath: /dev/net/tun }
@@ -51,8 +51,8 @@ spec:
             - { name: PUID, value: "1000" }
             - { name: PGID, value: "1000" }
             - { name: TZ,   value: "America/Los_Angeles" }
-            - { name: WEBUI_PORT, value: "8021" }
-            - { name: TORRENTING_PORT, value: "6882" }
+            - { name: WEBUI_PORT, value: "8022" }
+            - { name: TORRENTING_PORT, value: "6883" }
             - { name: DOCKER_MODS, value: "ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest" }
           ports:
             - { name: webui, containerPort: 8021, protocol: TCP }
