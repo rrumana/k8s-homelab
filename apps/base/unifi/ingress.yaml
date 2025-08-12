@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: unifi
+  namespace: unifi
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    haproxy-ingress.github.io/backend-protocol: "https"
+    haproxy-ingress.github.io/secure-backends: "true"
+    haproxy-ingress.github.io/secure-sni: "host"
+    haproxy-ingress.github.io/timeout-client: "600s"
+    haproxy-ingress.github.io/timeout-server: "600s"
+    haproxy-ingress.github.io/whitelist-source-range: "192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
+spec:
+  ingressClassName: haproxy-public
+  tls:
+    - hosts:
+        - unifi.k8s.rcrumana.xyz
+      secretName: unifi-tls
+  rules:
+    - host: unifi.k8s.rcrumana.xyz
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: unifi
+                port:
+                  number: 8443

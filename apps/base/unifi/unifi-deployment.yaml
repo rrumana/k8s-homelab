@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unifi-network-application
+  namespace: unifi
+  labels:
+    app: unifi
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: unifi
+  template:
+    metadata:
+      labels:
+        app: unifi
+    spec:
+      containers:
+        - name: unifi
+          image: lscr.io/linuxserver/unifi-network-application:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "America/Los_Angeles"
+            - name: MONGO_HOST
+              value: "unifi-db"
+            - name: MONGO_USER
+              value: "unifi"
+            - name: MONGO_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: unifi-db-credentials
+                  key: MONGO_PASS
+            - name: MONGO_PORT
+              value: "27017"
+            - name: MONGO_DBNAME
+              value: "unifi"
+            - name: MEM_LIMIT
+              value: "128"
+            - name: MEM_STARTUP
+              value: "128"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+          ports:
+            - name: https-ui
+              containerPort: 8443
+              protocol: TCP
+            # Leaving the rest unexposed externally; still available inside the pod:
+            - name: inform
+              containerPort: 8080
+              protocol: TCP
+            - name: stun
+              containerPort: 3478
+              protocol: UDP
+            - name: discovery
+              containerPort: 10001
+              protocol: UDP
+            - name: ssdp
+              containerPort: 1900
+              protocol: UDP
+            - name: guest-https
+              containerPort: 8843
+              protocol: TCP
+            - name: guest-http
+              containerPort: 8880
+              protocol: TCP
+            - name: speedtest
+              containerPort: 6789
+              protocol: TCP
+            - name: syslog
+              containerPort: 5514
+              protocol: UDP
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "2Gi"
+      volumes:
+        - name: config
+          hostPath:
+            path: /home/rcrumana/Dev/docker/unifi/config
+            type: DirectoryOrCreate
