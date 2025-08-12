@@ -27,6 +27,8 @@ spec:
           hostPath: { path: /media/Torrent/Movies, type: Directory }
         - name: shows
           hostPath: { path: /media/Torrent/Shows, type: Directory }
+        - name: pf-state
+          emptyDir: {}
         - name: pf-sync
           configMap:
             name: gluetun-pf-sync
@@ -43,17 +45,31 @@ spec:
             - { name: FIREWALL_INPUT_PORTS, value: "8021" }
             - { name: HEALTH_TARGET_ADDRESS, value: "127.0.0.1:9999" }
             - { name: QB_WEBUI_PORT, value: "8021" }
-            - { name: VPN_PORT_FORWARDING_UP_COMMAND, value: "sh /scripts/pf-sync.sh up" }
-            - { name: VPN_PORT_FORWARDING_DOWN_COMMAND, value: "sh /scripts/pf-sync.sh down" }
-            - { name: QB_USERNAME, valueFrom: { secretKeyRef: { name: qb-webui-creds, key: username } } }
-            - { name: QB_PASSWORD, valueFrom: { secretKeyRef: { name: qb-webui-creds, key: password } } }
+            - { name: VPN_PORT_FORWARDING_STATUS_FILE, value: "/pf/state/forwarded_port" }
           volumeMounts:
             - { name: dev-net-tun, mountPath: /dev/net/tun }
             - { name: gluetun,     mountPath: /gluetun }
-            - { name: pf-sync, mountPath: /scripts/pf-sync.sh, subPath: pf-sync.sh }
+            - { name: pf-state, mountPath: /pf/state }
           resources:
             requests: { cpu: "200m", memory: "256Mi" }
-            limits:   { cpu: "24", memory: "2Gi" }          
+            limits:   { cpu: "24", memory: "2Gi" }
+
+        - name: pf-sync
+          image: curlimages/curl:8.7.1
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh","-c","/scripts/pf-sync.sh"]
+          env:
+            - { name: PF_FILE, value: "/pf/state/forwarded_port" }
+            - { name: QB_WEBUI_PORT, value: "8021" }
+            - { name: QB_USERNAME, valueFrom: { secretKeyRef: { name: qb-webui-creds, key: username } } }
+            - { name: QB_PASSWORD, valueFrom: { secretKeyRef: { name: qb-webui-creds, key: password } } }
+          volumeMounts:
+            - { name: pf-sync, mountPath: /scripts/pf-sync.sh, subPath: pf-sync.sh }
+            - { name: pf-state, mountPath: /pf/state }
+          resources:
+            requests: { cpu: "5m", memory: "16Mi" }
+            limits:   { cpu: "25m", memory: "64Mi" }  
+
         - name: qbittorrent
           image: lscr.io/linuxserver/qbittorrent
           env:
