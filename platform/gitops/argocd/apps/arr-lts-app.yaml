@@ -8,10 +8,10 @@ spec:
   source:
     repoURL: https://github.com/rrumana/k8s-homelab
     targetRevision: main
-    path: apps/base/arr-lts2
+    path: apps/base/arr-lts
   destination:
     server: https://kubernetes.default.svc
-    namespace: arr-lts2
+    namespace: arr-lts
   syncPolicy:
     automated:
       prune: true
