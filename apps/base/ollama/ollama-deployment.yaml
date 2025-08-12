@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+  labels:
+    app: ollama
+    component: server
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: ollama
+      component: server
+  template:
+    metadata:
+      labels:
+        app: ollama
+        component: server
+    spec:
+      containers:
+      - name: ollama
+        image: ollama/ollama:rocm
+        ports:
+        - containerPort: 11434
+          name: http
+        env:
+        - name: OLLAMA_KEEP_ALIVE
+          value: "24h"
+        - name: HSA_OVERRIDE_GFX_VERSION
+          value: "11.5.1"
+        volumeMounts:
+        - name: ollama-data
+          mountPath: /root/.ollama
+        - name: dri
+          mountPath: /dev/dri
+        - name: kfd
+          mountPath: /dev/kfd
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "2"
+          limits:
+            memory: "48Gi"
+            cpu: "24"
+        securityContext:
+          privileged: true
+          capabilities:
+            add:
+            - SYS_ADMIN
+      volumes:
+      - name: ollama-data
+        hostPath:
+          path: /var/lib/ollama
+          type: DirectoryOrCreate
+      - name: dri
+        hostPath:
+          path: /dev/dri
+          type: Directory
+      - name: kfd
+        hostPath:
+          path: /dev/kfd
+          type: CharDevice

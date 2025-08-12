@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: open-webui
+  labels:
+    app: ollama
+    component: webui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ollama
+      component: webui
+  template:
+    metadata:
+      labels:
+        app: ollama
+        component: webui
+    spec:
+      containers:
+      - name: open-webui
+        image: ghcr.io/open-webui/open-webui:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: OLLAMA_BASE_URL
+          value: "http://ollama:11434"
+        volumeMounts:
+        - name: webui-data
+          mountPath: /app/backend/data
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1"
+      volumes:
+      - name: webui-data
+        hostPath:
+          path: /var/lib/open-webui
+          type: DirectoryOrCreate
