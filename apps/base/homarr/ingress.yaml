@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: homarr
+  namespace: homarr
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
+spec:
+  ingressClassName: haproxy-public
+  tls:
+    - hosts: ["homarr.k8s.rcrumana.xyz"]  # adjust to your domain
+      secretName: homarr-tls
+  rules:
+    - host: homarr.k8s.rcrumana.xyz       # adjust to your domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: homarr
+                port:
+                  number: 80
