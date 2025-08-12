@@ -9,7 +9,7 @@ metadata:
     haproxy-ingress.github.io/timeout-server: "600s"
     haproxy-ingress.github.io/whitelist-source-range: "192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
 spec:
-  ingressClassName: haproxy-public
+  ingressClassName: haproxy-restricted
   tls:
     - hosts: [ "qbit.k8s.rcrumana.xyz" ]
       secretName: qbit-tls

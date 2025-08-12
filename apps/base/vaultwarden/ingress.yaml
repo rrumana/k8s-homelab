@@ -8,7 +8,7 @@ metadata:
     haproxy-ingress.github.io/ssl-redirect: "true"
     haproxy-ingress.github.io/whitelist-source-range: "192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
 spec:
-  ingressClassName: haproxy-public
+  ingressClassName: haproxy-restricted
   tls:
   - hosts:
     - vault.k8s.rcrumana.xyz
