@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arr-lts
+  labels: { app: arr-lts }
+spec:
+  replicas: 1
+  strategy: { type: Recreate }
+  selector:
+    matchLabels: { app: arr-lts }
+  template:
+    metadata:
+      labels: { app: arr-lts }
+    spec:
+      volumes:
+        - name: dev-net-tun
+          hostPath: { path: /dev/net/tun, type: CharDevice }
+        - name: gluetun
+          hostPath: { path: /home/rcrumana/Dev/docker/gluetun_lts, type: DirectoryOrCreate }
+        - name: qbit-config
+          hostPath: { path: /home/rcrumana/Dev/docker/qbittorrent_lts, type: DirectoryOrCreate }
+        - name: media
+          hostPath: { path: /media, type: Directory }
+        - name: downloads
+          hostPath: { path: /media/Torrent/Downloads, type: Directory }
+        - name: movies
+          hostPath: { path: /media/Torrent/Movies, type: Directory }
+        - name: shows
+          hostPath: { path: /media/Torrent/Shows, type: Directory }
+      containers:
+        - name: gluetun
+          image: qmcgaw/gluetun:latest
+          securityContext:
+            privileged: true
+            capabilities: { add: ["NET_ADMIN"] }
+          envFrom:
+            - secretRef: { name: gluetun-env }
+          env:
+            - { name: FIREWALL_INPUT_PORTS, value: "8021" }
+            - { name: FIREWALL_VPN_INPUT_PORTS, value: "6882" }
+            - { name: HEALTH_TARGET_ADDRESS, value: "127.0.0.1:9999" }
+          volumeMounts:
+            - { name: dev-net-tun, mountPath: /dev/net/tun }
+            - { name: gluetun,     mountPath: /gluetun }
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "24", memory: "2Gi" }          
+        - name: qbittorrent
+          image: lscr.io/linuxserver/qbittorrent
+          env:
+            - { name: PUID, value: "1000" }
+            - { name: PGID, value: "1000" }
+            - { name: TZ,   value: "America/Los_Angeles" }
+            - { name: WEBUI_PORT, value: "8021" }
+            - { name: TORRENTING_PORT, value: "6882" }
+            - { name: DOCKER_MODS, value: "ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest" }
+          ports:
+            - { name: webui, containerPort: 8021, protocol: TCP }
+          volumeMounts:
+            - { name: qbit-config, mountPath: /config }
+            - { name: downloads,   mountPath: /downloads }
+            - { name: movies,      mountPath: /movies }
+            - { name: shows,       mountPath: /shows }
+            - { name: media,       mountPath: /media }
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "24", memory: "2Gi" }  
