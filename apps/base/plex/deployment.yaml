@@ -16,6 +16,8 @@ spec:
       labels:
         app: plex
     spec:
+      hostNetwork: true  # Use host networking like Docker
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: plex
         image: lscr.io/linuxserver/plex:latest
@@ -28,8 +30,8 @@ spec:
           value: "America/Los_Angeles"
         - name: VERSION
           value: "latest"
-        - name: PLEX_CLAIM
-          value: "claim-jXY9Ymn2s6gyziCKYjWH"
+        - name: ADVERTISE_IP
+          value: "http://99.113.188.114:32400/"
         ports:
         - name: web
           containerPort: 32400
