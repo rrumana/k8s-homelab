@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gluetun-pf-sync
+data:
+  pf-sync.sh: |
+    #!/bin/sh
+    set -eu
+
+    # Inputs
+    PF_FILE="${PORT_FILE:-/tmp/gluetun/forwarded_port}"
+    WEBUI_PORT="${QB_WEBUI_PORT:-8020}"
+
+    # Read current forwarded port
+    if [ ! -f "$PF_FILE" ]; then
+      echo "pf-sync: no forwarded port file at $PF_FILE; exiting"
+      exit 0
+    fi
+    P="$(cat "$PF_FILE" 2>/dev/null || true)"
+    if [ -z "${P:-}" ]; then
+      echo "pf-sync: forwarded port empty; exiting"
+      exit 0
+    fi
+
+    MODE="${1:-up}"
+    echo "pf-sync: mode=$MODE port=$P webui=$WEBUI_PORT"
+
+    # Always ensure iptables accepts the PF port on tun0
+    add_rule() {
+      iptables -C INPUT -i tun0 -p "$1" --dport "$P" -j ACCEPT 2>/dev/null || \
+      iptables -I INPUT -i tun0 -p "$1" --dport "$P" -j ACCEPT
+    }
+    if [ "$MODE" = "up" ]; then
+      add_rule tcp || true
+      add_rule udp || true
+    fi
+
+    # qB API login + setPreferences (prefer curl, fallback to busybox wget)
+    login_and_set() {
+      LOGIN_URL="http://127.0.0.1:${WEBUI_PORT}/api/v2/auth/login"
+      PREF_URL="http://127.0.0.1:${WEBUI_PORT}/api/v2/app/setPreferences"
+      JSON="json={\"listen_port\": ${P}, \"interface_name\": \"tun0\", \"dyndns\": false, \"listen_on_ipv6\": false}"
+
+      if command -v curl >/dev/null 2>&1; then
+        curl -fsS -c /tmp/qb-c -b /tmp/qb-c --data "username=${QB_USERNAME}&password=${QB_PASSWORD}" "$LOGIN_URL" >/dev/null || return 0
+        curl -fsS -b /tmp/qb-c --data "$JSON" "$PREF_URL" >/dev/null || true
+      else
+        # busybox/alpine wget
+        wget -qO- --save-cookies /tmp/qb-c --keep-session-cookies \
+          --post-data "username=${QB_USERNAME}&password=${QB_PASSWORD}" "$LOGIN_URL" >/dev/null 2>&1 || return 0
+        wget -qO- --load-cookies /tmp/qb-c --post-data "$JSON" "$PREF_URL" >/dev/null 2>&1 || true
+      fi
+    }
+
+    # Update qB only on "up" (down is a no-op)
+    if [ "$MODE" = "up" ]; then
+      if [ -n "${QB_USERNAME:-}" ] && [ -n "${QB_PASSWORD:-}" ]; then
+        login_and_set || true
+      else
+        echo "pf-sync: QB credentials not set; skipping qB update"
+      fi
+    fi
+
+    echo "pf-sync: done"

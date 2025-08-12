@@ -35,6 +35,10 @@ spec:
           hostPath: { path: /media/Torrent/Movies, type: Directory }
         - name: shows
           hostPath: { path: /media/Torrent/Shows, type: Directory }
+        - name: pf-sync
+          configMap:
+            name: gluetun-pf-sync
+            defaultMode: 0755
       containers:
         - name: gluetun
           image: qmcgaw/gluetun:latest
@@ -45,11 +49,16 @@ spec:
             - secretRef: { name: gluetun-env }
           env:
             - { name: FIREWALL_INPUT_PORTS, value: "8020" }
-            - { name: FIREWALL_VPN_INPUT_PORTS, value: "6881" }
             - { name: HEALTH_TARGET_ADDRESS, value: "127.0.0.1:9999" }
+            - { name: QB_WEBUI_PORT, value: "8020" }
+            - { name: VPN_PORT_FORWARDING_UP_COMMAND, value: "sh /usr/local/bin/pf-sync.sh up" }
+            - { name: VPN_PORT_FORWARDING_DOWN_COMMAND, value: "sh /usr/local/bin/pf-sync.sh down" }
+            - { name: QB_USERNAME, valueFrom: { secretKeyRef: { name: qb-webui-creds, key: username } } }
+            - { name: QB_PASSWORD, valueFrom: { secretKeyRef: { name: qb-webui-creds, key: password } } }
           volumeMounts:
             - { name: dev-net-tun, mountPath: /dev/net/tun }
             - { name: gluetun, mountPath: /gluetun }
+            - { name: pf-sync, mountPath: /usr/local/bin/pf-sync.sh, subPath: pf-sync.sh }
           resources:
             requests: { cpu: "200m", memory: "256Mi" }
             limits:   { cpu: "24", memory: "2Gi" }        

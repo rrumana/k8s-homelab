@@ -5,6 +5,7 @@ resources:
   - deployment.yaml
   - service-qbit.yaml
   - ingress-qbit.yaml
+  - pf-sync-configmap.yaml
 commonLabels:
   app.kubernetes.io/name: arr-lts
   app.kubernetes.io/managed-by: argocd
