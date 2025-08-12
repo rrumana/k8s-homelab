@@ -10,8 +10,3 @@ resources:
 
 generatorOptions:
   disableNameSuffixHash: true
-
-secretGenerator:
-  - name: homarr-env
-    literals:
-      - 4fd77acd1dcbd6d36ba5c0640d3c2fbfd81f3350cc28fd9db1ab65661750d6da
