@@ -5,3 +5,7 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
+
+commonLabels:
+  app.kubernetes.io/name: plex
+  app.kubernetes.io/managed-by: argocd

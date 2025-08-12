@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/rrumana/k8s-homelab
     targetRevision: main
-    path: apps/overlays/production/plex
+    path: apps/base/plex
   destination:
     server: https://kubernetes.default.svc
     namespace: plex
