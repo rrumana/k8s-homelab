@@ -28,7 +28,7 @@ data:
               else
                 # Set listen_port (encode JSON as form field 'json')
                 if curl -fsS -b /tmp/c \
-                     --data-urlencode "json={\"listen_port\": ${p}}" \
+                     --data-urlencode "json={\"listen_port\": ${p}}", \"random_port\": false, \"upnp\": false, \"natpmp\": false, \"listen_on_ipv6\": false}" \
                      "http://127.0.0.1:${WEBUI_PORT}/api/v2/app/setPreferences" >/dev/null; then
                   echo "pf-sync(sidecar): set listen_port=${p} OK"
                   last="$p"

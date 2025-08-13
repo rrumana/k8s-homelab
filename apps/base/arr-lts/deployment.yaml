@@ -45,6 +45,8 @@ spec:
             - { name: FIREWALL_INPUT_PORTS, value: "8021" }
             - { name: HEALTH_TARGET_ADDRESS, value: "127.0.0.1:9999" }
             - { name: VPN_PORT_FORWARDING_STATUS_FILE, value: "/pf/state/forwarded_port" }
+            - { name: FIREWALL_OUTBOUND_SUBNETS, value: "10.42.0.0/16,10.43.0.0/16" }
+            - { name: BLOCK_IPV6, value: "on" }
           volumeMounts:
             - { name: dev-net-tun, mountPath: /dev/net/tun }
             - { name: gluetun,     mountPath: /gluetun }
@@ -62,7 +64,6 @@ spec:
             - { name: QB_WEBUI_PORT, value: "8021" }
             - { name: QB_USERNAME, valueFrom: { secretKeyRef: { name: qb-webui-creds, key: username } } }
             - { name: QB_PASSWORD, valueFrom: { secretKeyRef: { name: qb-webui-creds, key: password } } }
-            - { name: FIREWALL_OUTBOUND_SUBNETS, value: "10.42.0.0/16,10.43.0.0/16" }
           volumeMounts:
             - { name: pf-sync, mountPath: /scripts/pf-sync.sh, subPath: pf-sync.sh }
             - { name: pf-state, mountPath: /pf/state }
