@@ -1,0 +1,205 @@
+# Nextcloud Helm Chart Values
+# Based on: https://github.com/nextcloud/helm/tree/main/charts/nextcloud
+
+nextcloud:
+  host: nextcloud.rcrumana.xyz
+  username: admin
+  # Password will be set via secret
+  existingSecret:
+    enabled: true
+    secretName: nextcloud-admin
+    usernameKey: nextcloud-username
+    passwordKey: nextcloud-password
+  
+  # Nextcloud configuration
+  configs:
+    # Enable pretty URLs
+    .htaccess: true
+    # Custom Nextcloud config
+    custom.config.php: |-
+      <?php
+      $CONFIG = array (
+        'overwriteprotocol' => 'https',
+        'overwrite.cli.url' => 'https://nextcloud.rcrumana.xyz',
+        'trusted_domains' => array (
+          'nextcloud.rcrumana.xyz',
+        ),
+        'default_phone_region' => 'US',
+        'maintenance_window_start' => 2,
+      );
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: haproxy-public
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    haproxy-ingress.github.io/ssl-redirect: "true"
+    haproxy-ingress.github.io/rewrite-target: "/"
+    # Increase upload size limits
+    haproxy-ingress.github.io/proxy-body-size: "16G"
+    haproxy-ingress.github.io/backend-config-timeout-tunnel: "3600s"
+  tls:
+    - secretName: nextcloud-tls
+      hosts:
+        - nextcloud.rcrumana.xyz
+  hosts:
+    - host: nextcloud.rcrumana.xyz
+      paths:
+        - path: /
+          pathType: Prefix
+
+# PostgreSQL database
+postgresql:
+  enabled: true
+  auth:
+    existingSecret: nextcloud-db
+    secretKeys:
+      adminPasswordKey: postgres-password
+      userPasswordKey: password
+    username: nextcloud
+    database: nextcloud
+  
+  primary:
+    persistence:
+      enabled: true
+      size: 50Gi
+      storageClass: "local-path"
+    
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+# Redis for caching
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    existingSecret: nextcloud-redis
+    existingSecretPasswordKey: redis-password
+  
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
+      storageClass: "local-path"
+    
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+
+# Nextcloud application resources
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+# Persistence for Nextcloud data
+persistence:
+  enabled: true
+  size: 200Gi
+  storageClass: "local-path"
+  # Use hostPath for better performance with media files
+  hostPath: /home/rcrumana/Dev/docker/nextcloud
+
+# Cronjob for Nextcloud maintenance
+cronjob:
+  enabled: true
+  # Run every 5 minutes
+  schedule: "*/5 * * * *"
+  annotations: {}
+  curlInsecure: false
+  failedJobsHistoryLimit: 5
+  successfulJobsHistoryLimit: 2
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 50m
+      memory: 64Mi
+
+# Enable metrics for monitoring
+metrics:
+  enabled: true
+  https: true
+  timeout: 10s
+  serviceMonitor:
+    enabled: true
+    namespace: nextcloud
+    interval: 30s
+    additionalLabels:
+      release: kube-prometheus-stack
+
+# Lifecycle hooks for proper startup
+lifecycle:
+  postStartCommand: []
+  preStopCommand: []
+
+# PHP configuration
+phpConfigs:
+  uploadLimit.ini: |
+    upload_max_filesize = 16G
+    post_max_size = 16G
+    max_input_time = 3600
+    max_execution_time = 3600
+  memoryLimit.ini: |
+    memory_limit = 1G
+
+# Security context
+securityContext:
+  runAsUser: 33
+  runAsGroup: 33
+  runAsNonRoot: true
+  fsGroup: 33
+
+# Service configuration  
+service:
+  type: ClusterIP
+  port: 8080
+  loadBalancerIP: null
+
+# Replica count
+replicaCount: 1
+
+# Strategy for updates
+strategy:
+  type: Recreate
+
+# Startup probe for slow initial setup
+startupProbe:
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 30
+  successThreshold: 1
+
+# Liveness probe
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 15
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+
+# Readiness probe
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 15
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
