@@ -11,10 +11,10 @@ metadata:
 spec:
   ingressClassName: haproxy-restricted
   tls:
-    - hosts: [ "prowlarr.k8s.rcrumana.xyz" ]
+    - hosts: [ "prowlarr.rcrumana.xyz" ]
       secretName: prowlarr-tls
   rules:
-    - host: prowlarr.k8s.rcrumana.xyz
+    - host: prowlarr.rcrumana.xyz
       http:
         paths:
           - path: /
