@@ -12,7 +12,7 @@ data:
     echo "pf-sync(sidecar): watching $PF_FILE for qB WebUI :$WEBUI_PORT"
 
     last=""
-    while true; do
+    while :; do
       if [ -f "$PF_FILE" ]; then
         p="$(cat "$PF_FILE" 2>/dev/null || true)"
         case "$p" in
@@ -21,20 +21,23 @@ data:
             if [ "$p" != "$last" ]; then
               echo "pf-sync(sidecar): new forwarded port $p -> applying to qB"
               # Login (cookie jar at /tmp/c)
-              if ! curl -fsS -c /tmp/c -b /tmp/c \
+              if curl -fsS -c /tmp/c -b /tmp/c \
                    --data "username=${QB_USERNAME}&password=${QB_PASSWORD}" \
-                   "http://127.0.0.1:${WEBUI_PORT}/api/v2/auth/login" >/dev/null; then
-                echo "pf-sync(sidecar): login failed"
-              else
-                # Set listen_port (encode JSON as form field 'json')
+                   "http://127.0.0.1:${WEBUI_PORT}/api/v2/auth/login" >/dev/null
+              then
+                # Build JSON and set preferences (single, properly-quoted argument)
+                json=$(printf '{"listen_port": %s, "random_port": false, "upnp": false, "natpmp": false, "listen_on_ipv6": false}' "$p")
                 if curl -fsS -b /tmp/c \
-                     --data-urlencode "json={\"listen_port\": ${p}}", \"random_port\": false, \"upnp\": false, \"natpmp\": false, \"listen_on_ipv6\": false}" \
-                     "http://127.0.0.1:${WEBUI_PORT}/api/v2/app/setPreferences" >/dev/null; then
-                  echo "pf-sync(sidecar): set listen_port=${p} OK"
+                     --data-urlencode "json=$json" \
+                     "http://127.0.0.1:${WEBUI_PORT}/api/v2/app/setPreferences" >/dev/null
+                then
+                  echo "pf-sync(sidecar): set listen_port=$p OK"
                   last="$p"
                 else
                   echo "pf-sync(sidecar): setPreferences failed"
                 fi
+              else
+                echo "pf-sync(sidecar): login failed"
               fi
             fi
             ;;

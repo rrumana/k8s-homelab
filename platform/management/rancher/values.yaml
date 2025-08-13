@@ -1,5 +1,5 @@
 # platform/management/rancher/values.yaml
-hostname: rancher.k8s.rcrumana.xyz
+hostname: rancher.rcrumana.xyz
 
 replicas: 2
 
