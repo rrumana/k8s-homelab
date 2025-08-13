@@ -13,8 +13,6 @@ nextcloud:
   
   # Nextcloud configuration
   configs:
-    # Enable pretty URLs
-    .htaccess: true
     # Custom Nextcloud config
     custom.config.php: |-
       <?php
@@ -110,25 +108,14 @@ persistence:
   enabled: true
   size: 200Gi
   storageClass: "local-path"
-  # Use hostPath for better performance with media files
-  hostPath: /home/rcrumana/Dev/docker/nextcloud
 
 # Cronjob for Nextcloud maintenance
 cronjob:
   enabled: true
   # Run every 5 minutes
   schedule: "*/5 * * * *"
-  annotations: {}
-  curlInsecure: false
   failedJobsHistoryLimit: 5
   successfulJobsHistoryLimit: 2
-  resources:
-    requests:
-      cpu: 10m
-      memory: 32Mi
-    limits:
-      cpu: 50m
-      memory: 64Mi
 
 # Enable metrics for monitoring
 metrics:
