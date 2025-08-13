@@ -63,7 +63,7 @@ spec:
           envFrom:
             - secretRef: { name: gluetun-env }
           env:
-            - { name: FIREWALL_INPUT_PORTS, value: "8020" }
+            - { name: FIREWALL_INPUT_PORTS, value: "8020,8989,7878,9696,8686,8191" }
             - { name: HEALTH_TARGET_ADDRESS, value: "127.0.0.1:9999" }
             - { name: VPN_PORT_FORWARDING_STATUS_FILE, value: "/pf/state/forwarded_port" }
             - { name: FIREWALL_OUTBOUND_SUBNETS, value: "10.42.0.0/16,10.43.0.0/16" }
