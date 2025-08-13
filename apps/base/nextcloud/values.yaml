@@ -1,192 +1,112 @@
-# Nextcloud Helm Chart Values
-# Based on: https://github.com/nextcloud/helm/tree/main/charts/nextcloud
+# apps/base/nextcloud/values.yaml
+# Chart: nextcloud/nextcloud (official community chart)
 
 nextcloud:
   host: nextcloud.rcrumana.xyz
-  username: admin
-  # Password will be set via secret
+  trustedDomains:
+    - nextcloud.rcrumana.xyz
   existingSecret:
     enabled: true
     secretName: nextcloud-admin
     usernameKey: nextcloud-username
     passwordKey: nextcloud-password
-  
-  # Nextcloud configuration
-  configs:
-    # Custom Nextcloud config
-    custom.config.php: |-
-      <?php
-      $CONFIG = array (
-        'overwriteprotocol' => 'https',
-        'overwrite.cli.url' => 'https://nextcloud.rcrumana.xyz',
-        'trusted_domains' => array (
-          'nextcloud.rcrumana.xyz',
-        ),
-        'default_phone_region' => 'US',
-        'maintenance_window_start' => 2,
-      );
 
-# Ingress configuration
+  # Helpful when terminating TLS at HAProxy ingress
+  phpClientHttpsFix:
+    enabled: true
+    protocol: https
+
+  # Raise PHP/upload limits via php.ini fragments
+  phpConfigs:
+    zz-uploads.ini: |-
+      upload_max_filesize=10G
+      post_max_size=10G
+      memory_limit=1024M
+      max_execution_time=3600
+
+  # Extra Nextcloud config merged as *.config.php
+    99-overrides.config.php: |-
+      <?php
+      $CONFIG = [
+        'overwriteprotocol' => 'https',
+        'trusted_proxies' => ['10.0.0.0/8','172.16.0.0/12','192.168.0.0/16'],
+      ];
+
+# Single replica is recommended unless you add shared session/cache/file locking and appdata
+replicaCount: 1
+strategy:
+  type: Recreate
+
+image:
+  repository: nextcloud
+
+# --- Ingress (HAProxy) ---
 ingress:
   enabled: true
   className: haproxy-public
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    haproxy-ingress.github.io/ssl-redirect: "true"
-    haproxy-ingress.github.io/rewrite-target: "/"
-    # Increase upload size limits
-    haproxy-ingress.github.io/proxy-body-size: "16G"
-    haproxy-ingress.github.io/backend-config-timeout-tunnel: "3600s"
+    haproxy-ingress.github.io/backend-protocol: "http"
+    haproxy-ingress.github.io/timeout-client: "600s"
+    haproxy-ingress.github.io/timeout-server: "600s"
   tls:
-    - secretName: nextcloud-tls
-      hosts:
-        - nextcloud.rcrumana.xyz
-  hosts:
-    - host: nextcloud.rcrumana.xyz
-      paths:
-        - path: /
-          pathType: Prefix
+    - hosts: [nextcloud.rcrumana.xyz]
+      secretName: nextcloud-tls
 
-# PostgreSQL database
+# --- App persistence (Nextcloud data) ---
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 500Gi
+  storageClass: local-path
+
+# Tighten IDs to match www-data
+podSecurityContext:
+  fsGroup: 33
+  runAsUser: 33
+  runAsGroup: 33
+containerSecurityContext:
+  runAsUser: 33
+  runAsGroup: 33
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+  limits:
+    cpu: "4"
+    memory: 4Gi
+
+# --- Cron for background jobs ---
+cronjob:
+  enabled: true
+  schedule: "*/5 * * * *"
+
+# --- PostgreSQL subchart (Bitnami) ---
 postgresql:
   enabled: true
   auth:
     existingSecret: nextcloud-db
+    username: nextcloud
+    database: nextcloud
     secretKeys:
       adminPasswordKey: postgres-password
       userPasswordKey: password
-    username: nextcloud
-    database: nextcloud
-  
   primary:
     persistence:
       enabled: true
-      size: 50Gi
-      storageClass: "local-path"
-    
-    resources:
-      requests:
-        cpu: 100m
-        memory: 256Mi
-      limits:
-        cpu: 500m
-        memory: 512Mi
+      storageClass: local-path
+      size: 20Gi
 
-# Redis for caching
+# --- Redis subchart (Bitnami) for file locking/memcache ---
 redis:
   enabled: true
+  architecture: standalone
   auth:
-    enabled: true
     existingSecret: nextcloud-redis
     existingSecretPasswordKey: redis-password
-  
   master:
     persistence:
       enabled: true
+      storageClass: local-path
       size: 8Gi
-      storageClass: "local-path"
-    
-    resources:
-      requests:
-        cpu: 50m
-        memory: 128Mi
-      limits:
-        cpu: 200m
-        memory: 256Mi
-
-# Nextcloud application resources
-resources:
-  requests:
-    cpu: 200m
-    memory: 512Mi
-  limits:
-    cpu: 1000m
-    memory: 1Gi
-
-# Persistence for Nextcloud data
-persistence:
-  enabled: true
-  size: 200Gi
-  storageClass: "local-path"
-
-# Cronjob for Nextcloud maintenance
-cronjob:
-  enabled: true
-  # Run every 5 minutes
-  schedule: "*/5 * * * *"
-  failedJobsHistoryLimit: 5
-  successfulJobsHistoryLimit: 2
-
-# Enable metrics for monitoring
-metrics:
-  enabled: true
-  https: true
-  timeout: 10s
-  serviceMonitor:
-    enabled: true
-    namespace: nextcloud
-    interval: 30s
-    additionalLabels:
-      release: kube-prometheus-stack
-
-# Lifecycle hooks for proper startup
-lifecycle:
-  postStartCommand: []
-  preStopCommand: []
-
-# PHP configuration
-phpConfigs:
-  uploadLimit.ini: |
-    upload_max_filesize = 16G
-    post_max_size = 16G
-    max_input_time = 3600
-    max_execution_time = 3600
-  memoryLimit.ini: |
-    memory_limit = 1G
-
-# Security context
-securityContext:
-  runAsUser: 33
-  runAsGroup: 33
-  runAsNonRoot: true
-  fsGroup: 33
-
-# Service configuration  
-service:
-  type: ClusterIP
-  port: 8080
-  loadBalancerIP: null
-
-# Replica count
-replicaCount: 1
-
-# Strategy for updates
-strategy:
-  type: Recreate
-
-# Startup probe for slow initial setup
-startupProbe:
-  enabled: true
-  initialDelaySeconds: 30
-  periodSeconds: 10
-  timeoutSeconds: 5
-  failureThreshold: 30
-  successThreshold: 1
-
-# Liveness probe
-livenessProbe:
-  enabled: true
-  initialDelaySeconds: 30
-  periodSeconds: 15
-  timeoutSeconds: 5
-  failureThreshold: 3
-  successThreshold: 1
-
-# Readiness probe
-readinessProbe:
-  enabled: true
-  initialDelaySeconds: 30
-  periodSeconds: 15
-  timeoutSeconds: 5
-  failureThreshold: 3
-  successThreshold: 1
