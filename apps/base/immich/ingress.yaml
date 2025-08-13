@@ -16,10 +16,10 @@ spec:
   ingressClassName: haproxy-restricted
   tls:
   - hosts:
-    - immich.k8s.rcrumana.xyz
+    - immich.rcrumana.xyz
     secretName: immich-tls
   rules:
-  - host: immich.k8s.rcrumana.xyz
+  - host: immich.rcrumana.xyz
     http:
       paths:
       - path: /

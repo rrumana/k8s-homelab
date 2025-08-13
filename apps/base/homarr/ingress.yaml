@@ -8,10 +8,10 @@ metadata:
 spec:
   ingressClassName: haproxy-restricted
   tls:
-    - hosts: ["homarr.k8s.rcrumana.xyz"]
+    - hosts: ["homarr.rcrumana.xyz"]
       secretName: homarr-tls
   rules:
-    - host: homarr.k8s.rcrumana.xyz
+    - host: homarr.rcrumana.xyz
       http:
         paths:
           - path: /

@@ -13,10 +13,10 @@ spec:
   ingressClassName: haproxy-restricted
   tls:
   - hosts:
-    - ollama.k8s.rcrumana.xyz
+    - ollama.rcrumana.xyz
     secretName: ollama-tls
   rules:
-  - host: ollama.k8s.rcrumana.xyz
+  - host: ollama.rcrumana.xyz
     http:
       paths:
       - path: /
