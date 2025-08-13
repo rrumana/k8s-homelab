@@ -38,10 +38,10 @@ spec:
   ingressClassName: haproxy-restricted
   tls:
   - hosts:
-    - argocd.k8s.rcrumana.xyz
+    - argocd.rcrumana.xyz
     secretName: argocd-server-tls
   rules:
-  - host: argocd.k8s.rcrumana.xyz
+  - host: argocd.rcrumana.xyz
     http:
       paths:
       - path: /
