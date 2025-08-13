@@ -2,9 +2,9 @@
 # Chart: nextcloud/nextcloud (official community chart)
 
 nextcloud:
-  host: nextcloud.rcrumana.xyz
+  host: nextcloud.k8s.rcrumana.xyz
   trustedDomains:
-    - nextcloud.rcrumana.xyz
+    - nextcloud.k8s.rcrumana.xyz
   existingSecret:
     enabled: true
     secretName: nextcloud-admin
@@ -50,7 +50,7 @@ ingress:
     haproxy-ingress.github.io/timeout-client: "600s"
     haproxy-ingress.github.io/timeout-server: "600s"
   tls:
-    - hosts: [nextcloud.rcrumana.xyz]
+    - hosts: [nextcloud.k8s.rcrumana.xyz]
       secretName: nextcloud-tls
 
 # --- App persistence (Nextcloud data) ---
