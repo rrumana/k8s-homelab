@@ -15,10 +15,10 @@ spec:
   ingressClassName: haproxy-restricted
   tls:
     - hosts:
-        - unifi.k8s.rcrumana.xyz
+        - unifi.rcrumana.xyz
       secretName: unifi-tls
   rules:
-    - host: unifi.k8s.rcrumana.xyz
+    - host: unifi.rcrumana.xyz
       http:
         paths:
           - path: /
