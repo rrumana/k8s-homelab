@@ -12,6 +12,13 @@ spec:
     metadata:
       labels: { app: arr-stack }
     spec:
+      dnsPolicy: None
+      dnsConfig:
+      nameservers:
+        - 10.43.0.10
+      options:
+        - name: ndots
+          value: "2"
       volumes:
         - name: dev-net-tun
           hostPath: { path: /dev/net/tun, type: CharDevice }
