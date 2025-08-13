@@ -11,10 +11,10 @@ metadata:
 spec:
   ingressClassName: haproxy-restricted
   tls:
-    - hosts: [ "qbit_lts.rcrumana.xyz" ]
+    - hosts: [ "qbit-lts.rcrumana.xyz" ]
       secretName: qbit-lts-tls
   rules:
-    - host: qbit_lts.rcrumana.xyz
+    - host: qbit-lts.rcrumana.xyz
       http:
         paths:
           - path: /
