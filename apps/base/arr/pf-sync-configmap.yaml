@@ -11,37 +11,39 @@ data:
     WEBUI_PORT="${QB_WEBUI_PORT:?missing QB_WEBUI_PORT}"
     echo "pf-sync(sidecar): watching $PF_FILE for qB WebUI :$WEBUI_PORT"
 
-    last=""
+    last_applied=""
     while :; do
       if [ -f "$PF_FILE" ]; then
         p="$(cat "$PF_FILE" 2>/dev/null || true)"
         case "$p" in
           ''|*[!0-9]*) : ;; # not a number yet
           *)
-            if [ "$p" != "$last" ]; then
-              echo "pf-sync(sidecar): new forwarded port $p -> applying to qB"
-              # Login (cookie jar at /tmp/c)
-              if curl -fsS -c /tmp/c -b /tmp/c \
-                   --data "username=${QB_USERNAME}&password=${QB_PASSWORD}" \
-                   "http://127.0.0.1:${WEBUI_PORT}/api/v2/auth/login" >/dev/null
-              then
-                # Build JSON and set preferences (single, properly-quoted argument)
+            # Login (cookie jar at /tmp/c)
+            if curl -fsS -c /tmp/c -b /tmp/c \
+                 --data "username=${QB_USERNAME}&password=${QB_PASSWORD}" \
+                 "http://127.0.0.1:${WEBUI_PORT}/api/v2/auth/login" >/dev/null
+            then
+              # Read current qB preference listen_port to detect drift after qB restarts
+              cur="$(curl -fsS -b /tmp/c "http://127.0.0.1:${WEBUI_PORT}/api/v2/app/preferences" \
+                | tr -d ' \n' | sed -n 's/.*"listen_port":\([0-9][0-9]*\).*/\1/p' || true)"
+              if [ "$cur" != "$p" ]; then
+                echo "pf-sync(sidecar): applying listen_port=$p (was: ${cur:-unknown})"
                 json=$(printf '{"listen_port": %s, "random_port": false, "upnp": false, "natpmp": false, "listen_on_ipv6": false}' "$p")
                 if curl -fsS -b /tmp/c \
                      --data-urlencode "json=$json" \
                      "http://127.0.0.1:${WEBUI_PORT}/api/v2/app/setPreferences" >/dev/null
                 then
                   echo "pf-sync(sidecar): set listen_port=$p OK"
-                  last="$p"
+                  last_applied="$p"
                 else
                   echo "pf-sync(sidecar): setPreferences failed"
                 fi
-              else
-                echo "pf-sync(sidecar): login failed"
               fi
+            else
+              echo "pf-sync(sidecar): login failed"
             fi
             ;;
         esac
       fi
-      sleep 5
+      sleep 60
     done
