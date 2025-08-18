@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gluetun-format-servers
+  namespace: arr
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      nodeName: miniserver
+      restartPolicy: Never
+      volumes:
+        - name: gluetun
+          hostPath:
+            path: /home/rcrumana/Dev/docker/gluetun
+            type: Directory
+      containers:
+        - name: fmt
+          image: qmcgaw/gluetun:latest
+          command: ["sh","-c","format-servers -provider protonvpn > /gluetun/servers.json"]
+          volumeMounts:
+            - name: gluetun
+              mountPath: /gluetun
