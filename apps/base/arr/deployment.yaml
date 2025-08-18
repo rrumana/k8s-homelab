@@ -119,3 +119,71 @@ spec:
           resources:
             requests: { cpu: "200m", memory: "256Mi" }
             limits:   { cpu: "24", memory: "2Gi" }  
+
+        - name: sonarr
+          image: lscr.io/linuxserver/sonarr:latest
+          env:
+            - { name: PUID, value: "1000" }
+            - { name: PGID, value: "1000" }
+            - { name: TZ,   value: "America/Los_Angeles" }
+          volumeMounts:
+            - { name: sonarr-config, mountPath: /config }
+            - { name: shows,         mountPath: /tv }
+            - { name: downloads,     mountPath: /downloads }
+            - { name: media,         mountPath: /media }
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "24", memory: "2Gi" }  
+
+        - name: radarr
+          image: lscr.io/linuxserver/radarr:latest
+          env:
+            - { name: PUID, value: "1000" }
+            - { name: PGID, value: "1000" }
+            - { name: TZ,   value: "America/Los_Angeles" }
+          volumeMounts:
+            - { name: radarr-config, mountPath: /config }
+            - { name: movies,        mountPath: /movies }
+            - { name: downloads,     mountPath: /downloads }
+            - { name: media,         mountPath: /media }
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "24", memory: "2Gi" }  
+
+        - name: lidarr
+          image: lscr.io/linuxserver/lidarr:latest
+          env:
+            - { name: PUID, value: "1000" }
+            - { name: PGID, value: "1000" }
+            - { name: TZ,   value: "America/Los_Angeles" }
+          volumeMounts:
+            - { name: lidarr-config, mountPath: /config }
+            - { name: media,         mountPath: /media }
+            - { name: downloads,     mountPath: /downloads }
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "24", memory: "2Gi" }  
+
+        - name: prowlarr
+          image: lscr.io/linuxserver/prowlarr:latest
+          env:
+            - { name: PUID, value: "1000" }
+            - { name: PGID, value: "1000" }
+            - { name: TZ,   value: "America/Los_Angeles" }
+            - { name: DOTNET_SYSTEM_NET_DISABLEIPV6, value: "1" }
+          volumeMounts:
+            - { name: prowlarr-config, mountPath: /config }
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "24", memory: "2Gi" }  
+
+        - name: flaresolverr
+          image: 21hsmw/flaresolverr:nodriver
+          env:
+            - { name: LOG_LEVEL, value: "info" }
+            - { name: LOG_HTML,  value: "false" }
+            - { name: CAPTCHA_SOLVER, value: "none" }
+            - { name: TZ,   value: "America/Los_Angeles" }
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "24", memory: "2Gi" }  
