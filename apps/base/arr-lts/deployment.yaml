@@ -15,7 +15,7 @@ spec:
       dnsPolicy: None
       dnsConfig:
         nameservers:
-          - 127.0.0.1
+          - 10.43.0.10
         options:
           - name: ndots
             value: "2"
@@ -67,8 +67,6 @@ spec:
             - { name: VPN_PORT_FORWARDING_STATUS_FILE, value: "/pf/state/forwarded_port" }
             - { name: FIREWALL_OUTBOUND_SUBNETS, value: "10.42.0.0/16,10.43.0.0/16" }
             - { name: BLOCK_IPV6, value: "on" }
-            - { name: DNS_KEEP_NAMESERVER, value: "on" }
-            - { name: DOT, value: "off" }
           volumeMounts:
             - { name: dev-net-tun, mountPath: /dev/net/tun }
             - { name: gluetun,     mountPath: /gluetun }
