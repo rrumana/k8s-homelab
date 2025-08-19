@@ -27,7 +27,7 @@ spec:
           name: http
         env:
         - name: OLLAMA_KEEP_ALIVE
-          value: "24h"
+          value: "5m"
         - name: HSA_OVERRIDE_GFX_VERSION
           value: "11.5.1"
         volumeMounts:
