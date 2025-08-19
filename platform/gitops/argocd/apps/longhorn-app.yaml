@@ -17,6 +17,12 @@ spec:
     - repoURL: https://github.com/rrumana/k8s-homelab
       targetRevision: main
       ref: values
+    # Include namespace and SA prereqs so the Helm pre-install/upgrade hooks have the SA available
+    - repoURL: https://github.com/rrumana/k8s-homelab
+      targetRevision: main
+      path: platform/storage/longhorn/prereqs
+      directory:
+        recurse: true
   destination:
     server: https://kubernetes.default.svc
     namespace: longhorn-system
