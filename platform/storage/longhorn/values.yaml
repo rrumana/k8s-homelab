@@ -1,7 +1,7 @@
 # Longhorn configuration
 defaultSettings:
-  # Replicas for data protection
-  defaultReplicaCount: 2
+  # Replicas for data protection (single-node for now)
+  defaultReplicaCount: 1
   
   # Backup configuration (optional S3 endpoint)
   backupTarget: ""
@@ -10,6 +10,9 @@ defaultSettings:
   # Performance settings
   guaranteedEngineManagerCPU: 0.1
   guaranteedReplicaManagerCPU: 0.1
+
+  # Centralized data path on nodes
+  defaultDataPath: /srv/longhorn
 
 # UI configuration
 ui:
@@ -24,5 +27,5 @@ ui:
 # Storage class configuration
 persistence:
   defaultClass: true
-  defaultClassReplicaCount: 2
+  defaultClassReplicaCount: 1
   reclaimPolicy: Delete
