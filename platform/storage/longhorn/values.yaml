@@ -29,3 +29,8 @@ persistence:
   defaultClass: true
   defaultClassReplicaCount: 1
   reclaimPolicy: Delete
+
+# ServiceAccount for chart hooks and components
+serviceAccount:
+  create: true
+  name: longhorn-service-account
