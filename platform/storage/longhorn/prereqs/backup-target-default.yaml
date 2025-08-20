@@ -12,4 +12,3 @@ spec:
   backupTargetURL: ""
   credentialSecret: ""
   pollInterval: "300s"
-  forceSync: false
