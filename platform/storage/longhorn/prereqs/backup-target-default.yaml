@@ -11,5 +11,5 @@ metadata:
 spec:
   backupTargetURL: ""
   credentialSecret: ""
-  pollInterval: 300
+  pollInterval: "300s"
   forceSync: false

@@ -11,6 +11,10 @@ configs:
       url: https://github.com/rrumana/k8s-homelab
       name: k8s-homelab
       type: git
+    longhorn:
+      url: https://charts.longhorn.io
+      name: longhorn
+      type: helm
 
 # Enable Helm support in repo server
 repoServer:
