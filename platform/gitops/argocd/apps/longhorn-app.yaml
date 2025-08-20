@@ -8,6 +8,12 @@ metadata:
 spec:
   project: default
   sources:
+    # Apply Longhorn prereqs (namespace/SA/backup-target) alongside the chart
+    - repoURL: https://github.com/rrumana/k8s-homelab
+      targetRevision: main
+      path: platform/storage/longhorn/prereqs
+      directory:
+        recurse: true
     - repoURL: https://charts.longhorn.io
       chart: longhorn
       targetRevision: 1.9.1
