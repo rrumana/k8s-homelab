@@ -1,0 +1,106 @@
+# PVCs and one-shot migration Jobs for Unifi
+# Sizing rule applied: round current usage up to a nice power-of-two unit, then double it.
+# - config size ≈ 133M → 256Mi (rounded) → 512Mi (doubled)
+# - db size ≈ 11M → 16Mi (rounded) → 32Mi (doubled), but enforce practical minimum 1Gi for MongoDB data
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: unifi-config
+  namespace: unifi
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 512Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: unifi-db-data
+  namespace: unifi
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: unifi-config-migration
+  namespace: unifi
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: alpine:3.20
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -euo pipefail
+              mkdir -p /dest
+              if [ -d /src ] && [ -n "$(ls -A /src 2>/dev/null || true)" ]; then
+                cp -a /src/. /dest/
+              fi
+              echo "Config migration complete"
+          volumeMounts:
+            - name: src
+              mountPath: /src
+            - name: dest
+              mountPath: /dest
+      volumes:
+        - name: src
+          hostPath:
+            path: /home/rcrumana/Dev/docker/unifi/config
+            type: DirectoryOrCreate
+        - name: dest
+          persistentVolumeClaim:
+            claimName: unifi-config
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: unifi-db-migration
+  namespace: unifi
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: alpine:3.20
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -euo pipefail
+              mkdir -p /dest
+              # Stop Mongo pod before running this job to ensure a clean copy (downtime window required)
+              if [ -d /src ] && [ -n "$(ls -A /src 2>/dev/null || true)" ]; then
+                cp -a /src/. /dest/
+              fi
+              echo "MongoDB data migration complete"
+          volumeMounts:
+            - name: src
+              mountPath: /src
+            - name: dest
+              mountPath: /dest
+      volumes:
+        - name: src
+          hostPath:
+            path: /home/rcrumana/Dev/docker/unifi/db/data
+            type: DirectoryOrCreate
+        - name: dest
+          persistentVolumeClaim:
+            claimName: unifi-db-data

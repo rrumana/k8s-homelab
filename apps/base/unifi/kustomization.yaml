@@ -7,6 +7,7 @@ resources:
   - unifi-deployment.yaml
   - unifi-service.yaml
   - ingress.yaml
+  - storage-migration.yaml
 
 commonLabels:
   app.kubernetes.io/name: unifi

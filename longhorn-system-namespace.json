@@ -1,0 +1,68 @@
+{
+    "apiVersion": "v1",
+    "kind": "Namespace",
+    "metadata": {
+        "annotations": {
+            "argocd.argoproj.io/sync-wave": "-2",
+            "argocd.argoproj.io/tracking-id": "longhorn-app:/Namespace:longhorn-system/longhorn-system",
+            "cattle.io/status": "{\"Conditions\":[{\"Type\":\"ResourceQuotaInit\",\"Status\":\"True\",\"Message\":\"\",\"LastUpdateTime\":\"2025-08-19T22:06:51Z\"},{\"Type\":\"InitialRolesPopulated\",\"Status\":\"True\",\"Message\":\"\",\"LastUpdateTime\":\"2025-08-19T22:06:51Z\"}]}",
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Namespace\",\"metadata\":{\"annotations\":{\"argocd.argoproj.io/sync-wave\":\"-2\",\"argocd.argoproj.io/tracking-id\":\"longhorn-app:/Namespace:longhorn-system/longhorn-system\"},\"labels\":{\"app.kubernetes.io/managed-by\":\"argocd\",\"app.kubernetes.io/name\":\"longhorn\"},\"name\":\"longhorn-system\"}}\n",
+            "lifecycle.cattle.io/create.namespace-auth": "true"
+        },
+        "creationTimestamp": "2025-08-19T22:06:50Z",
+        "deletionTimestamp": "2025-08-19T22:35:10Z",
+        "labels": {
+            "app.kubernetes.io/managed-by": "argocd",
+            "app.kubernetes.io/name": "longhorn",
+            "kubernetes.io/metadata.name": "longhorn-system"
+        },
+        "name": "longhorn-system",
+        "resourceVersion": "6219091",
+        "uid": "8ca09936-0d85-4450-8e3f-64dbfc0aebad"
+    },
+    "spec": {
+        "finalizers": [
+            "kubernetes"
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastTransitionTime": "2025-08-19T22:35:18Z",
+                "message": "All resources successfully discovered",
+                "reason": "ResourcesDiscovered",
+                "status": "False",
+                "type": "NamespaceDeletionDiscoveryFailure"
+            },
+            {
+                "lastTransitionTime": "2025-08-19T22:35:18Z",
+                "message": "All legacy kube types successfully parsed",
+                "reason": "ParsedGroupVersions",
+                "status": "False",
+                "type": "NamespaceDeletionGroupVersionParsingFailure"
+            },
+            {
+                "lastTransitionTime": "2025-08-19T22:35:18Z",
+                "message": "Failed to delete all resource types, 2 remaining: Internal error occurred: failed calling webhook \"validator.longhorn.io\": failed to call webhook: Post \"https://longhorn-admission-webhook.longhorn-system.svc:9502/v1/webhook/validation?timeout=10s\": service \"longhorn-admission-webhook\" not found, Internal error occurred: failed calling webhook \"validator.longhorn.io\": failed to call webhook: Post \"https://longhorn-admission-webhook.longhorn-system.svc:9502/v1/webhook/validation?timeout=10s\": service \"longhorn-admission-webhook\" not found",
+                "reason": "ContentDeletionFailed",
+                "status": "True",
+                "type": "NamespaceDeletionContentFailure"
+            },
+            {
+                "lastTransitionTime": "2025-08-19T22:35:18Z",
+                "message": "Some resources are remaining: jobs.batch has 1 resource instances, nodes.longhorn.io has 1 resource instances",
+                "reason": "SomeResourcesRemain",
+                "status": "True",
+                "type": "NamespaceContentRemaining"
+            },
+            {
+                "lastTransitionTime": "2025-08-19T22:35:18Z",
+                "message": "Some content in the namespace has finalizers remaining: argocd.argoproj.io/hook-finalizer in 1 resource instances, longhorn.io in 1 resource instances",
+                "reason": "SomeFinalizersRemain",
+                "status": "True",
+                "type": "NamespaceFinalizersRemaining"
+            }
+        ],
+        "phase": "Terminating"
+    }
+}
