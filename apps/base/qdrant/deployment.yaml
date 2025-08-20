@@ -54,7 +54,7 @@ spec:
       volumes:
         - name: storage
           persistentVolumeClaim:
-            claimName: qdrant-storage
+            claimName: qdrant-storage-lh
         - name: config
           configMap:
             name: qdrant-config
