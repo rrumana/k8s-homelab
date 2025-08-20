@@ -3,7 +3,6 @@ kind: Kustomization
 namespace: homarr
 resources:
   - rbac.yaml
-  - pvc.yaml
   - pvc-lh.yaml
   - deployment.yaml
   - service.yaml

@@ -4,7 +4,6 @@ namespace: qdrant
 
 resources:
   - configmap.yaml
-  - pvc.yaml
   - pvc-lh.yaml
   - deployment.yaml
   - service.yaml
