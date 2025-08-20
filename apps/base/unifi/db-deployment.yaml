@@ -17,19 +17,54 @@ spec:
       labels:
         app: unifi-db
     spec:
+# init moved to postStart lifecycle on the main mongo container
       containers:
         - name: mongo
           image: mongo:6.0.11
           imagePullPolicy: IfNotPresent
+          env:
+            - name: MONGO_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: unifi-db-credentials
+                  key: MONGO_PASS
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    set -e
+                    # Wait for MongoDB to be available
+                    for i in $(seq 1 60); do
+                      mongosh --host localhost --eval 'db.adminCommand({ ping: 1 })' >/dev/null 2>&1 && break
+                      sleep 2
+                    done
+                    # Idempotent user creation with secret password
+                    mongosh --host localhost --eval '
+                      const pwd = (process.env.MONGO_PASS || "").toString();
+                      const dbUnifi = db.getSiblingDB("unifi");
+                      const existing = dbUnifi.getUser("unifi");
+                      if (!existing) {
+                        dbUnifi.createUser({
+                          user: "unifi",
+                          pwd: pwd,
+                          roles: [
+                            { role: "dbOwner", db: "unifi" },
+                            { role: "dbOwner", db: "unifi_stat" }
+                          ]
+                        });
+                        print("Created user unifi");
+                      } else {
+                        print("User unifi already exists, skipping");
+                      }'
           ports:
             - containerPort: 27017
               name: mongo
           volumeMounts:
             - name: db-data
               mountPath: /data/db
-            - name: init-mongo
-              mountPath: /docker-entrypoint-initdb.d/init-mongo.js
-              readOnly: true
           resources:
             requests:
               cpu: "100m"
@@ -39,10 +74,5 @@ spec:
               memory: "1Gi"
       volumes:
         - name: db-data
-          hostPath:
-            path: /home/rcrumana/Dev/docker/unifi/db/data
-            type: DirectoryOrCreate
-        - name: init-mongo
-          hostPath:
-            path: /home/rcrumana/Dev/docker/unifi/db/init-mongo.js
-            type: File
+          persistentVolumeClaim:
+            claimName: unifi-db-data

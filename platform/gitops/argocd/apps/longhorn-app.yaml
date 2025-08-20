@@ -17,6 +17,11 @@ spec:
     - repoURL: https://github.com/rrumana/k8s-homelab
       targetRevision: main
       ref: values
+    - repoURL: https://github.com/rrumana/k8s-homelab
+      targetRevision: main
+      path: platform/storage/longhorn/ingress
+      directory:
+        recurse: true
   destination:
     server: https://kubernetes.default.svc
     namespace: longhorn-system

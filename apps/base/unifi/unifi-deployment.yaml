@@ -86,6 +86,5 @@ spec:
               memory: "2Gi"
       volumes:
         - name: config
-          hostPath:
-            path: /home/rcrumana/Dev/docker/unifi/config
-            type: DirectoryOrCreate
+          persistentVolumeClaim:
+            claimName: unifi-config
