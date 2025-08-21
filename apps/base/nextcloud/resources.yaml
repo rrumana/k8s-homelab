@@ -12,7 +12,7 @@ metadata:
   name: nextcloud-appdata-lh
   namespace: nextcloud
   annotations:
-    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-wave: "-2"
   labels:
     app.kubernetes.io/name: nextcloud
 spec:
@@ -30,7 +30,7 @@ metadata:
   name: nextcloud-postgresql-data-lh
   namespace: nextcloud
   annotations:
-    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-wave: "-2"
   labels:
     app.kubernetes.io/name: nextcloud
 spec:
@@ -48,7 +48,7 @@ metadata:
   name: nextcloud-redis-data-lh
   namespace: nextcloud
   annotations:
-    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-wave: "-2"
   labels:
     app.kubernetes.io/name: nextcloud
 spec:
@@ -72,7 +72,7 @@ metadata:
   name: migrate-nextcloud-appdata
   namespace: nextcloud
   annotations:
-    argocd.argoproj.io/sync-wave: "1"    # run after PVCs (PVCs use wave -1)
+    argocd.argoproj.io/sync-wave: "-1"    # run after PVCs (PVCs use wave -1)
 spec:
   backoffLimit: 1
   template:
@@ -111,7 +111,7 @@ metadata:
   name: migrate-nextcloud-postgresql
   namespace: nextcloud
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
   backoffLimit: 1
   template:
@@ -150,7 +150,7 @@ metadata:
   name: migrate-nextcloud-redis
   namespace: nextcloud
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
   backoffLimit: 1
   template:
