@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: elasticsearch-data
+  name: elasticsearch-data-lh
   namespace: elasticsearch
 spec:
   accessModes:
