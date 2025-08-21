@@ -57,8 +57,7 @@ ingress:
 persistence:
   enabled: true
   accessMode: ReadWriteOnce
-  size: 500Gi
-  storageClass: local-path
+  existingClaim: nextcloud-appdata-lh
 
 # Tighten IDs to match www-data
 podSecurityContext:
@@ -95,8 +94,7 @@ postgresql:
   primary:
     persistence:
       enabled: true
-      storageClass: local-path
-      size: 20Gi
+      existingClaim: nextcloud-postgresql-data-lh
 
 # --- Redis subchart (Bitnami) for file locking/memcache ---
 redis:
@@ -108,5 +106,4 @@ redis:
   master:
     persistence:
       enabled: true
-      storageClass: local-path
-      size: 8Gi
+      existingClaim: nextcloud-redis-data-lh

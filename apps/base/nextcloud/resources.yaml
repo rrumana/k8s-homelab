@@ -1,0 +1,183 @@
+# PVCs and one-shot migration Jobs for Nextcloud - Longhorn migration
+# Sizing rationale (initial): Based on currently bound capacities as safe ceiling.
+# - App data: 500Gi -> round up to 512Gi -> double = 1Ti
+# - Postgres: 20Gi -> 32Gi -> double = 64Gi
+# - Redis: 8Gi (power of two) -> double = 16Gi
+# Note: Longhorn is thin-provisioned; over-provisioning does not immediately consume disk.
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-appdata-lh
+  namespace: nextcloud
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+  labels:
+    app.kubernetes.io/name: nextcloud
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 16Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-postgresql-data-lh
+  namespace: nextcloud
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+  labels:
+    app.kubernetes.io/name: nextcloud
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-redis-data-lh
+  namespace: nextcloud
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+  labels:
+    app.kubernetes.io/name: nextcloud
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 2Gi
+
+# Standalone one-shot migration Jobs
+# IMPORTANT:
+# - Prefer to scale down Nextcloud, Postgres, and Redis before running to avoid in-flight writes.
+# - Jobs pin to node "miniserver" so RWO volumes can be mounted concurrently with existing pods if needed.
+# - You can kubectl delete the Jobs after success; PVCs remain.
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-nextcloud-appdata
+  namespace: nextcloud
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"    # run after PVCs (PVCs use wave -1)
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      nodeName: miniserver
+      restartPolicy: Never
+      containers:
+        - name: rsync
+          image: alpine:3.20
+          command:
+            - /bin/sh
+            - -lc
+            - |
+              set -euo pipefail
+              apk add --no-cache rsync
+              echo "Migrating Nextcloud app data..."
+              rsync -aHAX --numeric-ids --info=progress2 /src/ /dest/
+              echo "Done."
+          volumeMounts:
+            - name: src
+              mountPath: /src
+            - name: dest
+              mountPath: /dest
+      volumes:
+        - name: src
+          persistentVolumeClaim:
+            claimName: nextcloud-nextcloud   # existing local-path PVC
+        - name: dest
+          persistentVolumeClaim:
+            claimName: nextcloud-appdata-lh  # new longhorn PVC
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-nextcloud-postgresql
+  namespace: nextcloud
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      nodeName: miniserver
+      restartPolicy: Never
+      containers:
+        - name: rsync
+          image: alpine:3.20
+          command:
+            - /bin/sh
+            - -lc
+            - |
+              set -euo pipefail
+              apk add --no-cache rsync
+              echo "Migrating PostgreSQL data... (ensure DB is stopped for consistency)"
+              rsync -aHAX --numeric-ids --info=progress2 /src/ /dest/
+              echo "Done."
+          volumeMounts:
+            - name: src
+              mountPath: /src
+            - name: dest
+              mountPath: /dest
+      volumes:
+        - name: src
+          persistentVolumeClaim:
+            claimName: data-nextcloud-postgresql-0   # existing local-path PVC
+        - name: dest
+          persistentVolumeClaim:
+            claimName: nextcloud-postgresql-data-lh  # new longhorn PVC
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-nextcloud-redis
+  namespace: nextcloud
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      nodeName: miniserver
+      restartPolicy: Never
+      containers:
+        - name: rsync
+          image: alpine:3.20
+          command:
+            - /bin/sh
+            - -lc
+            - |
+              set -euo pipefail
+              apk add --no-cache rsync
+              echo "Migrating Redis data... (prefer to stop Redis to avoid AOF changes)"
+              rsync -aHAX --numeric-ids --info=progress2 /src/ /dest/
+              echo "Done."
+          volumeMounts:
+            - name: src
+              mountPath: /src
+            - name: dest
+              mountPath: /dest
+      volumes:
+        - name: src
+          persistentVolumeClaim:
+            claimName: redis-data-nextcloud-redis-master-0  # existing local-path PVC
+        - name: dest
+          persistentVolumeClaim:
+            claimName: nextcloud-redis-data-lh              # new longhorn PVC

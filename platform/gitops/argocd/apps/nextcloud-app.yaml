@@ -7,20 +7,28 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
-  
-  source:
-    repoURL: https://nextcloud.github.io/helm/
-    targetRevision: "6.2.1"
-    chart: nextcloud
-    helm:
-      releaseName: nextcloud
-      valueFiles:
-        - https://raw.githubusercontent.com/rrumana/k8s-homelab/main/apps/base/nextcloud/values.yaml
-  
+
+  sources:
+    - repoURL: https://nextcloud.github.io/helm/
+      targetRevision: "6.2.1"
+      chart: nextcloud
+      helm:
+        releaseName: nextcloud
+        valueFiles:
+          - $values/apps/base/nextcloud/values.yaml
+    - repoURL: https://github.com/rrumana/k8s-homelab
+      targetRevision: main
+      ref: values
+    - repoURL: https://github.com/rrumana/k8s-homelab
+      targetRevision: main
+      path: apps/base/nextcloud
+      directory:
+        recurse: false
+
   destination:
     server: https://kubernetes.default.svc
     namespace: nextcloud
-  
+
   syncPolicy:
     automated:
       prune: true
