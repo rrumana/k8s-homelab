@@ -16,12 +16,15 @@ spec:
         releaseName: nextcloud
         valueFiles:
           - $values/apps/base/nextcloud/values.yaml
+          
     - repoURL: https://github.com/rrumana/k8s-homelab
       targetRevision: main
       ref: values
+
     - repoURL: https://github.com/rrumana/k8s-homelab
       targetRevision: main
       path: apps/base/nextcloud
+      kustomize: {}
 
   destination:
     server: https://kubernetes.default.svc
@@ -33,7 +36,6 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - ServerSideApply=true
     managedNamespaceMetadata:
       labels:
         app.kubernetes.io/name: nextcloud
