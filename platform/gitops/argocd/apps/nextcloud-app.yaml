@@ -9,11 +9,21 @@ spec:
   project: default
 
   sources:
-    # Nuke mode: point exclusively at the minimal "nextcloud-nuke" kustomize
-    # This will cause Argo to prune every object previously managed for Nextcloud (deployments, sts, services, PVCs, etc.)
+    - repoURL: https://nextcloud.github.io/helm/
+      targetRevision: "6.2.1"
+      chart: nextcloud
+      helm:
+        releaseName: nextcloud
+        valueFiles:
+          - $values/apps/base/nextcloud/values.yaml
+          
     - repoURL: https://github.com/rrumana/k8s-homelab
       targetRevision: main
-      path: apps/base/nextcloud-nuke
+      ref: values
+
+    - repoURL: https://github.com/rrumana/k8s-homelab
+      targetRevision: main
+      path: apps/base/nextcloud
       kustomize: {}
 
   destination:
@@ -26,10 +36,6 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      # Ensure prunes delete dependent objects (foreground cascading)
-      - PrunePropagationPolicy=foreground
-      # Try to avoid order-related dangling, prune at the very end
-      - PruneLast=true
     managedNamespaceMetadata:
       labels:
         app.kubernetes.io/name: nextcloud
