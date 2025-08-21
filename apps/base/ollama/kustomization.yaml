@@ -4,7 +4,7 @@ kind: Kustomization
 namespace: ollama
 
 resources:
-  - storage-longhorn.yaml
+  - pvc.yaml
   - ollama-deployment.yaml
   - webui-deployment.yaml
   - services.yaml

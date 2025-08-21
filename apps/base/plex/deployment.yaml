@@ -55,9 +55,8 @@ spec:
             cpu: "24"
       volumes:
       - name: config
-        hostPath:
-          path: /home/rcrumana/Dev/docker/plex/config
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: plex-config-lh
       - name: tv
         hostPath:
           path: /media/Torrent/Shows

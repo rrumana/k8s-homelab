@@ -51,9 +51,8 @@ spec:
             - SYS_ADMIN
       volumes:
       - name: ollama-data
-        hostPath:
-          path: /var/lib/ollama
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: ollama-data-lh
       - name: dri
         hostPath:
           path: /dev/dri

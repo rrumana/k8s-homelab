@@ -38,6 +38,5 @@ spec:
             cpu: "1"
       volumes:
       - name: webui-data
-        hostPath:
-          path: /var/lib/open-webui
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: open-webui-data-lh
