@@ -5,7 +5,3 @@ namespace: nextcloud
 
 resources:
   - resources.yaml
-
-commonLabels:
-  app.kubernetes.io/name: nextcloud
-  app.kubernetes.io/managed-by: argocd

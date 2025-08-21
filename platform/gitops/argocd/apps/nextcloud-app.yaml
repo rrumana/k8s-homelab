@@ -22,8 +22,6 @@ spec:
     - repoURL: https://github.com/rrumana/k8s-homelab
       targetRevision: main
       path: apps/base/nextcloud
-      directory:
-        recurse: false
 
   destination:
     server: https://kubernetes.default.svc
