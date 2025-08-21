@@ -47,6 +47,5 @@ spec:
             - ALL
       volumes:
       - name: data
-        hostPath:
-          path: /var/lib/vaultwarden
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: vaultwarden-data
