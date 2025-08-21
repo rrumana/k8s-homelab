@@ -1,0 +1,88 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: recover-nextcloud-appdata-from-hostpath
+  namespace: nextcloud
+  annotations:
+    # Do NOT include this in Argo sync by default; apply manually when needed.
+    # Example: kubectl -n nextcloud apply -f apps/base/nextcloud/recovery-nextcloud-hostpath-job.yaml
+    description: "Recovery job to copy Nextcloud data from local-path host directories to Longhorn PVC"
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      nodeName: miniserver              # run where the old local-path data lives
+      restartPolicy: Never
+      containers:
+        - name: recover
+          image: alpine:3.20
+          securityContext:
+            privileged: true
+          command:
+            - /bin/sh
+            - -lc
+            - |
+              set -euo pipefail
+              apk add --no-cache rsync coreutils findutils grep
+              echo "Locating legacy nextcloud appdata on host..."
+
+              BASES="/host/opt/local-path-provisioner /host/var/lib/rancher/k3s/storage"
+              # Prefer obvious pvc-name matches first
+              CANDIDATES="$( (for b in $BASES; do [ -d "$b" ] || continue; find "$b" -maxdepth 3 -type d -iname '*nextcloud-nextcloud*' -print 2>/dev/null; done) || true )"
+
+              if [ -z "$CANDIDATES" ]; then
+                echo "No *nextcloud-nextcloud* named dirs found, scanning for nextcloud markers..."
+                # Look for dirs containing config.php or nextcloud.log within reasonable depth
+                MARKERS="$( (for b in $BASES; do [ -d "$b" ] || continue; find "$b" -maxdepth 5 -type f \( -name config.php -o -name nextcloud.log \) -print 2>/dev/null; done) || true )"
+                if [ -n "$MARKERS" ]; then
+                  # take parent dirs as candidates
+                  CANDIDATES="$(echo "$MARKERS" | xargs -r -n1 dirname | xargs -r -n1 dirname | sort -u)"
+                fi
+              fi
+
+              if [ -z "$CANDIDATES" ]; then
+                echo "ERROR: Could not find any plausible hostpath directory for Nextcloud."
+                echo "Checked: $BASES"
+                ls -la $BASES || true
+                exit 1
+              fi
+
+              echo "Candidate directories:"
+              echo "$CANDIDATES" | nl -ba
+
+              # Choose the largest candidate by apparent size as the most likely PVC root
+              BEST="$(echo "$CANDIDATES" | xargs -r -I{} sh -lc 'du -sm "{}" 2>/dev/null | awk "{print \$1 \"\t\" \"{}\"}"' | sort -n | tail -n1 | cut -f2)"
+              if [ -z "$BEST" ] || [ ! -d "$BEST" ]; then
+                echo "ERROR: No valid candidate directory resolved."
+                exit 1
+              fi
+
+              echo "Selected source directory: $BEST"
+              echo "Listing first-level contents:"
+              ls -la "$BEST" | sed -n '1,100p'
+
+              echo "Copying to Longhorn destination at /dest ..."
+              # The destination PVC should be empty/new Longhorn claim
+              rsync -aHAX --numeric-ids --info=progress2 "$BEST"/ /dest/
+
+              echo "Recovery rsync completed."
+          volumeMounts:
+            - name: host-opt
+              mountPath: /host/opt/local-path-provisioner
+            - name: host-k3s
+              mountPath: /host/var/lib/rancher/k3s/storage
+            - name: dest
+              mountPath: /dest
+      volumes:
+        - name: host-opt
+          hostPath:
+            path: /opt/local-path-provisioner
+            type: DirectoryOrCreate
+        - name: host-k3s
+          hostPath:
+            path: /var/lib/rancher/k3s/storage
+            type: DirectoryOrCreate
+        - name: dest
+          persistentVolumeClaim:
+            claimName: nextcloud-appdata-lh   # Longhorn destination PVC (already created)

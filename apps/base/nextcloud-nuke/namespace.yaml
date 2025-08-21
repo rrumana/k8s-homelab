@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nextcloud
+  annotations:
+    # Make sure Argo prunes workloads first, then the namespace (when we remove this resource in step 2)
+    argocd.argoproj.io/sync-wave: "10"
+  labels:
+    app.kubernetes.io/name: nextcloud
+    app.kubernetes.io/managed-by: argocd

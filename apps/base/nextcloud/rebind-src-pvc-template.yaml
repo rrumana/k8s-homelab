@@ -1,0 +1,25 @@
+# Template to rebind an orphaned local-path PV (if it still exists) to a new PVC in the nextcloud namespace.
+# Usage:
+# 1) Find the PV name that used to back the appdata PVC (look for CLAIM 'nextcloud/nextcloud-nextcloud'):
+#      kubectl get pv | grep nextcloud/
+# 2) Replace PV_NAME_HERE below with the actual PV name.
+# 3) Apply:
+#      kubectl -n nextcloud apply -f apps/base/nextcloud/rebind-src-pvc-template.yaml
+# 4) Use this PVC (recovered-nextcloud-src) as the source in a one-shot copy job OR mount it into a recovery pod.
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: recovered-nextcloud-src
+  namespace: nextcloud
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      # Size must be >= PV capacity (adjust if needed)
+      storage: 500Gi
+  # Must match the PV's StorageClass (usually 'local-path' for rancher local-path provisioner)
+  storageClassName: local-path
+  # Bind to the specific orphaned PV
+  volumeName: PV_NAME_HERE
