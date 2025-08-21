@@ -1,0 +1,61 @@
+# PVC and one-shot migration Job for Plex CONFIG only
+# Source (hostPath): /home/rcrumana/Dev/docker/plex/config
+# Target (Longhorn PVC): plex-config-lh
+# Sizing rule: ~15Gi observed → round 16Gi → double = 32Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plex-config-lh
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 32Gi
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: plex-config-migration
+  labels:
+    app.kubernetes.io/name: plex-config-migration
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: alpine:3.20
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh","-c"]
+          args:
+            - |
+              set -e
+              echo "Copying Plex config from hostPath to Longhorn PVC..."
+              if [ -d /source ] && [ -n "$(ls -A /source 2>/dev/null || true)" ]; then
+                mkdir -p /dest
+                cp -a /source/. /dest/
+                chown -R 1000:1000 /dest || true
+                echo "Copy done. Listing destination:"
+                ls -la /dest || true
+              else
+                echo "Source empty or missing, skipping copy"
+              fi
+          volumeMounts:
+            - name: source
+              mountPath: /source
+            - name: dest
+              mountPath: /dest
+      volumes:
+        - name: source
+          hostPath:
+            path: /home/rcrumana/Dev/docker/plex/config
+            type: DirectoryOrCreate
+        - name: dest
+          persistentVolumeClaim:
+            claimName: plex-config-lh

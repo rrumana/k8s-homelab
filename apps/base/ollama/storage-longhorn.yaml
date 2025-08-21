@@ -1,0 +1,120 @@
+# Longhorn PVCs and migration Jobs for:
+# - Ollama model data (/var/lib/ollama)  -> PVC: ollama-data-lh  (64Gi)
+# - Open-WebUI data (/var/lib/open-webui) -> PVC: open-webui-data-lh (4Gi)
+#
+# Kustomize in this folder sets namespace: ollama, so no namespace fields are included here.
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-data-lh
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 64Gi
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ollama-data-migration
+  labels:
+    app.kubernetes.io/name: ollama-data-migration
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: alpine:3.20
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh","-c"]
+          args:
+            - |
+              set -e
+              echo "Copying Ollama data from hostPath to Longhorn PVC..."
+              if [ -d /source ] && [ -n "$(ls -A /source 2>/dev/null || true)" ]; then
+                mkdir -p /dest
+                cp -a /source/. /dest/
+                # Align ownership to typical container uid/gid when relevant
+                chown -R 1000:1000 /dest || true
+                echo "Copy done. Destination listing:"
+                ls -la /dest || true
+              else
+                echo "Source empty or missing, skipping copy"
+              fi
+          volumeMounts:
+            - name: source
+              mountPath: /source
+            - name: dest
+              mountPath: /dest
+      volumes:
+        - name: source
+          hostPath:
+            path: /var/lib/ollama
+            type: DirectoryOrCreate
+        - name: dest
+          persistentVolumeClaim:
+            claimName: ollama-data-lh
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: open-webui-data-lh
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 4Gi
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: open-webui-data-migration
+  labels:
+    app.kubernetes.io/name: open-webui-data-migration
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: alpine:3.20
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh","-c"]
+          args:
+            - |
+              set -e
+              echo "Copying Open-WebUI data from hostPath to Longhorn PVC..."
+              if [ -d /source ] && [ -n "$(ls -A /source 2>/dev/null || true)" ]; then
+                mkdir -p /dest
+                cp -a /source/. /dest/
+                chown -R 1000:1000 /dest || true
+                echo "Copy done. Destination listing:"
+                ls -la /dest || true
+              else
+                echo "Source empty or missing, skipping copy"
+              fi
+          volumeMounts:
+            - name: source
+              mountPath: /source
+            - name: dest
+              mountPath: /dest
+      volumes:
+        - name: source
+          hostPath:
+            path: /var/lib/open-webui
+            type: DirectoryOrCreate
+        - name: dest
+          persistentVolumeClaim:
+            claimName: open-webui-data-lh
