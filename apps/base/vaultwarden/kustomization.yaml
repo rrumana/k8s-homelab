@@ -5,7 +5,6 @@ namespace: vaultwarden
 
 resources:
   - pvc-lh.yaml
-  - storage-migration.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml
