@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hostpath-to-longhorn-copy
+  namespace: arr-lts2
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      name: hostpath-to-longhorn-copy
+    spec:
+      restartPolicy: Never
+      securityContext:
+        fsGroup: 0
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: copy
+          image: bitnami/rsync:latest
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -euo pipefail
+              echo "Starting rsync from /src -> /dst"
+              # -a archive, -H hardlinks, -A acls, -X xattrs, --numeric-ids preserves uid/gid numbers
+              rsync -aHAX --numeric-ids --info=progress2 /src/ /dst/
+              sync
+              echo "Done."
+          volumeMounts:
+            - name: src
+              mountPath: /src
+              readOnly: true
+            - name: dst
+              mountPath: /dst
+      volumes:
+        - name: src
+          hostPath:
+            path: /home/rcrumana/Dev/docker/qbittorrent_lts2  # e.g., /mnt/old-data
+            type: Directory
+        - name: dst
+          persistentVolumeClaim:
+            claimName: qbit-config
