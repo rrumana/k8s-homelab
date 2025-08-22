@@ -23,11 +23,9 @@ spec:
         - name: dev-net-tun
           hostPath: { path: /dev/net/tun, type: CharDevice }
         - name: gluetun
-          persistentVolumeClaim:
-            claimName: gluetun
+          hostPath: { path: /home/rcrumana/Dev/docker/gluetun_lts2, type: DirectoryOrCreate }
         - name: qbit-config
-          persistentVolumeClaim:
-            claimName: qbit-config
+          hostPath: { path: /home/rcrumana/Dev/docker/qbittorrent_lts2, type: DirectoryOrCreate }
         - name: media
           hostPath: { path: /media, type: Directory }
         - name: downloads
