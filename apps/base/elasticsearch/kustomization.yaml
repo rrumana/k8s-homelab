@@ -3,7 +3,6 @@ kind: Kustomization
 namespace: elasticsearch
 resources:
   - pvc.yaml
-  - configmap.yaml
   - deployment.yaml
   - service.yaml
 
