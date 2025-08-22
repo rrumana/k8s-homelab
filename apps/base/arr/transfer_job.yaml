@@ -1,0 +1,341 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: qbit-to-longhorn-copy
+  namespace: arr-stack
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      name: qbit-to-longhorn-copy
+    spec:
+      restartPolicy: Never
+      securityContext:
+        fsGroup: 0
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: copy
+          image: alpine:3.20
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -euo pipefail
+              echo "Starting copy from /src -> /dst (using cp -a)"
+              echo "--- Source layout (depth 2)"
+              find /src -maxdepth 2 -mindepth 1 -printf "%M %u:%g %TY-%Tm-%Td %TH:%TM %p\n" | sort || true
+              echo "--- Destination before"
+              ls -la /dst || true
+              # Preserve ownership, permissions, symlinks; cp -a == -dR --preserve=all
+              # The trailing '/.' ensures we copy the contents of /src into /dst root.
+              cp -a /src/. /dst/
+              sync
+              echo "--- Destination after (depth 2)"
+              find /dst -maxdepth 2 -mindepth 1 -printf "%M %u:%g %TY-%Tm-%Td %TH:%TM %p\n" | sort || true
+              echo "Copy completed."
+          volumeMounts:
+            - name: src
+              mountPath: /src
+              readOnly: true
+            - name: dst
+              mountPath: /dst
+      volumes:
+        - name: src
+          hostPath:
+            path: /home/rcrumana/Dev/docker/qbittorrent  # e.g., /mnt/old-data
+            type: Directory
+        - name: dst
+          persistentVolumeClaim:
+            claimName: qbit-config
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gluetun-to-longhorn-copy
+  namespace: arr-stack
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      name: gluetun-to-longhorn-copy
+    spec:
+      restartPolicy: Never
+      securityContext:
+        fsGroup: 0
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: copy
+          image: alpine:3.20
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -euo pipefail
+              echo "Starting copy from /src -> /dst (using cp -a)"
+              echo "--- Source layout (depth 2)"
+              find /src -maxdepth 2 -mindepth 1 -printf "%M %u:%g %TY-%Tm-%Td %TH:%TM %p\n" | sort || true
+              echo "--- Destination before"
+              ls -la /dst || true
+              # Preserve ownership, permissions, symlinks; cp -a == -dR --preserve=all
+              # The trailing '/.' ensures we copy the contents of /src into /dst root.
+              cp -a /src/. /dst/
+              sync
+              echo "--- Destination after (depth 2)"
+              find /dst -maxdepth 2 -mindepth 1 -printf "%M %u:%g %TY-%Tm-%Td %TH:%TM %p\n" | sort || true
+              echo "Copy completed."
+          volumeMounts:
+            - name: src
+              mountPath: /src
+              readOnly: true
+            - name: dst
+              mountPath: /dst
+      volumes:
+        - name: src
+          hostPath:
+            path: /home/rcrumana/Dev/docker/gluetun  # e.g., /mnt/old-data
+            type: Directory
+        - name: dst
+          persistentVolumeClaim:
+            claimName: gluetun
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sonarr-to-longhorn-copy
+  namespace: arr-stack
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      name: sonarr-to-longhorn-copy
+    spec:
+      restartPolicy: Never
+      securityContext:
+        fsGroup: 0
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: copy
+          image: alpine:3.20
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -euo pipefail
+              echo "Starting copy from /src -> /dst (using cp -a)"
+              echo "--- Source layout (depth 2)"
+              find /src -maxdepth 2 -mindepth 1 -printf "%M %u:%g %TY-%Tm-%Td %TH:%TM %p\n" | sort || true
+              echo "--- Destination before"
+              ls -la /dst || true
+              # Preserve ownership, permissions, symlinks; cp -a == -dR --preserve=all
+              # The trailing '/.' ensures we copy the contents of /src into /dst root.
+              cp -a /src/. /dst/
+              sync
+              echo "--- Destination after (depth 2)"
+              find /dst -maxdepth 2 -mindepth 1 -printf "%M %u:%g %TY-%Tm-%Td %TH:%TM %p\n" | sort || true
+              echo "Copy completed."
+          volumeMounts:
+            - name: src
+              mountPath: /src
+              readOnly: true
+            - name: dst
+              mountPath: /dst
+      volumes:
+        - name: src
+          hostPath:
+            path: /home/rcrumana/Dev/docker/sonarr  # e.g., /mnt/old-data
+            type: Directory
+        - name: dst
+          persistentVolumeClaim:
+            claimName: sonarr-config
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: radarr-to-longhorn-copy
+  namespace: arr-stack
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      name: radarr-to-longhorn-copy
+    spec:
+      restartPolicy: Never
+      securityContext:
+        fsGroup: 0
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: copy
+          image: alpine:3.20
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -euo pipefail
+              echo "Starting copy from /src -> /dst (using cp -a)"
+              echo "--- Source layout (depth 2)"
+              find /src -maxdepth 2 -mindepth 1 -printf "%M %u:%g %TY-%Tm-%Td %TH:%TM %p\n" | sort || true
+              echo "--- Destination before"
+              ls -la /dst || true
+              # Preserve ownership, permissions, symlinks; cp -a == -dR --preserve=all
+              # The trailing '/.' ensures we copy the contents of /src into /dst root.
+              cp -a /src/. /dst/
+              sync
+              echo "--- Destination after (depth 2)"
+              find /dst -maxdepth 2 -mindepth 1 -printf "%M %u:%g %TY-%Tm-%Td %TH:%TM %p\n" | sort || true
+              echo "Copy completed."
+          volumeMounts:
+            - name: src
+              mountPath: /src
+              readOnly: true
+            - name: dst
+              mountPath: /dst
+      volumes:
+        - name: src
+          hostPath:
+            path: /home/rcrumana/Dev/docker/radarr  # e.g., /mnt/old-data
+            type: Directory
+        - name: dst
+          persistentVolumeClaim:
+            claimName: radarr-config
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: lidarr-to-longhorn-copy
+  namespace: arr-stack
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      name: lidarr-to-longhorn-copy
+    spec:
+      restartPolicy: Never
+      securityContext:
+        fsGroup: 0
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: copy
+          image: alpine:3.20
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -euo pipefail
+              echo "Starting copy from /src -> /dst (using cp -a)"
+              echo "--- Source layout (depth 2)"
+              find /src -maxdepth 2 -mindepth 1 -printf "%M %u:%g %TY-%Tm-%Td %TH:%TM %p\n" | sort || true
+              echo "--- Destination before"
+              ls -la /dst || true
+              # Preserve ownership, permissions, symlinks; cp -a == -dR --preserve=all
+              # The trailing '/.' ensures we copy the contents of /src into /dst root.
+              cp -a /src/. /dst/
+              sync
+              echo "--- Destination after (depth 2)"
+              find /dst -maxdepth 2 -mindepth 1 -printf "%M %u:%g %TY-%Tm-%Td %TH:%TM %p\n" | sort || true
+              echo "Copy completed."
+          volumeMounts:
+            - name: src
+              mountPath: /src
+              readOnly: true
+            - name: dst
+              mountPath: /dst
+      volumes:
+        - name: src
+          hostPath:
+            path: /home/rcrumana/Dev/docker/lidarr  # e.g., /mnt/old-data
+            type: Directory
+        - name: dst
+          persistentVolumeClaim:
+            claimName: lidarr-config
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: prowlarr-to-longhorn-copy
+  namespace: arr-stack
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      name: prowlarr-to-longhorn-copy
+    spec:
+      restartPolicy: Never
+      securityContext:
+        fsGroup: 0
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: copy
+          image: alpine:3.20
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -euo pipefail
+              echo "Starting copy from /src -> /dst (using cp -a)"
+              echo "--- Source layout (depth 2)"
+              find /src -maxdepth 2 -mindepth 1 -printf "%M %u:%g %TY-%Tm-%Td %TH:%TM %p\n" | sort || true
+              echo "--- Destination before"
+              ls -la /dst || true
+              # Preserve ownership, permissions, symlinks; cp -a == -dR --preserve=all
+              # The trailing '/.' ensures we copy the contents of /src into /dst root.
+              cp -a /src/. /dst/
+              sync
+              echo "--- Destination after (depth 2)"
+              find /dst -maxdepth 2 -mindepth 1 -printf "%M %u:%g %TY-%Tm-%Td %TH:%TM %p\n" | sort || true
+              echo "Copy completed."
+          volumeMounts:
+            - name: src
+              mountPath: /src
+              readOnly: true
+            - name: dst
+              mountPath: /dst
+      volumes:
+        - name: src
+          hostPath:
+            path: /home/rcrumana/Dev/docker/prowlarr  # e.g., /mnt/old-data
+            type: Directory
+        - name: dst
+          persistentVolumeClaim:
+            claimName: prowlarr-config
