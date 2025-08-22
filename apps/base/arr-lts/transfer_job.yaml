@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: qbit-to-longhorn-copy
-  namespace: arr-lts2
+  namespace: arr-lts
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
@@ -49,7 +49,7 @@ spec:
       volumes:
         - name: src
           hostPath:
-            path: /home/rcrumana/Dev/docker/qbittorrent_lts2  # e.g., /mnt/old-data
+            path: /home/rcrumana/Dev/docker/qbittorrent_lts  # e.g., /mnt/old-data
             type: Directory
         - name: dst
           persistentVolumeClaim:
@@ -59,7 +59,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: gluetun-to-longhorn-copy
-  namespace: arr-lts2
+  namespace: arr-lts
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
@@ -106,7 +106,7 @@ spec:
       volumes:
         - name: src
           hostPath:
-            path: /home/rcrumana/Dev/docker/gluetun_lts2  # e.g., /mnt/old-data
+            path: /home/rcrumana/Dev/docker/gluetun_lts  # e.g., /mnt/old-data
             type: Directory
         - name: dst
           persistentVolumeClaim:
