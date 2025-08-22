@@ -62,9 +62,30 @@ spec:
           securityContext:
             runAsUser: 0
             runAsGroup: 0
-          command: ["sh","-c","set -eux; chown -R 1000:1000 /config; chmod -R u+rwX,g+rwX /config"]
+          command:
+            - sh
+            - -c
+            - |
+              set -eux
+              echo "fix-perms: listing /config and /gluetun (if mounted)"
+              ls -la /config 2>/dev/null || true
+              find /config -maxdepth 2 -type f -print 2>/dev/null || true
+              # Diagnose qB config presence
+              if [ -f /config/qBittorrent/qBittorrent.conf ]; then
+                echo "fix-perms: found /config/qBittorrent/qBittorrent.conf"
+              else
+                echo "fix-perms: qBittorrent.conf missing"
+              fi
+              # Gluetun: remove empty servers.json which breaks startup
+              if [ -f /gluetun/servers.json ] && [ ! -s /gluetun/servers.json ]; then
+                echo "fix-perms: removing empty /gluetun/servers.json"
+                rm -f /gluetun/servers.json
+              fi
+              chown -R 1000:1000 /config /gluetun 2>/dev/null || true
+              chmod -R u+rwX,g+rwX /config /gluetun 2>/dev/null || true
           volumeMounts:
             - { name: qbit-config, mountPath: /config }
+            - { name: gluetun,     mountPath: /gluetun }
 
       containers:
         - name: gluetun
