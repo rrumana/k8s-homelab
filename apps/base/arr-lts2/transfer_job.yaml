@@ -16,7 +16,7 @@ spec:
         fsGroupChangePolicy: "OnRootMismatch"
       containers:
         - name: copy
-          image: bitnami/rsync:latest
+          image: alpine:3.20
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsUser: 0
@@ -26,11 +26,18 @@ spec:
             - -c
             - |
               set -euo pipefail
-              echo "Starting rsync from /src -> /dst"
-              # -a archive, -H hardlinks, -A acls, -X xattrs, --numeric-ids preserves uid/gid numbers
-              rsync -aHAX --numeric-ids --info=progress2 /src/ /dst/
+              echo "Starting copy from /src -> /dst (using cp -a)"
+              echo "--- Source layout (depth 2)"
+              find /src -maxdepth 2 -mindepth 1 -printf "%M %u:%g %TY-%Tm-%Td %TH:%TM %p\n" | sort || true
+              echo "--- Destination before"
+              ls -la /dst || true
+              # Preserve ownership, permissions, symlinks; cp -a == -dR --preserve=all
+              # The trailing '/.' ensures we copy the contents of /src into /dst root.
+              cp -a /src/. /dst/
               sync
-              echo "Done."
+              echo "--- Destination after (depth 2)"
+              find /dst -maxdepth 2 -mindepth 1 -printf "%M %u:%g %TY-%Tm-%Td %TH:%TM %p\n" | sort || true
+              echo "Copy completed."
           volumeMounts:
             - name: src
               mountPath: /src
