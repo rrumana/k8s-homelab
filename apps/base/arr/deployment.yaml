@@ -23,17 +23,23 @@ spec:
         - name: dev-net-tun
           hostPath: { path: /dev/net/tun, type: CharDevice }
         - name: gluetun
-          hostPath: { path: /home/rcrumana/Dev/docker/gluetun, type: DirectoryOrCreate }
+          persistentVolumeClaim:
+            claimName: gluetun
         - name: qbit-config
-          hostPath: { path: /home/rcrumana/Dev/docker/qbittorrent, type: DirectoryOrCreate }
+          persistentVolumeClaim:
+            claimName: qbit-config
         - name: sonarr-config
-          hostPath: { path: /home/rcrumana/Dev/docker/sonarr, type: DirectoryOrCreate }
+          persistentVolumeClaim:
+            claimName: sonarr-config
         - name: radarr-config
-          hostPath: { path: /home/rcrumana/Dev/docker/radarr, type: DirectoryOrCreate }
+          persistentVolumeClaim:
+            claimName: radarr-config
         - name: lidarr-config
-          hostPath: { path: /home/rcrumana/Dev/docker/lidarr, type: DirectoryOrCreate }
+          persistentVolumeClaim:
+            claimName: lidarr-config
         - name: prowlarr-config
-          hostPath: { path: /home/rcrumana/Dev/docker/prowlarr, type: DirectoryOrCreate }
+          persistentVolumeClaim:
+            claimName: prowlarr-config
         - name: media
           hostPath: { path: /media, type: Directory }
         - name: downloads
