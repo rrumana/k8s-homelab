@@ -19,9 +19,6 @@ spec:
         options:
           - name: ndots
             value: "2"
-      securityContext:
-        fsGroup: 1000
-        fsGroupChangePolicy: OnRootMismatch
       volumes:
         - name: dev-net-tun
           hostPath: { path: /dev/net/tun, type: CharDevice }
