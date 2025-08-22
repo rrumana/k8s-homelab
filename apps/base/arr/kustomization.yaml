@@ -16,7 +16,6 @@ resources:
   - service-flaresolverr.yaml
   - pf-sync-configmap.yaml
   - pvc.yaml
-  - transfer_job.yaml
 
 commonLabels:
   app.kubernetes.io/name: arr
