@@ -3,6 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: qbit-config
   namespace: arr-lts2
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
 spec:
   accessModes: [ "ReadWriteOnce" ]
   storageClassName: longhorn
@@ -15,6 +17,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: gluetun
   namespace: arr-lts2
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
 spec:
   accessModes: [ "ReadWriteOnce" ]
   storageClassName: longhorn
