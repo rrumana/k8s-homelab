@@ -1,12 +1,11 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: elasticsearch-data
+  name: elasticsearch-data-8g
   namespace: elasticsearch
 spec:
-  accessModes:
-    - ReadWriteOnce
+  accessModes: [ "ReadWriteOnce" ]
   storageClassName: longhorn
   resources:
     requests:
-      storage: 100Gi
+      storage: 8Gi
