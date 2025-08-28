@@ -18,6 +18,13 @@ spec:
     spec:
       imagePullSecrets:
         - name: ghcr-creds
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: portfolio
+              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: portfolio
           image: ghcr.io/rrumana/portfolio:latest
