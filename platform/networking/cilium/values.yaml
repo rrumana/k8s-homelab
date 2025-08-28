@@ -1,0 +1,58 @@
+# platform/networking/cilium/values.yaml
+
+cluster:
+  name: homelab
+  id: 1
+
+ipam:
+  mode: kubernetes
+
+routingMode: native
+tunnel: disabled
+autoDirectNodeRoutes: true
+nativeRoutingCIDR: 10.42.0.0/16
+endpointRoutes:
+  enabled: true
+
+# Stage 1: keep kube-proxy (minimal risk)
+# Stage 2: set to strict after disabling kube-proxy in k3s
+kubeProxyReplacement: disabled
+
+operator:
+  replicas: 1
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+hubble:
+  enabled: true
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+    ingress:
+      enabled: true
+      className: haproxy-restricted
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      hosts:
+        - hubble.rcrumana.xyz
+      tls:
+        - secretName: hubble-ui-tls
+
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+
+bpf:
+  masquerade: true
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
