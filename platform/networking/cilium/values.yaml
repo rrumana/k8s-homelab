@@ -19,10 +19,6 @@ kubeProxyReplacement: disabled
 
 operator:
   replicas: 1
-  prometheus:
-    enabled: true
-    serviceMonitor:
-      enabled: true
 
 hubble:
   enabled: true
