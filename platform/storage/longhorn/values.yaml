@@ -2,7 +2,9 @@
 defaultSettings:
   # Replicas for data protection (single-node for now)
   defaultReplicaCount: 2
-  # replicaAutoBalance: least-effort   # optional, re-enable gently
+  replicaAutoBalance: disabled
+  replica-soft-anti-affinity: false
+  dataLocality: "best-effort"
   
   # Backup configuration (optional S3 endpoint)
   backupTarget: ""
