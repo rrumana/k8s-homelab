@@ -40,11 +40,6 @@ hubble:
       tls:
         - secretName: hubble-ui-tls
 
-prometheus:
-  enabled: true
-  serviceMonitor:
-    enabled: true
-
 bpf:
   masquerade: true
 
