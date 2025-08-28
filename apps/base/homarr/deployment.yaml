@@ -17,7 +17,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchLabels:
-                  app: portfolio
+                  app: homarr
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: homarr
