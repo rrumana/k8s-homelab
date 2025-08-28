@@ -4,15 +4,21 @@ metadata:
   name: homarr
   namespace: homarr
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels: { app: homarr }
   template:
     metadata:
       labels: { app: homarr }
     spec:
-      nodeName: miniserver
       serviceAccountName: homarr
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: portfolio
+              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: homarr
           image: ghcr.io/homarr-labs/homarr:latest
