@@ -1,4 +1,5 @@
 # platform/networking/cilium/values.yaml
+# Cilium v1.18+ compatible values for k3s, kube-proxy-free, same-L2 nodes
 
 cluster:
   name: homelab
@@ -7,18 +8,38 @@ cluster:
 ipam:
   mode: kubernetes
 
+# Use native/direct routing (no tunnels). 'tunnel' key is deprecated.
 routingMode: native
-autoDirectNodeRoutes: true
-nativeRoutingCIDR: 10.42.0.0/16
+# Scope direct routes to the cluster Pod CIDR
+ipv4NativeRoutingCIDR: 10.42.0.0/16
+
 endpointRoutes:
   enabled: true
 
-# Stage 1: keep kube-proxy (minimal risk)
-# Stage 2: set to strict after disabling kube-proxy in k3s
-kubeProxyReplacement: disabled
+# Kube-proxy is not present on this cluster, enable eBPF kube-proxy replacement explicitly
+# (Some chart validations require explicit true/false)
+kubeProxyReplacement: true
+
+# Ensure kube-proxy-free features are active
+hostServices:
+  enabled: true
+externalIPs:
+  enabled: true
+nodePort:
+  enabled: true
+
+# Disable Prometheus ServiceMonitors since Prometheus Operator CRDs are not installed
+prometheus:
+  enabled: false
+  serviceMonitor:
+    enabled: false
 
 operator:
   replicas: 1
+  prometheus:
+    enabled: false
+    serviceMonitor:
+      enabled: false
 
 hubble:
   enabled: true
@@ -36,6 +57,7 @@ hubble:
       tls:
         - secretName: hubble-ui-tls
 
+# eBPF masquerading for egress
 bpf:
   masquerade: true
 
