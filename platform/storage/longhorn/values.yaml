@@ -1,9 +1,7 @@
 # Longhorn configuration
 defaultSettings:
-  numberOfReplicas: "2"  # Replicate data across both nodes
-  replicaAutoBalance: "best-effort"  # Automatically balance replicas
-  dataLocality: "disabled"  # Allow cross-node volume access
-  staleReplicaTimeout: "30"  # Faster failover
+  # Replicas for data protection (single-node for now)
+  defaultReplicaCount: 1
   
   # Backup configuration (optional S3 endpoint)
   backupTarget: ""
