@@ -1,7 +1,8 @@
 # Longhorn configuration
 defaultSettings:
   # Replicas for data protection (single-node for now)
-  defaultReplicaCount: 1
+  defaultReplicaCount: 2
+  # replicaAutoBalance: least-effort   # optional, re-enable gently
   
   # Backup configuration (optional S3 endpoint)
   backupTarget: ""
