@@ -12,6 +12,7 @@ spec:
     metadata:
       labels: { app: arr-lts }
     spec:
+      nodeName: miniserver
       dnsPolicy: None
       dnsConfig:
         nameservers:
