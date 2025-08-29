@@ -11,6 +11,8 @@ spec:
     metadata:
       labels: { app: homarr }
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: miniserver
       serviceAccountName: homarr
       containers:
         - name: homarr
