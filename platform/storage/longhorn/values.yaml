@@ -1,7 +1,7 @@
 # Longhorn configuration
 defaultSettings:
   # Replicas for data protection (single-node for now)
-  defaultReplicaCount: 2
+  defaultReplicaCount: 1
   replicaAutoBalance: disabled
   replica-soft-anti-affinity: false
   dataLocality: "best-effort"
