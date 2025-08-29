@@ -1,10 +1,12 @@
 # Longhorn configuration
 defaultSettings:
-  # Replicas for data protection (single-node for now)
   defaultReplicaCount: 1
-  replicaAutoBalance: disabled
-  replica-soft-anti-affinity: false
-  dataLocality: "best-effort"
+  replicaAutoBalance: "disabled"
+  autoSalvage: "false"
+  concurrentReplicaRebuildPerNodeLimit: 0
+  nodeDownPodDeletionPolicy: "delete-both-statefulset-and-deployment-pod"
+  systemManagedComponentsNodeSelector: "kubernetes.io/hostname:miniserver"
+  taintToleration: "kubernetes.io/hostname=miniserver:NoSchedule"
   
   # Backup configuration (optional S3 endpoint)
   backupTarget: ""
@@ -16,6 +18,15 @@ defaultSettings:
 
   # Centralized data path on nodes
   defaultDataPath: /srv/longhorn
+  
+longhornManager:
+  nodeSelector:
+    kubernetes.io/hostname: miniserver
+  tolerations:
+  - key: "kubernetes.io/hostname"
+    operator: "Equal"
+    value: "miniserver"
+    effect: "NoSchedule"
 
 # UI configuration
 ui:
