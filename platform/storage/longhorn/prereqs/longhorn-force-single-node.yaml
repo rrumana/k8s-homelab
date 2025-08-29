@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: longhorn-force-single-node
+  namespace: longhorn-system
+data:
+  settings: |
+    replica-replenishment-wait-interval: "0"
+    node-down-pod-deletion-policy: "delete-both-statefulset-and-deployment-pod"
+    replica-auto-balance: "disabled"
+    auto-salvage: "false"
+    concurrent-replica-rebuild-per-node-limit: "0"
+    taint-toleration: "kubernetes.io/hostname=miniserver:NoSchedule"
