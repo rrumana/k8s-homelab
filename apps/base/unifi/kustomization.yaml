@@ -5,7 +5,8 @@ resources:
   - db-deployment.yaml
   - db-service.yaml
   - unifi-deployment.yaml
-  - unifi-service.yaml
+  - unifi-service-tcp.yaml
+  - unifi-service-udp.yaml
   - ingress.yaml
   - pvc.yaml
 
