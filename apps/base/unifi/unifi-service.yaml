@@ -14,3 +14,35 @@ spec:
       port: 8443
       targetPort: 8443
       protocol: TCP
+    - name: inform
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+    - name: stun
+      port: 3478
+      targetPort: 3478
+      protocol: UDP
+    - name: discovery
+      port: 1001
+      targetPort: 1001
+      protocol: UDP
+    - name: ssdp
+      port: 1900
+      targetPort: 1900
+      protocol: UDP
+    - name: guest-https
+      port: 8843
+      targetPort: 8843
+      protocol: TCP
+    - name: guest-http
+      port: 8880
+      targetPort: 8880
+      protocol: TCP
+    - name: speedtest
+      port: 6789
+      targetPort: 6789
+      protocol: TCP
+    - name: syslog
+      port: 5514
+      targetPort: 5514
+      protocol: UDP
