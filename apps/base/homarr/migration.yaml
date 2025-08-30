@@ -23,6 +23,6 @@ spec:
         - { name: dst, mountPath: /dst }
       volumes:
       - name: src
-        persistentVolumeClaim: { claimName: homarr-appdata-lh }   # old RWO
+        persistentVolumeClaim: { claimName: homarr-appdata-rwx }   # old RWO
       - name: dst
-        persistentVolumeClaim: { claimName: homarr-appdata-rwx }  # new RWX
+        persistentVolumeClaim: { claimName: homarr-appdata }  # new RWX
