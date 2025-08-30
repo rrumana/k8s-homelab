@@ -42,9 +42,9 @@ spec:
             - name: MONGO_DBNAME
               value: "unifi"
             - name: MEM_LIMIT
-              value: "128"
+              value: "1024"
             - name: MEM_STARTUP
-              value: "128"
+              value: "1024"
           volumeMounts:
             - name: config
               mountPath: /config
@@ -52,7 +52,6 @@ spec:
             - name: https-ui
               containerPort: 8443
               protocol: TCP
-            # Leaving the rest unexposed externally; still available inside the pod:
             - name: inform
               containerPort: 8080
               protocol: TCP
