@@ -7,7 +7,6 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
-  - migration.yaml
 
 generatorOptions:
   disableNameSuffixHash: true

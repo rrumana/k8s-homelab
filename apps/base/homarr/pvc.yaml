@@ -12,16 +12,3 @@ spec:
   resources:
     requests:
       storage: 128Mi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: homarr-appdata-rwx
-  namespace: homarr
-spec:
-  accessModes:
-    - ReadWriteMany
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: 128Mi
