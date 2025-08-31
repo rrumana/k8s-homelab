@@ -17,6 +17,7 @@ spec:
       labels:
         app: unifi
     spec:
+      nodeName: miniserver
       containers:
         - name: unifi
           image: lscr.io/linuxserver/unifi-network-application:latest

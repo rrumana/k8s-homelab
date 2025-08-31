@@ -16,6 +16,7 @@ spec:
       labels:
         app: plex
     spec:
+      nodeName: miniserver
       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: plex

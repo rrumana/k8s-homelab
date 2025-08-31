@@ -17,6 +17,7 @@ spec:
         app: immich
         component: server
     spec:
+      nodeName: miniserver
       containers:
       - name: immich-server
         image: ghcr.io/immich-app/immich-server:release

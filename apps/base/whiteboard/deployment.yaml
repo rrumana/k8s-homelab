@@ -11,6 +11,7 @@ spec:
     metadata:
       labels: { app: whiteboard }
     spec:
+      nodeName: miniserver
       containers:
         - name: wbo
           image: lovasoa/wbo:latest

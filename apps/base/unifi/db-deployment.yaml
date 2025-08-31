@@ -17,7 +17,7 @@ spec:
       labels:
         app: unifi-db
     spec:
-# init moved to postStart lifecycle on the main mongo container
+      nodeName: miniserver
       containers:
         - name: mongo
           image: mongo:6.0.11

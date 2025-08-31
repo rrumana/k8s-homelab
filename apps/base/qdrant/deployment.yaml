@@ -16,6 +16,7 @@ spec:
       labels:
         app: qdrant
     spec:
+      nodeName: miniserver
       containers:
         - name: qdrant
           image: qdrant/qdrant:latest

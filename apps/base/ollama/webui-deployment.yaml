@@ -17,6 +17,7 @@ spec:
         app: ollama
         component: webui
     spec:
+      nodeName: miniserver
       containers:
       - name: open-webui
         image: ghcr.io/open-webui/open-webui:latest

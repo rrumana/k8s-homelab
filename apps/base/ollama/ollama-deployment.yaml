@@ -19,6 +19,7 @@ spec:
         app: ollama
         component: server
     spec:
+      nodeName: miniserver
       containers:
       - name: ollama
         image: ollama/ollama:rocm

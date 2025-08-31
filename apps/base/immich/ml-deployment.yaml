@@ -17,6 +17,7 @@ spec:
         app: immich
         component: machine-learning
     spec:
+      nodeName: miniserver
       containers:
       - name: immich-machine-learning
         image: ghcr.io/immich-app/immich-machine-learning:release
