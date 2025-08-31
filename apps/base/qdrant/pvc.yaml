@@ -3,6 +3,20 @@ kind: PersistentVolumeClaim
 metadata:
   name: qdrant-storage-lh
   namespace: qdrant
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  storageClassName: longhorn
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: qdrant-storage
+  namespace: qdrant
   labels:
     recurring-job.longhorn.io/source: enabled
     recurring-job-group.longhorn.io/default: enabled

@@ -7,6 +7,7 @@ resources:
   - pvc.yaml
   - deployment.yaml
   - service.yaml
+  - migration.yaml
 
 commonLabels:
   app.kubernetes.io/name: qdrant

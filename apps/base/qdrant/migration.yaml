@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: qdrant-migrate
+  namespace: qdrant
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: rsync
+        image: alpine:3.20
+        command: ["/bin/sh","-lc"]
+        args:
+        - |
+          set -euo pipefail
+          apk add --no-cache rsync
+          rsync -aHAX --delete /src/ /dst/
+        volumeMounts:
+        - { name: src, mountPath: /src }
+        - { name: dst, mountPath: /dst }
+      volumes:
+      - name: src
+        persistentVolumeClaim: { claimName: qdrant-storage-lh }   # old
+      - name: dst
+        persistentVolumeClaim: { claimName: qdrant-storage }  # new
