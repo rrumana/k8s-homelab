@@ -1,0 +1,11 @@
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: snap-enforce-week
+  namespace: longhorn-system
+spec:
+  task: snapshot-delete
+  cron: "0 2 * * *"      # daily cleanup at 02:00
+  retain: 14             # enforce the same cap
+  concurrency: 1
+  groups: ["default"]

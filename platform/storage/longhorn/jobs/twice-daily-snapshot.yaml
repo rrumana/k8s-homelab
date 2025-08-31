@@ -1,0 +1,11 @@
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: snap-12h
+  namespace: longhorn-system
+spec:
+  task: snapshot
+  cron: "0 */12 * * *"   # every 12 hours
+  retain: 14             # ~1 week at 2/day
+  concurrency: 2
+  groups: ["default"]
