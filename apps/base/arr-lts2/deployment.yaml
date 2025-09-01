@@ -25,10 +25,10 @@ spec:
           hostPath: { path: /dev/net/tun, type: CharDevice }
         - name: gluetun
           persistentVolumeClaim:
-            claimName: gluetun
+            claimName: gluetun-protected
         - name: qbit-config
           persistentVolumeClaim:
-            claimName: qbit-config
+            claimName: qbit-config-protected
         - name: media
           hostPath: { path: /media, type: Directory }
         - name: downloads

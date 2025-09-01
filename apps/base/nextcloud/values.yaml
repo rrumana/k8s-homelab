@@ -57,7 +57,7 @@ ingress:
 persistence:
   enabled: true
   accessMode: ReadWriteOnce
-  existingClaim: nextcloud-appdata-lh
+  existingClaim: nextcloud-appdata
 
 # Tighten IDs to match www-data
 podSecurityContext:
@@ -94,7 +94,7 @@ postgresql:
   primary:
     persistence:
       enabled: true
-      existingClaim: nextcloud-postgresql-data-lh
+      existingClaim: nextcloud-postgresql-data
 
 # --- Redis subchart (Bitnami) for file locking/memcache ---
 redis:
@@ -106,4 +106,4 @@ redis:
   master:
     persistence:
       enabled: true
-      existingClaim: nextcloud-redis-data-lh
+      existingClaim: nextcloud-redis-data

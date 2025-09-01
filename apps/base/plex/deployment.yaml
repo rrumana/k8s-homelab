@@ -57,7 +57,7 @@ spec:
       volumes:
       - name: config
         persistentVolumeClaim:
-          claimName: plex-config-lh
+          claimName: plex-config
       - name: tv
         hostPath:
           path: /media/Torrent/Shows

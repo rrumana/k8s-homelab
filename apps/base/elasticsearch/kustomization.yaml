@@ -5,7 +5,6 @@ resources:
   - pvc.yaml
   - deployment.yaml
   - service.yaml
-  - migration.yaml
 
 generatorOptions:
   disableNameSuffixHash: true
