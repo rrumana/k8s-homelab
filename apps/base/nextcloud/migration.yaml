@@ -1,0 +1,86 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nextcloud-appdata-to-protected
+  namespace: nextcloud
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: rsync
+        image: alpine:3.20
+        command: ["/bin/sh","-lc"]
+        args:
+        - |
+          set -euo pipefail
+          apk add --no-cache rsync
+          rsync -aHAX --delete /src/ /dst/
+        volumeMounts:
+        - { name: src, mountPath: /src }
+        - { name: dst, mountPath: /dst }
+      volumes:
+      - name: src
+        persistentVolumeClaim: { claimName: nextcloud-appdata-lh }
+      - name: dst
+        persistentVolumeClaim: { claimName: nextcloud-appdata }
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nextcloud-postgresql-to-protected
+  namespace: nextcloud
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: rsync
+        image: alpine:3.20
+        command: ["/bin/sh","-lc"]
+        args:
+        - |
+          set -euo pipefail
+          apk add --no-cache rsync
+          rsync -aHAX --delete /src/ /dst/
+        volumeMounts:
+        - { name: src, mountPath: /src }
+        - { name: dst, mountPath: /dst }
+      volumes:
+      - name: src
+        persistentVolumeClaim: { claimName: nextcloud-postgresql-data-lh }
+      - name: dst
+        persistentVolumeClaim: { claimName: nextcloud-postgresql-data }
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nextcloud-redis-to-protected
+  namespace: nextcloud
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: rsync
+        image: alpine:3.20
+        command: ["/bin/sh","-lc"]
+        args:
+        - |
+          set -euo pipefail
+          apk add --no-cache rsync
+          rsync -aHAX --delete /src/ /dst/
+        volumeMounts:
+        - { name: src, mountPath: /src }
+        - { name: dst, mountPath: /dst }
+      volumes:
+      - name: src
+        persistentVolumeClaim: { claimName: nextcloud-redis-data-lh }
+      - name: dst
+        persistentVolumeClaim: { claimName: nextcloud-redis-data }

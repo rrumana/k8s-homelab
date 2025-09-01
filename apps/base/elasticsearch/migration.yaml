@@ -1,8 +1,8 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: homarr-migrate-appdata
-  namespace: homarr
+  name: elasticsearch-data-to-protected
+  namespace: elasticsearch
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
@@ -23,6 +23,6 @@ spec:
         - { name: dst, mountPath: /dst }
       volumes:
       - name: src
-        persistentVolumeClaim: { claimName: homarr-appdata }   # old RWO
+        persistentVolumeClaim: { claimName: elasticsearch-data-8g }
       - name: dst
-        persistentVolumeClaim: { claimName: homarr-appdata-protected }  # new RWX
+        persistentVolumeClaim: { claimName: elasticsearch-data }

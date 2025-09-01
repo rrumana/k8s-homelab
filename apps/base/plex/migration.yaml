@@ -1,8 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: homarr-migrate-appdata
-  namespace: homarr
+  name: plex-config-to-protected
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
@@ -23,6 +22,6 @@ spec:
         - { name: dst, mountPath: /dst }
       volumes:
       - name: src
-        persistentVolumeClaim: { claimName: homarr-appdata }   # old RWO
+        persistentVolumeClaim: { claimName: plex-config-lh }
       - name: dst
-        persistentVolumeClaim: { claimName: homarr-appdata-protected }  # new RWX
+        persistentVolumeClaim: { claimName: plex-config }

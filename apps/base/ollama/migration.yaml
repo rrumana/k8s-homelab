@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ollama-data-to-protected
+  namespace: ollama
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: rsync
+        image: alpine:3.20
+        command: ["/bin/sh","-lc"]
+        args:
+        - |
+          set -euo pipefail
+          apk add --no-cache rsync
+          rsync -aHAX --delete /src/ /dst/
+        volumeMounts:
+        - { name: src, mountPath: /src }
+        - { name: dst, mountPath: /dst }
+      volumes:
+      - name: src
+        persistentVolumeClaim: { claimName: ollama-data-lh }
+      - name: dst
+        persistentVolumeClaim: { claimName: ollama-data }
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: open-webui-data-to-protected
+  namespace: ollama
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: rsync
+        image: alpine:3.20
+        command: ["/bin/sh","-lc"]
+        args:
+        - |
+          set -euo pipefail
+          apk add --no-cache rsync
+          rsync -aHAX --delete /src/ /dst/
+        volumeMounts:
+        - { name: src, mountPath: /src }
+        - { name: dst, mountPath: /dst }
+      volumes:
+      - name: src
+        persistentVolumeClaim: { claimName: open-webui-data-lh }
+      - name: dst
+        persistentVolumeClaim: { claimName: open-webui-data }

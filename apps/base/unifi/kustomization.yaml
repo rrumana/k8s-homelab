@@ -9,6 +9,7 @@ resources:
   - unifi-service-udp.yaml
   - ingress.yaml
   - pvc.yaml
+  - migration.yaml
 
 commonLabels:
   app.kubernetes.io/name: unifi

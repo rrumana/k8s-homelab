@@ -1,8 +1,8 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: qdrant-migrate
-  namespace: qdrant
+  name: vaultwarden-data-to-protected
+  namespace: vaultwarden
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
@@ -23,6 +23,6 @@ spec:
         - { name: dst, mountPath: /dst }
       volumes:
       - name: src
-        persistentVolumeClaim: { claimName: qdrant-storage-lh }   # old
+        persistentVolumeClaim: { claimName: vaultwarden-data }
       - name: dst
-        persistentVolumeClaim: { claimName: qdrant-storage }  # new
+        persistentVolumeClaim: { claimName: vaultwarden-data-protected }

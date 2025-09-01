@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: unifi-config-to-protected
+  namespace: unifi
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: rsync
+        image: alpine:3.20
+        command: ["/bin/sh","-lc"]
+        args:
+        - |
+          set -euo pipefail
+          apk add --no-cache rsync
+          rsync -aHAX --delete /src/ /dst/
+        volumeMounts:
+        - { name: src, mountPath: /src }
+        - { name: dst, mountPath: /dst }
+      volumes:
+      - name: src
+        persistentVolumeClaim: { claimName: unifi-config }
+      - name: dst
+        persistentVolumeClaim: { claimName: unifi-config-protected }
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: unifi-db-data-to-protected
+  namespace: unifi
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: rsync
+        image: alpine:3.20
+        command: ["/bin/sh","-lc"]
+        args:
+        - |
+          set -euo pipefail
+          apk add --no-cache rsync
+          rsync -aHAX --delete /src/ /dst/
+        volumeMounts:
+        - { name: src, mountPath: /src }
+        - { name: dst, mountPath: /dst }
+      volumes:
+      - name: src
+        persistentVolumeClaim: { claimName: unifi-db-data }
+      - name: dst
+        persistentVolumeClaim: { claimName: unifi-db-data-protected }

@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: qbit-config-to-protected
+  namespace: arr-lts2
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: rsync
+        image: alpine:3.20
+        command: ["/bin/sh","-lc"]
+        args:
+        - |
+          set -euo pipefail
+          apk add --no-cache rsync
+          rsync -aHAX --delete /src/ /dst/
+        volumeMounts:
+        - { name: src, mountPath: /src }
+        - { name: dst, mountPath: /dst }
+      volumes:
+      - name: src
+        persistentVolumeClaim: { claimName: qbit-config }
+      - name: dst
+        persistentVolumeClaim: { claimName: qbit-config-protected }
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gluetun-to-protected
+  namespace: arr-lts2
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: rsync
+        image: alpine:3.20
+        command: ["/bin/sh","-lc"]
+        args:
+        - |
+          set -euo pipefail
+          apk add --no-cache rsync
+          rsync -aHAX --delete /src/ /dst/
+        volumeMounts:
+        - { name: src, mountPath: /src }
+        - { name: dst, mountPath: /dst }
+      volumes:
+      - name: src
+        persistentVolumeClaim: { claimName: gluetun }
+      - name: dst
+        persistentVolumeClaim: { claimName: gluetun-protected }

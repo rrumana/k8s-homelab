@@ -12,3 +12,20 @@ spec:
   resources:
     requests:
       storage: 128Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: homarr-appdata-protected
+  namespace: homarr
+  labels:
+    recurring-job.longhorn.io/source: enabled
+    recurring-job-group.longhorn.io/default: enabled
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  storageClassName: longhorn-protected
+  resources:
+    requests:
+      storage: 128Mi
