@@ -7,6 +7,14 @@ controller:
     type: LoadBalancer
     annotations:
       metallb.universe.tf/address-pool: default-pool
+
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: haproxy-ingress
+          topologyKey: kubernetes.io/hostname
   
   config:
     ssl-redirect: "true"
