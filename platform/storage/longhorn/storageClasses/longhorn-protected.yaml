@@ -5,4 +5,13 @@ metadata:
 provisioner: driver.longhorn.io
 allowVolumeExpansion: true
 parameters:
+  numberOfReplicas: "2"  # Set to your total number of nodes
+  replicaAutoBalance: "least-effort"  # Ensures replicas spread across nodes
+  dataLocality: "disabled"  # Prevents all replicas on same node
+  staleReplicaTimeout: "30"  # Clean up stale replicas faster
   recurringJobSelector: '[{"name":"default","isGroup":true}]'
+  # Ensure anti-affinity to spread replicas
+  replicaSoftAntiAffinity: "false"  # Use hard anti-affinity
+  replicaZoneSoftAntiAffinity: "false"
+  diskSelector: ""  # Use all available disks
+  nodeSelector: ""  # Use all available nodes
