@@ -19,6 +19,16 @@ defaultSettings:
 
 # UI configuration
 ui:
+  replicas: 2
+  template:
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: longhorn-ui
+              topologyKey: kubernetes.io/hostname
   resources:
     requests:
       cpu: 50m
