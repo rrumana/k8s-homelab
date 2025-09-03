@@ -23,7 +23,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchLabels:
-                  app: longhorn-ui
+                  app: plex
               topologyKey: kubernetes.io/hostname
       containers:
       - name: plex
