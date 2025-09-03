@@ -30,16 +30,6 @@ spec:
           matchLabels:
             k8s-app: kube-dns
 
-    # Force a rollout via pod annotations (most CoreDNS charts support this passthrough)
-    # Force a new ReplicaSet by mutating pod template annotations.
-    # Some CoreDNS charts read podAnnotations, others nest under deployment.podAnnotations.
-    # Set both to guarantee a rollout regardless of chart schema.
-    podAnnotations:
-      reconcile/ts: "2025-09-03T00:00:00Z"
-    deployment:
-      podAnnotations:
-        reconcile/ts: "2025-09-03T00:00:00Z"
-
     # (Optional) Ensure minimal resources so the scheduler can place pods on either node
     resources:
       requests:
