@@ -18,6 +18,13 @@ spec:
     spec:
       nodeName: miniserver
       dnsPolicy: ClusterFirstWithHostNet
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: longhorn-ui
+              topologyKey: kubernetes.io/hostname
       containers:
       - name: plex
         image: lscr.io/linuxserver/plex:latest
