@@ -37,6 +37,15 @@ Internet → Cloudflare → HAProxy Ingress → Services
 - `haproxy-public`: External-facing services with full TLS
 - `haproxy-restricted`: Internal services with network restrictions
 
+## 🆕 Recent Cluster Changes
+
+- Added a second node to form a two-node cluster (control plane remains single-writer/non-HA).
+- Longhorn deployed and all application storage migrated to Longhorn; volumes are replicated across both nodes.
+- Critical services run with 2 replicas and anti-affinity to survive loss of the control-plane node:
+  - HAProxy Ingress, CoreDNS, cert-manager, Vaultwarden, and the Portfolio site.
+- Replica spreading enforced via podAntiAffinity/topologySpreadConstraints.
+- Data protection: Longhorn snapshots run hourly; backups are taken nightly to NAS.
+
 ## 📁 Project Structure
 
 ```
@@ -51,7 +60,7 @@ k8s-homelab/
 │   ├── networking/            # MetalLB, HAProxy, cert-manager
 │   ├── observability/         # Monitoring stack (planned)
 │   ├── security/              # Network policies and RBAC (more coming)
-│   └── storage/               # Longhorn distributed storage (planned)
+│   └── storage/               # Longhorn distributed storage
 ├── 🚀 apps/                   # Application deployments
 │   ├── base/                  # Kustomize base configurations
 │   ├── overlays/              # Environment-specific overrides
@@ -81,7 +90,7 @@ k8s-homelab/
 ### 🔒 Security & Productivity  
 - **Vaultwarden**: Self-hosted Bitwarden compatible password manager
 - **Immich**: Google Photos alternative with AI-powered features
-- **Nextcloud**: Google Drive alternative with built in CODE server (planned)
+- **Nextcloud**: Google Drive alternative with Collabora Online (CODE) and Whiteboard enabled
 
 ### 📊 Platform Services
 - **ArgoCD**: GitOps continuous deployment
@@ -89,6 +98,22 @@ k8s-homelab/
 - **cert-manager**: Automatic TLS certificate management
 - **MetalLB**: Load balancer for bare metal
 - **HAProxy**: High-performance ingress controller
+- **Longhorn**: Distributed block storage; all PVCs migrated; replicated across both nodes
+
+## 🛡️ High Availability & Resilience
+
+- Cluster posture: 2 nodes (single-writer control plane). Critical workloads are multi-replica with strict anti-affinity to tolerate a node failure.
+- Critical services with replicas on both nodes:
+  - HAProxy Ingress Controller
+  - CoreDNS
+  - cert-manager
+  - Vaultwarden
+  - Portfolio website
+- Storage:
+  - Longhorn provides replicated storage across both nodes
+  - Snapshots: hourly
+  - Backups: nightly to NAS
+
 
 ## 🎓 Learning Objectives
 
@@ -182,7 +207,7 @@ Key architectural decisions are documented as ADRs (Architecture Decision Record
 
 ## 🔍 Monitoring & Observability
 
-*Full LGTM stack (Loki, Grafana, Tempo, Mimir) implementation coming soon!*
+LGTM stack (Loki, Grafana, Tempo, Mimir) is planned next and will be added shortly.
 
 ## 🚀 What Makes This Special
 
@@ -214,8 +239,8 @@ Key architectural decisions are documented as ADRs (Architecture Decision Record
 ### Phase 3: Advanced Platform 🚧
 - [ ] Full observability stack (LGTM)
 - [ ] Service mesh (Linkerd)
-- [ ] Advanced storage (Longhorn)
-- [ ] Backup and disaster recovery
+- [x] Advanced storage (Longhorn)
+- [x] Backup and disaster recovery (hourly snapshots, nightly NAS backups)
 
 ### Phase 4: Enterprise Features 📋
 - [ ] Multi-cluster management
