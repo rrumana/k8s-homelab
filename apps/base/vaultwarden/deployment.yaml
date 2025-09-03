@@ -16,13 +16,6 @@ spec:
       labels:
         app: vaultwarden
     spec:
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchLabels:
-                app.kubernetes.io/name: longhorn-ui
-            topologyKey: kubernetes.io/hostname
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
