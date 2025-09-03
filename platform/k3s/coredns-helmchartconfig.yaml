@@ -30,6 +30,10 @@ spec:
           matchLabels:
             k8s-app: kube-dns
 
+    # Force a rollout via pod annotations (most CoreDNS charts support this passthrough)
+    podAnnotations:
+      reconcile/ts: "2025-09-03T00:00:00Z"
+
     # (Optional) Ensure minimal resources so the scheduler can place pods on either node
     resources:
       requests:
