@@ -16,7 +16,13 @@ spec:
       labels:
         app: vaultwarden
     spec:
-      nodeName: miniserver
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: longhorn-ui
+            topologyKey: kubernetes.io/hostname
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
