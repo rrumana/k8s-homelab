@@ -13,6 +13,7 @@ spec:
     helm:
       values: |
         installCRDs: true
+        replicaCount: 2
         extraArgs:
           - --dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53
           - --dns01-recursive-nameservers-only
@@ -21,6 +22,37 @@ spec:
           nameservers:
             - 1.1.1.1
             - 8.8.8.8
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: cert-manager
+                    app.kubernetes.io/component: controller
+                topologyKey: kubernetes.io/hostname
+        
+        webhook:
+          replicaCount: 2
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/name: webhook
+                      app.kubernetes.io/component: webhook
+                  topologyKey: kubernetes.io/hostname
+        
+        cainjector:
+          replicaCount: 2
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      app.kubernetes.io/name: cainjector
+                      app.kubernetes.io/component: cainjector
+                  topologyKey: kubernetes.io/hostname
+                  
   destination:
     server: https://kubernetes.default.svc
     namespace: cert-manager
