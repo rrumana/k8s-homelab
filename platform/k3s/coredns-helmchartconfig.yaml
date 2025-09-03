@@ -1,0 +1,40 @@
+# Enforce CoreDNS replicas to spread across nodes in k3s via HelmChartConfig
+# k3s manages CoreDNS as a HelmChart named "coredns" in the kube-system namespace.
+# This HelmChartConfig overrides values to add strict pod anti-affinity and topology spread.
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: coredns
+  namespace: kube-system
+spec:
+  valuesContent: |
+    # Keep two replicas (k3s default), but enforce scheduling onto different nodes
+    replicaCount: 2
+
+    # CoreDNS chart accepts pod-level affinity directly
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                # k3s CoreDNS pods carry this canonical label
+                k8s-app: kube-dns
+            topologyKey: kubernetes.io/hostname
+
+    # Also apply topology spread to keep a balanced, one-pod-per-node layout
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            k8s-app: kube-dns
+
+    # (Optional) Ensure minimal resources so the scheduler can place pods on either node
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
