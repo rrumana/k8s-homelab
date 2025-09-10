@@ -99,7 +99,7 @@ homarr:
 
   # Homarr chart DB flags
   database:
-    externalDatabaseEnabled: true
+    externalDatabaseEnabled: false
     migrationEnabled: true
 
   additionalObjects:
