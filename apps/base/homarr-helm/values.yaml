@@ -75,6 +75,7 @@ homarr:
   persistence:
     homarrDatabase:
       enabled: true
+      # Bind to the existing PV behind the homarr-appdata-protected PVC to avoid creating a new claim
       volumeClaimName: "homarr-appdata-protected"
       storageClassName: "longhorn-protected"
       accessMode: "ReadWriteOnce"
@@ -130,7 +131,7 @@ redis:
       storageClass: "longhorn-protected"
       size: 1Gi
   replica:
-    replicaCount: 2
+    replicaCount: 1
     persistence:
       enabled: true
       storageClass: "longhorn-protected"
