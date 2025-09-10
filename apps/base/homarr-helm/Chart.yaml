@@ -1,0 +1,17 @@
+apiVersion: v2
+name: homarr-wrapper
+description: Homarr upstream chart wrapper with repo-local values (deployed by ArgoCD via path)
+type: application
+version: 0.1.0
+appVersion: "1.36.1"
+
+dependencies:
+  - name: homarr
+    version: 5.10.2
+    repository: oci://ghcr.io/homarr-labs/charts
+  - name: mysql
+    version: "*"
+    repository: https://charts.bitnami.com/bitnami
+  - name: redis
+    version: "*"
+    repository: https://charts.bitnami.com/bitnami

@@ -1,0 +1,137 @@
+homarr:
+  # Keep single replica until DB cutover validated
+  replicaCount: 0
+  # RWO PVC -> Recreate on helm upgrades to avoid volume attach conflicts
+  strategyType: Recreate
+
+  image:
+    repository: ghcr.io/homarr-labs/homarr
+    pullPolicy: IfNotPresent
+    tag: "v1.36.1"
+
+  env:
+    TZ: "America/Los_Angeles"
+    REDIS_URL: "redis://homarr-helm-redis-master.homarr.svc.cluster.local:6379/0"
+
+  # Keep encryption key in existing secret 'homarr-env'
+  envSecrets:
+    dbCredentials:
+      existingSecret: "homarr-env"
+      dbEncryptionKey: "SECRET_ENCRYPTION_KEY"
+      dbUrlKey: "DB_URL"
+
+  # Built-in health endpoints (match current deployment)
+  livenessProbe:
+    httpGet:
+      path: /api/health/live
+      port: 7575
+
+  readinessProbe:
+    httpGet:
+      path: /api/health/ready
+      port: 7575
+
+  # Container and Service ports
+  containerPorts:
+    http:
+      port: 7575
+      protocol: TCP
+
+  service:
+    enabled: true
+    type: ClusterIP
+    ports:
+      app:
+        port: 7575
+        targetPort: http
+        protocol: TCP
+
+  # Disable ingress for side-by-side bring-up (avoid host conflict).
+  # We will enable at cutover and turn off the old ingress.
+  ingress:
+    enabled: false
+    ingressClassName: haproxy-restricted
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    hosts:
+      - host: homarr.rcrumana.xyz
+        paths:
+          - path: /
+    tls:
+      - secretName: homarr-tls
+        hosts:
+          - homarr.rcrumana.xyz
+
+  # Preserve current resources
+  resources:
+    limits:
+      cpu: "1"
+      memory: 2Gi
+    requests:
+      cpu: "50m"
+      memory: 256Mi
+
+  # Persist /appdata using the existing PVC
+  persistence:
+    homarrDatabase:
+      enabled: true
+      volumeClaimName: "homarr-appdata-protected"
+      storageClassName: "longhorn-protected"
+      accessMode: "ReadWriteOnce"
+      size: "128Mi"
+      mountPath: "/appdata"
+
+  # Keep initial scheduling behavior (nodeName: miniserver)
+  # Map to nodeSelector by hostname to stay equivalent but schedulable.
+  nodeSelector:
+    kubernetes.io/hostname: miniserver
+
+  rbac:
+    enabled: false
+
+  # Avoid resource name collisions with existing Kustomize deployment
+  nameOverride: "homarr-helm"
+  fullnameOverride: "homarr-helm"
+
+  # External DB is configured via mysql dependency below (see root-level mysql: values)
+
+  # Homarr chart DB flags
+  database:
+    externalDatabaseEnabled: true
+    migrationEnabled: true
+
+# Database subchart: Bitnami MySQL (replication)
+mysql:
+  architecture: replication
+  auth:
+    existingSecret: "homarr-mysql-secret"
+    username: "homarr"
+    database: "homarrdb"
+  primary:
+    persistence:
+      enabled: true
+      storageClass: "longhorn-protected"
+      size: 2Gi
+  secondary:
+    replicaCount: 1
+    persistence:
+      enabled: true
+      storageClass: "longhorn-protected"
+      size: 2Gi
+
+# Session store subchart: Bitnami Redis (replication)
+redis:
+  architecture: replication
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      storageClass: "longhorn-protected"
+      size: 1Gi
+  replica:
+    replicaCount: 2
+    persistence:
+      enabled: true
+      storageClass: "longhorn-protected"
+      size: 1Gi
