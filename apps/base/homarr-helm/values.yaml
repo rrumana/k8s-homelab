@@ -71,6 +71,39 @@ homarr:
       cpu: "50m"
       memory: 256Mi
 
+  # Spread Homarr pods across nodes (soft), but allow scheduling when a node is down
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            topologyKey: kubernetes.io/hostname
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - homarr
+                - key: app.kubernetes.io/instance
+                  operator: In
+                  values:
+                    - homarr-helm
+
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+              - homarr
+          - key: app.kubernetes.io/instance
+            operator: In
+            values:
+              - homarr-helm
+
   # Persist /appdata using the existing PVC
   persistence:
     homarrDatabase:
@@ -82,11 +115,6 @@ homarr:
       accessMode: "ReadWriteOnce"
       size: "1Gi"
       mountPath: "/appdata"
-
-  # Keep initial scheduling behavior (nodeName: miniserver)
-  # Map to nodeSelector by hostname to stay equivalent but schedulable.
-  nodeSelector:
-    kubernetes.io/hostname: miniserver
 
   rbac:
     enabled: false
@@ -114,12 +142,32 @@ mysql:
       enabled: true
       storageClass: "longhorn-protected"
       size: 2Gi
+    # Prefer primary on a different node than secondaries, but allow scheduling on single-node
+    podAntiAffinityPreset: soft
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: mysql
+            app.kubernetes.io/instance: homarr-helm
   secondary:
     replicaCount: 1
     persistence:
       enabled: true
       storageClass: "longhorn-protected"
       size: 2Gi
+    # Prefer secondaries on a different node than primary/each other where possible
+    podAntiAffinityPreset: soft
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: mysql
+            app.kubernetes.io/instance: homarr-helm
 
 # Session store subchart: Bitnami Redis (replication)
 redis:
@@ -131,9 +179,29 @@ redis:
       enabled: true
       storageClass: "longhorn-protected"
       size: 1Gi
+    # Prefer Redis master on a different node than replicas where possible
+    podAntiAffinityPreset: soft
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: redis
+            app.kubernetes.io/instance: homarr-helm
   replica:
     replicaCount: 1
     persistence:
       enabled: true
       storageClass: "longhorn-protected"
       size: 1Gi
+    # Prefer Redis replicas on a different node than master/each other where possible
+    podAntiAffinityPreset: soft
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: redis
+            app.kubernetes.io/instance: homarr-helm
