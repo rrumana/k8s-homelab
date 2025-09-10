@@ -1,17 +1,17 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: homarr
+  name: homarr-legacy
   namespace: homarr
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   ingressClassName: haproxy-restricted
   tls:
-    - hosts: ["homarr.rcrumana.xyz"]
-      secretName: homarr-tls
+    - hosts: ["homarr-legacy.rcrumana.xyz"]
+      secretName: homarr-legacy-tls
   rules:
-    - host: homarr.rcrumana.xyz
+    - host: homarr-legacy.rcrumana.xyz
       http:
         paths:
           - path: /
