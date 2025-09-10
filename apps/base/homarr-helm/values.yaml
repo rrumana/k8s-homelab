@@ -1,6 +1,6 @@
 homarr:
   # Keep single replica until DB cutover validated
-  replicaCount: 0
+  replicaCount: 1
   # RWO PVC -> Recreate on helm upgrades to avoid volume attach conflicts
   strategyType: Recreate
 
