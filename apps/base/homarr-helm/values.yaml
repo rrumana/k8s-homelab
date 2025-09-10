@@ -76,10 +76,11 @@ homarr:
     homarrDatabase:
       enabled: true
       # Bind to the existing PV behind the homarr-appdata-protected PVC to avoid creating a new claim
-      volumeClaimName: "homarr-appdata-protected"
+      name: "homarr-database"
+      volumeClaimName: ""
       storageClassName: "longhorn-protected"
       accessMode: "ReadWriteOnce"
-      size: "128Mi"
+      size: "1Gi"
       mountPath: "/appdata"
 
   # Keep initial scheduling behavior (nodeName: miniserver)
@@ -100,6 +101,50 @@ homarr:
   database:
     externalDatabaseEnabled: true
     migrationEnabled: true
+
+  additionalObjects:
+    - apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: homarr-appdata-migrate
+        annotations:
+          # Ensure this job runs after PVCs are created; if PVCs aren't ready,
+          # the pod will remain Pending until they bind.
+          argocd.argoproj.io/sync-wave: "1"
+      spec:
+        ttlSecondsAfterFinished: 86400
+        backoffLimit: 0
+        template:
+          spec:
+            restartPolicy: Never
+            containers:
+              - name: copy
+                image: busybox:1.36
+                imagePullPolicy: IfNotPresent
+                command: ["/bin/sh","-lc"]
+                args:
+                  - |
+                    set -eux
+                    # Only copy if destination is empty to keep idempotency
+                    if [ -z "$(ls -A /dst 2>/dev/null || true)" ]; then
+                      # Copy all files, preserving attributes as much as busybox allows
+                      cp -a /src/. /dst/
+                    else
+                      echo "Destination not empty; skipping data copy"
+                    fi
+                volumeMounts:
+                  - name: src
+                    mountPath: /src
+                    readOnly: true
+                  - name: dst
+                    mountPath: /dst
+            volumes:
+              - name: src
+                persistentVolumeClaim:
+                  claimName: homarr-appdata-protected
+              - name: dst
+                persistentVolumeClaim:
+                  claimName: homarr-database
 
 # Database subchart: Bitnami MySQL (replication)
 mysql:
