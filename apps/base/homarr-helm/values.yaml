@@ -42,14 +42,14 @@ homarr:
     type: ClusterIP
     ports:
       app:
-        port: 7575
+        port: 80
         targetPort: http
         protocol: TCP
 
   # Disable ingress for side-by-side bring-up (avoid host conflict).
   # We will enable at cutover and turn off the old ingress.
   ingress:
-    enabled: false
+    enabled: true
     ingressClassName: haproxy-restricted
     annotations:
       cert-manager.io/cluster-issuer: "letsencrypt-prod"
