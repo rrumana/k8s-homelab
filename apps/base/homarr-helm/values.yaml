@@ -109,10 +109,10 @@ homarr:
     homarrDatabase:
       enabled: true
       # Bind to the existing PV behind the homarr-appdata-protected PVC to avoid creating a new claim
-      name: "homarr-database"
+      name: "homarr"
       volumeClaimName: ""
       storageClassName: "longhorn-protected"
-      accessMode: "ReadWriteOnce"
+      accessMode: "ReadWriteMany"
       size: "1Gi"
       mountPath: "/appdata"
 
