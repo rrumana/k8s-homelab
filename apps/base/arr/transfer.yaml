@@ -10,31 +10,6 @@ spec:
     spec:
       nodeName: miniserver
       restartPolicy: Never
-      containers:
-      - name: transfer
-        image: longhornio/longhorn-engine:v1.9.1   # same engine image
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - { name: dev,     mountPath: /host/dev }
-        - { name: proc,    mountPath: /host/proc }
-        - { name: replica, mountPath: /volume }         # orphan replica dir
-        - { name: dest,    mountPath: /dest }           # target PVC mount
-        command: ["/bin/sh","-lc"]
-        args:
-          - |
-            set -euo pipefail
-            VOL=copy-feb933ec
-            SIZE=1073741824
-            echo "Exporting orphan as /host/dev/longhorn/$VOL"
-            launch-simple-longhorn "$VOL" "$SIZE" &
-            for i in $(seq 1 30); do [ -e /host/dev/longhorn/$VOL ] && break || sleep 1; done
-            mkdir -p /mnt/src
-            mount -o ro /host/dev/longhorn/$VOL /mnt/src
-            apk add --no-cache rsync coreutils findutils e2fsprogs xfsprogs
-            echo "Copying data (rsync -aHAXS)…"
-            rsync -aHAXS --info=progress2 /mnt/src/ /dest/
-            echo "Sync complete."
       volumes:
       - name: dev
         hostPath: { path: /dev }
@@ -44,4 +19,51 @@ spec:
         hostPath: { path: /srv/longhorn/replicas/pvc-feb933ec-0534-4191-9ee3-afb0baee0b7a-410aeba9 }  # orphan dir here
       - name: dest
         persistentVolumeClaim:
-          claimName: qbit-config-protected
+          claimName: qbit-config-protected      
+      containers:
+
+      # 1) Longhorn exporter (makes /host/dev/longhorn/<VOL>)
+      - name: engine
+        image: longhornio/longhorn-engine:v1.9.1
+        securityContext: { privileged: true }
+        volumeMounts:
+        - { name: dev,     mountPath: /host/dev }
+        - { name: proc,    mountPath: /host/proc }
+        - { name: replica, mountPath: /volume }
+        command: ["/bin/sh","-lc"]
+        args:
+          - |
+            set -euo pipefail
+            VOL=copy-feb933ec
+            SIZE=1073741824      # from volume.meta
+            # bind host /dev so the device appears under /host/dev/longhorn/<VOL>
+            mount --rbind /host/dev /dev
+            # Run exporter in foreground so this container stays alive
+            launch-simple-longhorn "$VOL" "$SIZE"
+
+      # 2) Copier (waits for device, mounts RO, rsyncs to PVC)
+      - name: copy
+        image: alpine:3.20
+        securityContext: { privileged: true }  # needed for mount
+        volumeMounts:
+        - { name: dev,  mountPath: /host/dev }
+        - { name: dest, mountPath: /dest }
+        command: ["/bin/sh","-lc"]
+        args:
+          - |
+            set -euo pipefail
+            VOL=copy-feb933ec
+            for i in $(seq 1 90); do
+              [ -e /host/dev/longhorn/$VOL ] && break
+              sleep 1
+            done
+            test -e /host/dev/longhorn/$VOL
+            apk add --no-cache rsync
+            mkdir -p /mnt/src
+            # Try auto, then ext4, then xfs (RO)
+            mount -o ro /host/dev/longhorn/$VOL /mnt/src || \
+            mount -t ext4 -o ro /host/dev/longhorn/$VOL /mnt/src || \
+            mount -t xfs  -o ro /host/dev/longhorn/$VOL /mnt/src
+            echo "Copying..."
+            rsync -aHAXS --info=progress2 /mnt/src/ /dest/
+            echo "Done"
