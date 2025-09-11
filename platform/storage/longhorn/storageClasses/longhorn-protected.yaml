@@ -1,9 +1,10 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: longhorn-protected
+  name: longhorn-default
 provisioner: driver.longhorn.io
 allowVolumeExpansion: true
+reclaimPolicy: "Retain"
 numberOfReplicas: “2”
 parameters:
   recurringJobSelector: '[{"name":"default","isGroup":true}]'
