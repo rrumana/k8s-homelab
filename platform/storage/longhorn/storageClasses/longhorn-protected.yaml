@@ -4,5 +4,7 @@ metadata:
   name: longhorn-protected
 provisioner: driver.longhorn.io
 allowVolumeExpansion: true
+reclaimPolicy: "Retain"
+numberOfReplicas: “2”
 parameters:
   recurringJobSelector: '[{"name":"default","isGroup":true}]'
