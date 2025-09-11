@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: transfer-orphan
+  namespace: arr-stack
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  template:
+    spec:
+      nodeName: miniserver
+      restartPolicy: Never
+      containers:
+      - name: transfer
+        image: longhornio/longhorn-engine:v1.9.1   # same engine image
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - { name: dev,     mountPath: /host/dev }
+        - { name: proc,    mountPath: /host/proc }
+        - { name: replica, mountPath: /volume }         # orphan replica dir
+        - { name: dest,    mountPath: /dest }           # target PVC mount
+        command: ["/bin/sh","-lc"]
+        args:
+          - |
+            set -euo pipefail
+            VOL=copy-feb933ec
+            SIZE=1073741824
+            echo "Exporting orphan as /host/dev/longhorn/$VOL"
+            launch-simple-longhorn "$VOL" "$SIZE" &
+            for i in $(seq 1 30); do [ -e /host/dev/longhorn/$VOL ] && break || sleep 1; done
+            mkdir -p /mnt/src
+            mount -o ro /host/dev/longhorn/$VOL /mnt/src
+            apk add --no-cache rsync coreutils findutils e2fsprogs xfsprogs
+            echo "Copying data (rsync -aHAXS)…"
+            rsync -aHAXS --info=progress2 /mnt/src/ /dest/
+            echo "Sync complete."
+      volumes:
+      - name: dev
+        hostPath: { path: /dev }
+      - name: proc
+        hostPath: { path: /proc }
+      - name: replica
+        hostPath: { path: /srv/longhorn/replicas/pvc-feb933ec-0534-4191-9ee3-afb0baee0b7a-410aeba9 }  # orphan dir here
+      - name: dest
+        persistentVolumeClaim:
+          claimName: pvc-da28e0f2-197f-415c-bbf5-3d801aaee416
