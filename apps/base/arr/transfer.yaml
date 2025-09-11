@@ -44,7 +44,7 @@ spec:
       # 2) Copier (waits for device, mounts RO, rsyncs to PVC)
       - name: copy
         image: alpine:3.20
-        securityContext: { privileged: true }  # needed for mount
+        securityContext: { privileged: true }   # needed for mount
         volumeMounts:
         - { name: dev,  mountPath: /host/dev }
         - { name: dest, mountPath: /dest }
@@ -53,17 +53,40 @@ spec:
           - |
             set -euo pipefail
             VOL=copy-feb933ec
-            for i in $(seq 1 90); do
-              [ -e /host/dev/longhorn/$VOL ] && break
-              sleep 1
+            DEV=/host/dev/longhorn/$VOL
+
+            # Tools
+            apk add --no-cache rsync util-linux e2fsprogs xfsprogs
+
+            echo "Waiting for $DEV to become a *block device* with non-zero size…"
+            for i in $(seq 1 120); do
+              if [ -b "$DEV" ]; then
+                SZ=$(blockdev --getsize64 "$DEV" 2>/dev/null || echo 0)
+                if [ "${SZ:-0}" -gt 0 ]; then
+                  echo "Device ready (size=${SZ} bytes)"; break
+                fi
+              fi
+              [ $i -eq 120 ] && { echo "Timed out waiting for device"; exit 1; }
+              sleep 2
             done
-            test -e /host/dev/longhorn/$VOL
-            apk add --no-cache rsync
+
             mkdir -p /mnt/src
-            # Try auto, then ext4, then xfs (RO)
-            mount -o ro /host/dev/longhorn/$VOL /mnt/src || \
-            mount -t ext4 -o ro /host/dev/longhorn/$VOL /mnt/src || \
-            mount -t xfs  -o ro /host/dev/longhorn/$VOL /mnt/src
-            echo "Copying..."
+            echo "Attempting read-only mount…"
+            ok=0
+            for i in $(seq 1 10); do
+              mount -o ro "$DEV" /mnt/src 2>/tmp/merr || \
+              mount -t ext4 -o ro "$DEV" /mnt/src 2>>/tmp/merr || \
+              mount -t xfs  -o ro "$DEV" /mnt/src 2>>/tmp/merr || true
+              if mountpoint -q /mnt/src; then ok=1; break; fi
+              echo "Mount attempt $i failed; retrying in 2s"; cat /tmp/merr || true; sleep 2
+            done
+            [ "$ok" = "1" ] || { echo "Mount failed after retries"; cat /tmp/merr || true; exit 1; }
+
+            echo "Source filesystem:"
+            df -hT /mnt/src || true
+            echo "Destination filesystem:"
+            df -hT /dest || true
+
+            echo "Copying (rsync -aHAXS)…"
             rsync -aHAXS --info=progress2 /mnt/src/ /dest/
-            echo "Done"
+            echo "Copy complete"
