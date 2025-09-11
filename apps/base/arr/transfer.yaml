@@ -44,4 +44,4 @@ spec:
         hostPath: { path: /srv/longhorn/replicas/pvc-feb933ec-0534-4191-9ee3-afb0baee0b7a-410aeba9 }  # orphan dir here
       - name: dest
         persistentVolumeClaim:
-          claimName: pvc-da28e0f2-197f-415c-bbf5-3d801aaee416
+          claimName: pvc-8d76e7d0-50c6-41b8-a93b-783d5785ff5c
