@@ -75,4 +75,4 @@ spec:
       volumes:
         - name: db-data
           persistentVolumeClaim:
-            claimName: unifi-db-data-protected
+            claimName: unifi-db
