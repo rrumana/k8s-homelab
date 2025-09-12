@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: transfer-orphan
-  namespace: arr-stack
+  namespace: plex
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
