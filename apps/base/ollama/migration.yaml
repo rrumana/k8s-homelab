@@ -23,9 +23,9 @@ spec:
         - { name: dst, mountPath: /dst }
       volumes:
       - name: src
-        persistentVolumeClaim: { claimName: ollama-data }
-      - name: dst
         persistentVolumeClaim: { claimName: ollama-data-rwx }
+      - name: dst
+        persistentVolumeClaim: { claimName: ollama-data }
 ---
 apiVersion: batch/v1
 kind: Job
@@ -52,6 +52,6 @@ spec:
         - { name: dst, mountPath: /dst }
       volumes:
       - name: src
-        persistentVolumeClaim: { claimName: open-webui-data }
-      - name: dst
         persistentVolumeClaim: { claimName: open-webui-data-rwx }
+      - name: dst
+        persistentVolumeClaim: { claimName: open-webui-data }
