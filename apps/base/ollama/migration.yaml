@@ -12,12 +12,23 @@ spec:
       containers:
       - name: rsync
         image: alpine:3.20
-        command: ["/bin/sh","-lc"]
+        command: ["/bin/sh", "-c"]
         args:
         - |
           set -euo pipefail
           apk add --no-cache rsync
-          rsync -aHAX --delete /src/ /dst/
+          echo "Starting migration from /src to /dst"
+          echo "Source contents:"
+          ls -la /src/ || echo "Source directory is empty or doesn't exist"
+          du -sh /src/ || echo "Cannot calculate size"
+          echo "---"
+          echo "Running rsync..."
+          rsync -avHAX --progress --stats /src/ /dst/
+          echo "---"
+          echo "Destination contents after sync:"
+          ls -la /dst/
+          du -sh /dst/
+          echo "Migration completed"
         volumeMounts:
         - { name: src, mountPath: /src }
         - { name: dst, mountPath: /dst }
@@ -41,12 +52,23 @@ spec:
       containers:
       - name: rsync
         image: alpine:3.20
-        command: ["/bin/sh","-lc"]
+        command: ["/bin/sh", "-c"]
         args:
         - |
           set -euo pipefail
           apk add --no-cache rsync
-          rsync -aHAX --delete /src/ /dst/
+          echo "Starting migration from /src to /dst"
+          echo "Source contents:"
+          ls -la /src/ || echo "Source directory is empty or doesn't exist"
+          du -sh /src/ || echo "Cannot calculate size"
+          echo "---"
+          echo "Running rsync..."
+          rsync -avHAX --progress --stats /src/ /dst/
+          echo "---"
+          echo "Destination contents after sync:"
+          ls -la /dst/
+          du -sh /dst/
+          echo "Migration completed"
         volumeMounts:
         - { name: src, mountPath: /src }
         - { name: dst, mountPath: /dst }
