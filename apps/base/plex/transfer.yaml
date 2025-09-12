@@ -16,10 +16,10 @@ spec:
       - name: proc
         hostPath: { path: /proc }
       - name: replica
-        hostPath: { path: /srv/longhorn/replicas/pvc-feb933ec-0534-4191-9ee3-afb0baee0b7a-410aeba9 }  # orphan dir here
+        hostPath: { path: /srv/longhorn/replicas/pvc-0e4715e1-b9c5-4eb2-8046-9aa79591ce97-21f01a3c }  # orphan dir here
       - name: dest
         persistentVolumeClaim:
-          claimName: qbit-config-protected      
+          claimName: plex-config     
       containers:
 
       # 1) Longhorn exporter (makes /host/dev/longhorn/<VOL>)
@@ -34,7 +34,7 @@ spec:
         args:
           - |
             set -euo pipefail
-            VOL=copy-feb933ec
+            VOL=replica-copy
             SIZE=1073741824      # from volume.meta
             # bind host /dev so the device appears under /host/dev/longhorn/<VOL>
             mount --rbind /host/dev /dev
@@ -52,7 +52,7 @@ spec:
         args:
           - |
             set -euo pipefail
-            VOL=copy-feb933ec
+            VOL=replica-copy
             DEV=/host/dev/longhorn/$VOL
 
             # Tools
