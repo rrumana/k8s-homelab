@@ -5,4 +5,3 @@ namespace: nextcloud
 
 resources:
   - pvc.yaml
-  - transfer.yaml
