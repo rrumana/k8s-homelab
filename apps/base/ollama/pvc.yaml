@@ -29,3 +29,35 @@ spec:
   resources:
     requests:
       storage: 4Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-data-rwx
+  labels:
+    recurring-job.longhorn.io/source: enabled
+    recurring-job-group.longhorn.io/default: enabled
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  storageClassName: longhorn-protected
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 128Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: open-webui-data-rwx
+  labels:
+    recurring-job.longhorn.io/source: enabled
+    recurring-job-group.longhorn.io/default: enabled
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+spec:
+  storageClassName: longhorn-protected
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 4Gi
