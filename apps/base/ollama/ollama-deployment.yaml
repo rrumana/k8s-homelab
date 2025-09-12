@@ -60,7 +60,7 @@ spec:
       volumes:
       - name: ollama-data
         persistentVolumeClaim:
-          claimName: ollama-data
+          claimName: ollama-data-rwx
       - name: dri
         hostPath:
           path: /dev/dri
