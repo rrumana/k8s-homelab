@@ -1,8 +1,8 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: transfer-orphan
-  namespace: vaultwarden
+  name: transfer-orphan-config
+  namespace: unifi
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
@@ -16,10 +16,103 @@ spec:
       - name: proc
         hostPath: { path: /proc }
       - name: replica
-        hostPath: { path: /srv/longhorn/replicas/pvc-1816d4e3-c300-4c42-b1dc-fdfeba8fd4ae-f23fad4e }  # orphan dir here
+        hostPath: { path: /srv/longhorn/replicas/pvc-894a724e-99d2-463f-a973-80c005f0d38b-59417ee7 }  # orphan dir here
       - name: dest
         persistentVolumeClaim:
-          claimName: vaultwarden-data
+          claimName: unifi-config
+      containers:
+
+      # 1) Longhorn exporter (makes /host/dev/longhorn/<VOL>)
+      - name: engine
+        image: longhornio/longhorn-engine:v1.9.1
+        securityContext: { privileged: true }
+        volumeMounts:
+        - { name: dev,     mountPath: /host/dev }
+        - { name: proc,    mountPath: /host/proc }
+        - { name: replica, mountPath: /volume }
+        command: ["/bin/sh","-lc"]
+        args:
+          - |
+            set -euo pipefail
+            VOL=copy-replica-config
+            SIZE=536870912S      # from volume.meta
+            # bind host /dev so the device appears under /host/dev/longhorn/<VOL>
+            mount --rbind /host/dev /dev
+            # Run exporter in foreground so this container stays alive
+            launch-simple-longhorn "$VOL" "$SIZE"
+
+      # 2) Copier (waits for device, mounts RO, rsyncs to PVC)
+      - name: copy
+        image: alpine:3.20
+        securityContext: { privileged: true }   # needed for mount
+        volumeMounts:
+        - { name: dev,  mountPath: /host/dev }
+        - { name: dest, mountPath: /dest }
+        command: ["/bin/sh","-lc"]
+        args:
+          - |
+            set -euo pipefail
+            VOL=copy-replica-config
+            DEV=/host/dev/longhorn/$VOL
+
+            # Tools
+            apk add --no-cache rsync util-linux e2fsprogs xfsprogs
+
+            echo "Waiting for $DEV to become a *block device* with non-zero size…"
+            for i in $(seq 1 120); do
+              if [ -b "$DEV" ]; then
+                SZ=$(blockdev --getsize64 "$DEV" 2>/dev/null || echo 0)
+                if [ "${SZ:-0}" -gt 0 ]; then
+                  echo "Device ready (size=${SZ} bytes)"; break
+                fi
+              fi
+              [ $i -eq 120 ] && { echo "Timed out waiting for device"; exit 1; }
+              sleep 2
+            done
+
+            mkdir -p /mnt/src
+            echo "Attempting read-only mount…"
+            ok=0
+            for i in $(seq 1 10); do
+              mount -o ro "$DEV" /mnt/src 2>/tmp/merr || \
+              mount -t ext4 -o ro "$DEV" /mnt/src 2>>/tmp/merr || \
+              mount -t xfs  -o ro "$DEV" /mnt/src 2>>/tmp/merr || true
+              if mountpoint -q /mnt/src; then ok=1; break; fi
+              echo "Mount attempt $i failed; retrying in 2s"; cat /tmp/merr || true; sleep 2
+            done
+            [ "$ok" = "1" ] || { echo "Mount failed after retries"; cat /tmp/merr || true; exit 1; }
+
+            echo "Source filesystem:"
+            df -hT /mnt/src || true
+            echo "Destination filesystem:"
+            df -hT /dest || true
+
+            echo "Copying (rsync -aHAXS)…"
+            rsync -aHAXS --info=progress2 /mnt/src/ /dest/
+            echo "Copy complete"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: transfer-orphan-db
+  namespace: unifi
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  template:
+    spec:
+      nodeName: miniserver
+      restartPolicy: Never
+      volumes:
+      - name: dev
+        hostPath: { path: /dev }
+      - name: proc
+        hostPath: { path: /proc }
+      - name: replica
+        hostPath: { path: /srv/longhorn/replicas/pvc-06a0df56-f711-4484-87a8-bb1c6874ee96-dfc3cd5a }  # orphan dir here
+      - name: dest
+        persistentVolumeClaim:
+          claimName: unifi-db
       containers:
 
       # 1) Longhorn exporter (makes /host/dev/longhorn/<VOL>)
@@ -35,7 +128,7 @@ spec:
           - |
             set -euo pipefail
             VOL=copy-replica
-            SIZE=134217728      # from volume.meta
+            SIZE=1073741824      # from volume.meta
             # bind host /dev so the device appears under /host/dev/longhorn/<VOL>
             mount --rbind /host/dev /dev
             # Run exporter in foreground so this container stays alive
