@@ -35,7 +35,7 @@ spec:
           - |
             set -euo pipefail
             VOL=replica-copy
-            SIZE=1073741824      # from volume.meta
+            SIZE=34359738368      # from volume.meta
             # bind host /dev so the device appears under /host/dev/longhorn/<VOL>
             mount --rbind /host/dev /dev
             # Run exporter in foreground so this container stays alive
