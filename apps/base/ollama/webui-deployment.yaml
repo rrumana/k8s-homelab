@@ -34,9 +34,12 @@ spec:
         env:
         - name: OLLAMA_BASE_URL
           value: "http://ollama:11434"
+        - name: DATABASE_URL
+          value: "postgresql://openwebui:$(POSTGRES_PASSWORD)@postgres:5432/openwebui"
+        - { name: POSTGRES_PASSWORD, valueFrom: { secretKeyRef: { name: openwebui-secrets, key: POSTGRES_PASSWORD } } }
         volumeMounts:
-        - name: webui-data
-          mountPath: /app/backend/data
+        - name: webui-files
+          mountPath: /app/backend/data/uploads
         resources:
           requests:
             memory: "512Mi"
@@ -45,6 +48,6 @@ spec:
             memory: "2Gi"
             cpu: "1"
       volumes:
-      - name: webui-data
+      - name: webui-files
         persistentVolumeClaim:
-          claimName: open-webui-data-rwx
+          claimName: open-webui-data
