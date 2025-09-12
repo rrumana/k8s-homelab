@@ -32,10 +32,6 @@ spec:
         - containerPort: 8080
           name: http
         env:
-        - name: OLLAMA_BASE_URL
-          value: "http://ollama:11434"
-        - name: DATABASE_URL
-          value: "postgresql://openwebui:$(POSTGRES_PASSWORD)@postgres:5432/openwebui"
         - { name: OLLAMA_BASE_URL, value: "http://ollama:11434" }
         - { name: DATABASE_TYPE, value: "postgresql" }
         - { name: DATABASE_HOST, value: "postgres" }
