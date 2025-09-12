@@ -13,7 +13,7 @@ spec:
   storageClassName: longhorn-protected
   resources:
     requests:
-      storage: 1Gi
+      storage: 4Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
