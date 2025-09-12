@@ -6,7 +6,7 @@ metadata:
     app: ollama
     component: server
 spec:
-  replicas: 1
+  replicas: 2
   strategy:
     type: Recreate
   selector:
@@ -19,7 +19,14 @@ spec:
         app: ollama
         component: server
     spec:
-      nodeName: miniserver
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: ollama
+                  component: server
+              topologyKey: "kubernetes.io/hostname"
       containers:
       - name: ollama
         image: ollama/ollama:rocm
