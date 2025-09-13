@@ -25,22 +25,22 @@ spec:
           hostPath: { path: /dev/net/tun, type: CharDevice }
         - name: gluetun
           persistentVolumeClaim:
-            claimName: gluetun-protected
+            claimName: gluetun
         - name: qbit-config
           persistentVolumeClaim:
             claimName: qbit-config-protected
         - name: sonarr-config
           persistentVolumeClaim:
-            claimName: sonarr-config-protected
+            claimName: sonarr-config
         - name: radarr-config
           persistentVolumeClaim:
-            claimName: radarr-config-protected
+            claimName: radarr-config
         - name: lidarr-config
           persistentVolumeClaim:
-            claimName: lidarr-config-protected
+            claimName: lidarr-config
         - name: prowlarr-config
           persistentVolumeClaim:
-            claimName: prowlarr-config-protected
+            claimName: prowlarr-config
         - name: media
           hostPath: { path: /media, type: Directory }
         - name: downloads
