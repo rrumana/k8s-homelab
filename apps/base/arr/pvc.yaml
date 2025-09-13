@@ -18,7 +18,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: gluetun-protected
+  name: gluetun
   namespace: arr-stack
   labels:
     recurring-job.longhorn.io/source: enabled
@@ -35,7 +35,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: sonarr-config-protected
+  name: sonarr-config
   namespace: arr-stack
   labels:
     recurring-job.longhorn.io/source: enabled
@@ -52,7 +52,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: radarr-config-protected
+  name: radarr-config
   namespace: arr-stack
   labels:
     recurring-job.longhorn.io/source: enabled
@@ -69,7 +69,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: lidarr-config-protected
+  name: lidarr-config
   namespace: arr-stack
   labels:
     recurring-job.longhorn.io/source: enabled
@@ -86,7 +86,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: prowlarr-config-protected
+  name: prowlarr-config
   namespace: arr-stack
   labels:
     recurring-job.longhorn.io/source: enabled
