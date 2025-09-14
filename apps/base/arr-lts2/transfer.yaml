@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: transfer-orphan
-  namespace: elasticsearch
+  namespace: arr-lts2
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
@@ -16,10 +16,10 @@ spec:
       - name: proc
         hostPath: { path: /proc }
       - name: replica
-        hostPath: { path: /srv/longhorn/replicas/pvc-fc23c0b8-7da6-483c-97a3-05c80bc1d1b2-cc1b266a }  # orphan dir here
+        hostPath: { path: /srv/longhorn/replicas/pvc-b97f9ebd-1231-4160-a9cb-17a672ecd8c0-29ac0e3c }  # orphan dir here
       - name: dest
         persistentVolumeClaim:
-          claimName: elasticsearch-data
+          claimName: qbit-config
       containers:
 
       # 1) Longhorn exporter (makes /host/dev/longhorn/<VOL>)
@@ -35,7 +35,7 @@ spec:
           - |
             set -euo pipefail
             VOL=copy-replica
-            SIZE=8589934592     # from volume.meta
+            SIZE=1073741824     # from volume.meta
             # bind host /dev so the device appears under /host/dev/longhorn/<VOL>
             mount --rbind /host/dev /dev
             # Run exporter in foreground so this container stays alive
