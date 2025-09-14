@@ -49,4 +49,4 @@ spec:
       volumes:
         - name: appdata
           persistentVolumeClaim:
-            claimName: homarr-appdata-protected
+            claimName: homarr-appdata

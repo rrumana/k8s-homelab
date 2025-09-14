@@ -1,8 +1,8 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: transfer-orphan-nextcloud
-  namespace: nextcloud
+  name: transfer-orphan
+  namespace: homarr
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
@@ -16,7 +16,7 @@ spec:
       - name: proc
         hostPath: { path: /proc }
       - name: replica
-        hostPath: { path: /srv/longhorn/replicas/pvc-2ea8c2ec-ab8f-4295-a704-10c3b0b8b37d-539f4fd5 }  # orphan dir here
+        hostPath: { path: /srv/longhorn/replicas/pvc-29d08798-c289-4578-8de0-8d311beb5530-4bae9c16 }  # orphan dir here
       - name: dest
         persistentVolumeClaim:
           claimName: nextcloud-appdata
@@ -34,8 +34,8 @@ spec:
         args:
           - |
             set -euo pipefail
-            VOL=copy-replica-nextcloud
-            SIZE=68719476736      # from volume.meta
+            VOL=copy-replica
+            SIZE=134217728      # from volume.meta
             # bind host /dev so the device appears under /host/dev/longhorn/<VOL>
             mount --rbind /host/dev /dev
             # Run exporter in foreground so this container stays alive
@@ -52,7 +52,7 @@ spec:
         args:
           - |
             set -euo pipefail
-            VOL=copy-replica-nextcloud
+            VOL=copy-replica
             DEV=/host/dev/longhorn/$VOL
 
             # Tools
