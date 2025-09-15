@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-model-from-url
+  namespace: llama
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: fetch
+          image: curlimages/curl:8.10.1
+          env:
+            - name: MODEL_URL
+              value: "https://huggingface.co/unsloth/Qwen3-30B-A3B-Thinking-2507-GGUF/resolve/main/Qwen3-30B-A3B-Thinking-2507-Q4_K_M.gguf"
+          command: ["sh","-lc"]
+          args:
+            - |
+              set -euo pipefail
+              test -n "${MODEL_URL:-}" || { echo "MODEL_URL required"; exit 1; }
+              cd /models
+              echo "Downloading: ${MODEL_URL}"
+              curl -L --fail "$MODEL_URL" -o model.gguf
+              ln -sf model.gguf primary.gguf
+          volumeMounts:
+            - name: bus
+              mountPath: /models
+      volumes:
+        - name: bus
+          persistentVolumeClaim:
+            claimName: llama-models-bus

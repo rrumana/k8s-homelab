@@ -5,22 +5,23 @@ metadata:
   labels: { app: llama, component: librechat }
 data:
   librechat.yaml: |
-    version: 1.2.8
+    version: 1.2.9
     cache: true
     endpoints:
       custom:
         - name: "LlamaCPP"
-          apiKey: "user_provided"
+          apiKey: "${LLAMA_API_KEY}"
           baseURL: "https://llama-api.rcrumana.xyz/v1"
           models:
-            default: ["local-gguf"]
+            default: ["qwen3-30b-thinking"]
             fetch: false
           titleConvo: true
-          titleModel: "current_model"
+          titleModel: "qwen3-30b-thinking"
           summarize: false
-          summaryModel: "current_model"
+          summaryModel: "qwen3-30b-thinking"
           forcePrompt: false
           modelDisplayLabel: "Llama.cpp"
     interface:
       defaultEndpoint: "LlamaCPP"
-      defaultModel: "local-gguf"
+      defaultModel: "qwen3-30b-thinking"
+      modelSelect: true
