@@ -25,6 +25,10 @@ metadata:
     component: webui
 spec:
   type: ClusterIP
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 86400
   selector:
     app: ollama
     component: webui
