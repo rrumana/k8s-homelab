@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: llama
+resources:
+  - storageclass-local.yaml
+  - pvc.yaml
+  - llama-statefulset.yaml
+  - services.yaml
+  - librechat-deployment.yaml
+  - mongo-statefulset.yaml
+  - ingress.yaml
+  - secrets.yaml
+  - configmap-librechat.yaml
+  - pdbs.yaml
+  - hpa-librechat.yaml
+
+commonLabels:
+  app.kubernetes.io/name: llama-stack
+  app.kubernetes.io/managed-by: argocd
