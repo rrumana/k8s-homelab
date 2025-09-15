@@ -7,7 +7,7 @@ metadata:
     component: server
 spec:
   serviceName: llama-api
-  replicas: 1                     # set to the number of nodes you want to serve on (1..N)
+  replicas: 1
   selector:
     matchLabels:
       app: llama
@@ -18,13 +18,11 @@ spec:
         app: llama
         component: server
     spec:
-      # Only schedule on nodes you approve for serving:
-      #   kubectl label node miniserver llama.enabled=true
-      #   kubectl label node worker-1 llama.enabled=true
+      # Schedule onto nodes you've approved for serving
       nodeSelector:
         llama.enabled: "true"
 
-      # Keep one replica per node
+      # One replica per node (when you scale up)
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -42,88 +40,81 @@ spec:
               app: llama
               component: server
 
-      containers:
-      - name: llama-server
-        image: ghcr.io/ggml-org/llama.cpp:server-vulkan
-        imagePullPolicy: IfNotPresent
-        ports:
-          - { containerPort: 8080, name: http }
-        env:
-          - { name: MODEL_PATH,   value: "/models/primary.gguf" }
-          - { name: CONTEXT,      value: "32768" }
-          - { name: THREADS,      value: "12" }
-          - { name: CONCURRENCY,  value: "2" }
-          - { name: N_GPU_LAYERS, value: "999" }
-        # IMPORTANT: each token is its own list item; no "exec", no quoting of $(VARS)
-        args:
-          - -m
-          - $(MODEL_PATH)
-          - -c
-          - $(CONTEXT)
-          - -t
-          - $(THREADS)
-          - -ngl
-          - $(N_GPU_LAYERS)
-          - -np
-          - $(CONCURRENCY)
-          - --port
-          - "8080"
-          - --host
-          - 0.0.0.0
-        volumeMounts:
-          - { name: models, mountPath: /models }
-          - { name: dri,    mountPath: /dev/dri }
-          - { name: kfd,    mountPath: /dev/kfd }
-        resources:
-          requests: { cpu: "2",  memory: "4Gi" }
-          limits:   { cpu: "24", memory: "48Gi" }
-        securityContext:
-          privileged: true
-          capabilities: { add: ["SYS_ADMIN"] }
-        startupProbe:
-          tcpSocket: { port: 8080 }
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          failureThreshold: 120
-        readinessProbe:
-          tcpSocket: { port: 8080 }
-          initialDelaySeconds: 10
-          periodSeconds: 10
-
-
+      # Seed node-local RWO cache from RWX "bus" before starting
       initContainers:
-        - name: seed-models
+        - name: require-model-on-bus
           image: alpine:3.20
-          command: ["/bin/sh", "-lc"]
+          command: ["sh","-lc"]
           args:
-            - >
-              set -euo pipefail;
-              apk add --no-cache rsync coreutils;
-              mkdir -p /models;
-              rsync -a --delete /models-bus/ /models/ || true;
-              if [ ! -f /models/primary.gguf ]; then
-                set +e; FIRST=$(find /models -maxdepth 2 -type f -name '*.gguf' | head -n1); set -e;
-                [ -n "$FIRST" ] && ln -sf "$FIRST" /models/primary.gguf || true;
+            - |
+              set -e
+              if ! find /models-bus -maxdepth 2 -type f -name '*.gguf' | head -n1 | grep -q . ; then
+                echo "No .gguf files on bus PVC; seed a model first"; exit 1
               fi
           volumeMounts:
-            - name: models-bus
-              mountPath: /models-bus
-              readOnly: true
-            - name: models
-              mountPath: /models
+            - { name: models-bus, mountPath: /models-bus, readOnly: true }
+
+        - name: seed-models
+          image: alpine:3.20
+          command: ["sh","-lc"]
+          args:
+            - |
+              set -euo pipefail
+              apk add --no-cache rsync findutils
+              mkdir -p /models
+              # Copy models from RWX bus to this node's local RWO
+              rsync -a --delete /models-bus/ /models/ || true
+              # Keep a stable symlink for the default model
+              [ -f /models/primary.gguf ] || {
+                FIRST="$(find /models -maxdepth 2 -type f -name '*.gguf' | head -n1 || true)"
+                [ -n "$FIRST" ] && ln -sf "$FIRST" /models/primary.gguf
+              }
+          volumeMounts:
+            - { name: models-bus, mountPath: /models-bus, readOnly: true }
+            - { name: models,     mountPath: /models }
+
+      containers:
+        - name: llama-swap
+          image: ghcr.io/mostlygeek/llama-swap:vulkan
+          imagePullPolicy: IfNotPresent
+          args: ["--config","/app/config.yaml","--listen",":8080"]
+          ports:
+            - { containerPort: 8080, name: http }
+          # llama-server runs as a child process and needs GPU access
+          securityContext:
+            privileged: true
+            capabilities: { add: ["SYS_ADMIN"] }
+          volumeMounts:
+            - { name: swap-config, mountPath: /app/config.yaml, subPath: config.yaml }
+            - { name: models,      mountPath: /models }
+            - { name: dri,         mountPath: /dev/dri }
+            - { name: kfd,         mountPath: /dev/kfd }
+          resources:
+            requests: { cpu: "2",  memory: "4Gi" }
+            limits:   { cpu: "24", memory: "48Gi" }
+          startupProbe:
+            httpGet: { path: /health, port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 120
+          readinessProbe:
+            httpGet: { path: /health, port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 10
 
       volumes:
+        - name: swap-config
+          configMap:
+            name: llama-swap-config
+            items:
+              - { key: config.yaml, path: config.yaml }
         - name: models-bus
           persistentVolumeClaim:
             claimName: llama-models-bus
         - name: dri
-          hostPath:
-            path: /dev/dri
-            type: Directory
+          hostPath: { path: /dev/dri, type: Directory }
         - name: kfd
-          hostPath:
-            path: /dev/kfd
-            type: CharDevice
+          hostPath: { path: /dev/kfd, type: CharDevice }
 
   volumeClaimTemplates:
     - metadata:
