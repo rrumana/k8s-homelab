@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: llama
 resources:
   - llama-statefulset.yaml
+  - llama-swap-config.yaml
   - librechat-deployment.yaml
   - mongo-statefulset.yaml
   - pvc.yaml
