@@ -39,8 +39,12 @@ spec:
           value: "5m"
         - name: HSA_OVERRIDE_GFX_VERSION
           value: "11.5.1"
+        - name: OLLAMA_NUM_THREADS
+          value: "12"
         - name: OLLAMA_NUM_GPU
           value: "999"
+        - name: OLLAMA_FLASH_ATTENTION
+          value: "1"
         volumeMounts:
         - name: ollama-data
           mountPath: /root/.ollama
