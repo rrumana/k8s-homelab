@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: llama-api
+  labels: { app: llama, component: server }
+spec:
+  type: ClusterIP
+  selector: { app: llama, component: server }
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 86400
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: librechat
+  labels: { app: llama, component: librechat }
+spec:
+  type: ClusterIP
+  selector: { app: llama, component: librechat }
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP: { timeoutSeconds: 86400 }
+  ports:
+    - name: http
+      port: 3080
+      targetPort: 3080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  labels: { app: llama, component: database }
+spec:
+  type: ClusterIP
+  selector: { app: llama, component: database }
+  ports:
+    - name: mongo
+      port: 27017
+      targetPort: 27017

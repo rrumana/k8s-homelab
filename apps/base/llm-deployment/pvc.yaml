@@ -12,7 +12,7 @@ spec:
   accessModes: [ "ReadWriteMany" ]
   resources:
     requests:
-      storage: 64Gi
+      storage: 128Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
