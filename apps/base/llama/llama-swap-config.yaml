@@ -42,7 +42,7 @@ data:
         useModelName: "gemma3-1b"
         cmd: |
           /app/llama-server
-          -m /models/gemma3-1b.gguf
+          -m /models/gemma-3-4b.gguf
           -a gemma3-1b
           -c 16384
           -t 12
