@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: wipe-model-bus
+  namespace: llama
+  annotations:
+    argocd.argoproj.io/sync-wave: "-3"
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      volumes:
+        - name: bus
+          persistentVolumeClaim:
+            claimName: llama-models-bus
+      containers:
+        - name: wipe
+          image: alpine:3.20
+          securityContext:
+            runAsUser: 0
+          command: ["/bin/sh","-lc"]
+          args:
+            - |
+              set -euo pipefail
+              cd /bus
+              echo "Before wipe:"; ls -lah
+              # remove EVERYTHING except lost+found
+              find . -mindepth 1 -maxdepth 1 ! -name 'lost+found' -exec rm -rf {} +
+              sync
+              echo "After wipe:"; ls -lah
+          volumeMounts:
+            - { name: bus, mountPath: /bus }

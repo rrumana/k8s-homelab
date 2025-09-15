@@ -8,48 +8,35 @@ data:
     listen: ":8080"
     healthCheckTimeout: 900
     models:
+      "gemma3-4b":
+        ttl: 300
+        useModelName: "gemma3-4b"
+        cmd: |
+          /app/llama-server
+          -m /models/gemma-3-4b-it.Q4_K_M.gguf
+          -a gemma3-4b
+          -c 16384 -t 12 -ngl 999 -np 1
+          --port ${PORT} --host 0.0.0.0
+
       "qwen3-30b-thinking":
-        # Unload the model if there's no traffic for 5 minutes
         ttl: 300
         useModelName: "qwen3-30b-thinking"
         cmd: |
           /app/llama-server
-          -m /models/qwen3-30b-thinking.gguf
+          -m /models/qwen3-30b-a3b-thinking-2507.Q4_K.gguf
           -a qwen3-30b-thinking
-          -c 16384
-          -t 12
-          -ngl 999
-          -np 1
-          --port ${PORT}
-          --host 0.0.0.0
+          -c 16384 -t 12 -ngl 999 -np 1
+          --port ${PORT} --host 0.0.0.0
+
       "gpt-oss-20b":
-        # Unload the model if there's no traffic for 5 minutes
         ttl: 300
         useModelName: "gpt-oss-20b"
         cmd: |
           /app/llama-server
-          -m /models/gpt-oss-20b.gguf
+          -m /models/gpt-oss-20b.Q4_K_M.gguf
           -a gpt-oss-20b
-          -c 16384
-          -t 12
-          -ngl 999
-          -np 1
-          --port ${PORT}
-          --host 0.0.0.0
-      "gemma3-1b":
-        # Unload the model if there's no traffic for 5 minutes
-        ttl: 300
-        useModelName: "gemma3-1b"
-        cmd: |
-          /app/llama-server
-          -m /models/gemma-3-4b.gguf
-          -a gemma3-1b
-          -c 16384
-          -t 12
-          -ngl 999
-          -np 1
-          --port ${PORT}
-          --host 0.0.0.0
+          -c 16384 -t 12 -ngl 999 -np 1
+          --port ${PORT} --host 0.0.0.0
 
     # Later: you can also keep several models resident at once with "groups" if desired.
     # groups:

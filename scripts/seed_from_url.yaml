@@ -1,31 +1,67 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: seed-model-from-url
+  name: seed-models-from-urls
   namespace: llama
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
 spec:
   template:
     spec:
       restartPolicy: OnFailure
-      containers:
-        - name: fetch
-          image: curlimages/curl:8.10.1
-          env:
-            - name: MODEL_URL
-              value: "https://huggingface.co/unsloth/gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q4_K_M.gguf?download=true"
-          command: ["sh","-lc"]
-          args:
-            - |
-              set -euo pipefail
-              test -n "${MODEL_URL:-}" || { echo "MODEL_URL required"; exit 1; }
-              cd /models
-              echo "Downloading: ${MODEL_URL}"
-              curl -L --fail "$MODEL_URL" -o model.gguf
-              ln -sf model.gguf gemma-3-4b.gguf
-          volumeMounts:
-            - name: bus
-              mountPath: /models
       volumes:
         - name: bus
           persistentVolumeClaim:
             claimName: llama-models-bus
+      containers:
+        - name: fetch
+          image: curlimages/curl:8.10.1
+          securityContext:
+            runAsUser: 0
+          env:
+            # >>> EDIT this list with what you want to seed <<<
+            - name: MODELS
+              value: |
+                gemma-3-4b-it.Q4_K_M.gguf|https://huggingface.co/unsloth/gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q4_K_M.gguf
+                qwen3-30b-a3b-thinking-2507.Q4_K.gguf|https://huggingface.co/unsloth/Qwen3-30B-A3B-Thinking-2507-GGUF/resolve/main/Qwen3-30B-A3B-Thinking-2507-Q4_K_M.gguf
+                gpt-oss-20b.Q4_K_M.gguf|https://huggingface.co/unsloth/gpt-oss-20b-GGUF/resolve/main/gpt-oss-20b-Q4_K_M.gguf
+          command: ["/bin/sh","-lc"]
+          args:
+            - |
+              set -euo pipefail
+              cd /models
+
+              echo "$MODELS" | while IFS='|' read -r NAME URL; do
+                [ -n "${NAME:-}" ] || continue
+                [ -n "${URL:-}" ]  || { echo "URL missing for $NAME" >&2; exit 1; }
+
+                TMP="${NAME}.part"
+                echo "==> Downloading $NAME"
+                # resume if partial; 5 retries; fail on non-2xx; follow redirects
+                curl -L --fail --retry 5 --retry-connrefused --retry-delay 2 \
+                     -C - -o "$TMP" "$URL"
+
+                # quick sanity: size > 1 GiB (adjust lower if you seed tiny models)
+                SZ=$(stat -c%s "$TMP" || echo 0)
+                if [ "$SZ" -lt $((1<<30)) ]; then
+                  echo "Downloaded size for $NAME looks too small ($SZ bytes)" >&2
+                  exit 1
+                fi
+
+                # move atomically into place (no links created)
+                mv -f "$TMP" "$NAME"
+
+                # basic GGUF header spot-check (optional but helpful)
+                if ! strings -n 8 "$NAME" | grep -Eq "general\.name|general\.architecture"; then
+                  echo "WARN: Could not read GGUF header strings in $NAME" >&2
+                fi
+
+                sync
+                echo "OK: $NAME"
+              done
+
+              echo "Final contents:"
+              ls -lah
+          volumeMounts:
+            - name: bus
+              mountPath: /models
