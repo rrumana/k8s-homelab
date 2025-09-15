@@ -50,9 +50,9 @@ spec:
           - { containerPort: 8080, name: http }
         env:
           - { name: MODEL_PATH,   value: "/models/primary.gguf" }
-          - { name: CONTEXT,      value: "8192" }
+          - { name: CONTEXT,      value: "32768" }
           - { name: THREADS,      value: "12" }
-          - { name: CONCURRENCY,  value: "4" }
+          - { name: CONCURRENCY,  value: "2" }
           - { name: N_GPU_LAYERS, value: "999" }
         # IMPORTANT: each token is its own list item; no "exec", no quoting of $(VARS)
         args:
