@@ -22,9 +22,7 @@ spec:
             # >>> EDIT this list with what you want to seed <<<
             - name: MODELS
               value: |
-                gemma-3-4b-it.Q4_K_M.gguf|https://huggingface.co/unsloth/gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q4_K_M.gguf
-                qwen3-30b-a3b-thinking-2507.Q4_K.gguf|https://huggingface.co/unsloth/Qwen3-30B-A3B-Thinking-2507-GGUF/resolve/main/Qwen3-30B-A3B-Thinking-2507-Q4_K_M.gguf
-                gpt-oss-20b.Q4_K_M.gguf|https://huggingface.co/unsloth/gpt-oss-20b-GGUF/resolve/main/gpt-oss-20b-Q4_K_M.gguf
+                Qwen3-Coder-30B-A3B-Instruct-Q4_K_M.gguf|https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF/resolve/main/Qwen3-Coder-30B-A3B-Instruct-Q4_K_M.gguf
           command: ["/bin/sh","-lc"]
           args:
             - |

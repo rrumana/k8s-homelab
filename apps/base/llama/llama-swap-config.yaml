@@ -38,6 +38,16 @@ data:
           -c 16384 -t 12 -ngl 999 -np 1
           --port ${PORT} --host 0.0.0.0
 
+      "qwen3-coder-30b":
+        ttl: 300
+        useModelName: "qwen3-coder-30b"
+        cmd: |
+          /app/llama-server
+          -m /models/Qwen3-Coder-30B-A3B-Instruct-Q4_K_M.gguf
+          -a qwen3-coder-30b
+          -c 16384 -t 12 -ngl 999 -np 1
+          --port ${PORT} --host 0.0.0.0
+
     # Later: you can also keep several models resident at once with "groups" if desired.
     # groups:
     #   large-only-one:
