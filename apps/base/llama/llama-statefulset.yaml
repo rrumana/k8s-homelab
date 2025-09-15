@@ -53,7 +53,6 @@ spec:
           - { name: CONTEXT,      value: "8192" }
           - { name: THREADS,      value: "12" }
           - { name: CONCURRENCY,  value: "4" }
-          - { name: MODEL_NAME,  value: "qwen3-30b-thinking" }
           - { name: N_GPU_LAYERS, value: "999" }
         # IMPORTANT: each token is its own list item; no "exec", no quoting of $(VARS)
         args:
@@ -67,8 +66,6 @@ spec:
           - $(N_GPU_LAYERS)
           - -np
           - $(CONCURRENCY)
-          - -a; 
-          - $(MODEL_NAME)
           - --port
           - "8080"
           - --host
