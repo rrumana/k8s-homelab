@@ -16,9 +16,9 @@ data:
             default: ["qwen3-30b-thinking", "gpt-oss-20b", "gemma3-1b"]
             fetch: true
           titleConvo: true
-          titleModel: "qwen3-30b-thinking"
+          titleModel: "gemma3-1b"
           summarize: false
-          summaryModel: "qwen3-30b-thinking"
+          summaryModel: "gemma3-1b"
           forcePrompt: false
           modelDisplayLabel: "Llama.cpp"
     interface:
