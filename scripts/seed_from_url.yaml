@@ -12,7 +12,7 @@ spec:
           image: curlimages/curl:8.10.1
           env:
             - name: MODEL_URL
-              value: "https://huggingface.co/unsloth/Qwen3-30B-A3B-Thinking-2507-GGUF/resolve/main/Qwen3-30B-A3B-Thinking-2507-Q4_K_M.gguf"
+              value: "https://huggingface.co/unsloth/gemma-3-4b-it-GGUF/resolve/main/gemma-3-4b-it-Q4_K_M.gguf?download=true"
           command: ["sh","-lc"]
           args:
             - |
@@ -21,7 +21,7 @@ spec:
               cd /models
               echo "Downloading: ${MODEL_URL}"
               curl -L --fail "$MODEL_URL" -o model.gguf
-              ln -sf model.gguf primary.gguf
+              ln -sf model.gguf gemma-3-4b.gguf
           volumeMounts:
             - name: bus
               mountPath: /models

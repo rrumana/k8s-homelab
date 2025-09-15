@@ -5,26 +5,45 @@ metadata:
   labels: { app: llama, component: server }
 data:
   config.yaml: |
-    # llama-swap listens where your Service expects it
     listen: ":8080"
-
-    # Give large models time to warm up; tune as you like
-    healthCheckTimeout: 900   # seconds to wait for llama-server to become healthy
-
-    # One-model-on-demand. Add more entries under "models:" to expose multiple choices.
+    healthCheckTimeout: 900
     models:
       "qwen3-30b-thinking":
-        # Unload the model if there's no traffic for 30 minutes
-        ttl: 1800
-        # Optional: if you want the OpenAI "model" name sent to upstream to be different
+        # Unload the model if there's no traffic for 5 minutes
+        ttl: 300
         useModelName: "qwen3-30b-thinking"
-
-        # Exact command llama-swap will run to serve requests for this model.
-        # NOTE: ${PORT} is injected by llama-swap so multiple models can reuse the same template.
         cmd: |
           /app/llama-server
-          -m /models/primary.gguf
+          -m /models/qwen3-30b-thinking.gguf
           -a qwen3-30b-thinking
+          -c 16384
+          -t 12
+          -ngl 999
+          -np 1
+          --port ${PORT}
+          --host 0.0.0.0
+      "gpt-oss-20b":
+        # Unload the model if there's no traffic for 5 minutes
+        ttl: 300
+        useModelName: "gpt-oss-20b"
+        cmd: |
+          /app/llama-server
+          -m /models/gpt-oss-20b.gguf
+          -a gpt-oss-20b
+          -c 16384
+          -t 12
+          -ngl 999
+          -np 1
+          --port ${PORT}
+          --host 0.0.0.0
+      "gemma3-1b":
+        # Unload the model if there's no traffic for 5 minutes
+        ttl: 300
+        useModelName: "gemma3-1b"
+        cmd: |
+          /app/llama-server
+          -m /models/gemma3-1b.gguf
+          -a gemma3-1b
           -c 16384
           -t 12
           -ngl 999

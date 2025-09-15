@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata: { name: gguf-rename, namespace: llama }
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      volumes:
+        - name: bus
+          persistentVolumeClaim: { claimName: llama-models-bus }
+      containers:
+        - name: mv
+          image: alpine:3.20
+          command: ["/bin/sh","-lc"]
+          args:
+            - >
+              ls -lah /bus;
+              mv "/bus/primary.gguf" "/bus/qwen3-30b-a3b-thinking-2507.Q4_K.gguf";
+              ln -s "qwen3-30b-a3b-thinking-2507.Q4_K.gguf" "/bus/qwen3-30b-thinking.gguf" || true;
+              sync;
+          volumeMounts:
+            - { name: bus, mountPath: /bus }
