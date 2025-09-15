@@ -43,56 +43,53 @@ spec:
               component: server
 
       containers:
-        - name: llama-server
-          # For AMD iGPU, Vulkan build is a good default. Switch to :server-rocm if you prefer ROCm.
-          image: ghcr.io/ggml-org/llama.cpp:server-vulkan
-          imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 8080
-              name: http
-          env:
-            - name: MODEL_PATH
-              value: "/models/primary.gguf"
-            - name: CONTEXT
-              value: "8192"
-            - name: THREADS
-              value: "12"
-            - name: CONCURRENCY
-              value: "4"
-            - name: N_GPU_LAYERS
-              value: "999"
-            - name: HSA_OVERRIDE_GFX_VERSION
-              value: "11.5.1"
-          args:
-            - >
-              exec llama-server
-              -m "$MODEL_PATH"
-              -c $(CONTEXT)
-              -np $(CONCURRENCY)
-              --port 8080 --host 0.0.0.0
-          volumeMounts:
-            - name: models
-              mountPath: /models
-            - name: dri
-              mountPath: /dev/dri
-            - name: kfd
-              mountPath: /dev/kfd
-          resources:
-            requests:
-              cpu: "2"
-              memory: "4Gi"
-            limits:
-              cpu: "24"
-              memory: "48Gi"
-          securityContext:
-            privileged: true
-            capabilities:
-              add: ["SYS_ADMIN"]
-          readinessProbe:
-            tcpSocket:
-              port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 10
+      - name: llama-server
+        image: ghcr.io/ggml-org/llama.cpp:server-vulkan
+        imagePullPolicy: IfNotPresent
+        ports:
+          - { containerPort: 8080, name: http }
+        env:
+          - { name: MODEL_PATH,   value: "/models/primary.gguf" }
+          - { name: CONTEXT,      value: "8192" }
+          - { name: THREADS,      value: "12" }
+          - { name: CONCURRENCY,  value: "4" }     # number of parallel sequences
+          - { name: N_GPU_LAYERS, value: "999" }
+        # IMPORTANT: each token is its own list item; no "exec", no quoting of $(VARS)
+        args:
+          - -m
+          - $(MODEL_PATH)
+          - -c
+          - $(CONTEXT)
+          - -t
+          - $(THREADS)
+          - -ngl
+          - $(N_GPU_LAYERS)
+          - -np
+          - $(CONCURRENCY)        # aka --parallel
+          - --port
+          - "8080"
+          - --host
+          - 0.0.0.0
+        volumeMounts:
+          - { name: models, mountPath: /models }
+          - { name: dri,    mountPath: /dev/dri }
+          - { name: kfd,    mountPath: /dev/kfd }
+        resources:
+          requests: { cpu: "2",  memory: "4Gi" }
+          limits:   { cpu: "24", memory: "48Gi" }
+        securityContext:
+          privileged: true
+          capabilities: { add: ["SYS_ADMIN"] }
+        startupProbe:
+          tcpSocket: { port: 8080 }
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 120
+        readinessProbe:
+          tcpSocket: { port: 8080 }
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
 
       initContainers:
         - name: seed-models
