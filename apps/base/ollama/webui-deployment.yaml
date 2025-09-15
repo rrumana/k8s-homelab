@@ -40,6 +40,7 @@ spec:
         - { name: DATABASE_NAME, valueFrom: { secretKeyRef: { name: openwebui-secrets, key: POSTGRES_DB } } }
         - { name: DATABASE_USER, valueFrom: { secretKeyRef: { name: openwebui-secrets, key: POSTGRES_USER } } }
         - { name: DATABASE_PASSWORD, valueFrom: { secretKeyRef: { name: openwebui-secrets, key: POSTGRES_PASSWORD } } }
+        - { name: TITLE_GENERATION_MODEL, value: "gemma3:1b" }
         volumeMounts:
         - name: webui-files
           mountPath: /app/backend/data/uploads
