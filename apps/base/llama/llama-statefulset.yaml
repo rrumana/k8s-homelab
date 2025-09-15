@@ -63,7 +63,6 @@ spec:
               value: "999"
             - name: HSA_OVERRIDE_GFX_VERSION
               value: "11.5.1"
-          command: ["/bin/sh", "-lc"]
           args:
             - >
               exec llama-server
