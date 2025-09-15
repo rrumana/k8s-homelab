@@ -13,6 +13,7 @@ data:
           apiKey: "${LLAMA_API_KEY}"
           baseURL: "https://llama-api.rcrumana.xyz/v1"
           models:
+            default: ["qwen3-30b-thinking", "gpt-oss-20b", "gemma3-1b"]
             fetch: true
           titleConvo: true
           titleModel: "qwen3-30b-thinking"
