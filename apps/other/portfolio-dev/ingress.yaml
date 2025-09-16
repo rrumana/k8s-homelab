@@ -12,16 +12,16 @@ spec:
   ingressClassName: haproxy-restricted
   tls:
     - hosts:
-        - router.rcrumana.xyz
-      secretName: router-k8s-rcrumana-xyz-tls
+        - portfolio.rcrumana.xyz
+      secretName: portfolio-rcrumana-xyz-tls
   rules:
-    - host: router.rcrumana.xyz
+    - host: portfolio.rcrumana.xyz
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: router-https
+                name: portfolio-https
                 port:
-                  number: 4443
+                  number: 4321
