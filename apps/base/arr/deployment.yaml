@@ -28,7 +28,7 @@ spec:
             claimName: gluetun
         - name: qbit-config
           persistentVolumeClaim:
-            claimName: qbit-config-protected
+            claimName: qbit-config
         - name: sonarr-config
           persistentVolumeClaim:
             claimName: sonarr-config
