@@ -1,8 +1,8 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: transfer-arr-qbit-config
-  namespace: arr
+  name: transfer-llama-models-bus
+  namespace: llama
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
@@ -16,10 +16,10 @@ spec:
       - name: proc
         hostPath: { path: /proc }
       - name: replica
-        hostPath: { path: /srv/longhorn/replicas/pvc-8d76e7d0-50c6-41b8-a93b-783d5785ff5c-11d44747 }
+        hostPath: { path: /srv/longhorn/replicas/pvc-398cc583-d637-485b-9d3a-5cffc3e3d1a5-eb96d33c }
       - name: dest
         persistentVolumeClaim:
-          claimName: qbit-config
+          claimName: llama-models-bus
       containers:
 
       - name: engine
@@ -33,8 +33,8 @@ spec:
         args:
           - |
             set -euo pipefail
-            VOL=arr-qbit
-            SIZE=4294967296
+            VOL=llama-models-bus
+            SIZE=137438953472
             mount --rbind /host/dev /dev
             launch-simple-longhorn "$VOL" "$SIZE"
 
@@ -48,7 +48,7 @@ spec:
         args:
           - |
             set -euo pipefail
-            VOL=arr-qbit
+            VOL=llama-models-bus
             DEV=/host/dev/longhorn/$VOL
 
             # Tools
@@ -90,8 +90,8 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: transfer-arr-lidarr-config
-  namespace: arr
+  name: transfer-llama-models
+  namespace: llama
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
@@ -105,10 +105,10 @@ spec:
       - name: proc
         hostPath: { path: /proc }
       - name: replica
-        hostPath: { path: /srv/longhorn/replicas/pvc-1ce2c2c2-9d70-4923-8e21-928cbab1d667-484049eb }
+        hostPath: { path: /srv/longhorn/replicas/pvc-628351ac-eb10-4377-85d8-28aac330f257-bbe99e70 }
       - name: dest
         persistentVolumeClaim:
-          claimName: lidarr-config
+          claimName: models-llama-server-0
       containers:
 
       - name: engine
@@ -122,8 +122,8 @@ spec:
         args:
           - |
             set -euo pipefail
-            VOL=arr-lidarr
-            SIZE=4294967296
+            VOL=llama-models
+            SIZE=137438953472
             mount --rbind /host/dev /dev
             launch-simple-longhorn "$VOL" "$SIZE"
 
@@ -137,7 +137,7 @@ spec:
         args:
           - |
             set -euo pipefail
-            VOL=arr-lidarr
+            VOL=llama-models
             DEV=/host/dev/longhorn/$VOL
 
             # Tools
@@ -179,8 +179,8 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: transfer-arr-radarr-config
-  namespace: arr
+  name: transfer-llama-librechat-data
+  namespace: llama
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
@@ -194,10 +194,10 @@ spec:
       - name: proc
         hostPath: { path: /proc }
       - name: replica
-        hostPath: { path: /srv/longhorn/replicas/pvc-67f3d66a-1d78-4c7f-94f1-a654c6327023-6657959f }
+        hostPath: { path: /srv/longhorn/replicas/pvc-bf2363ea-32a1-4cd1-a437-8e0887498495-ae90a4f4 }
       - name: dest
         persistentVolumeClaim:
-          claimName: radarr-config
+          claimName: librechat-data
       containers:
 
       - name: engine
@@ -211,8 +211,8 @@ spec:
         args:
           - |
             set -euo pipefail
-            VOL=arr-radarr
-            SIZE=4294967296
+            VOL=llama-librechat
+            SIZE=8589934592
             mount --rbind /host/dev /dev
             launch-simple-longhorn "$VOL" "$SIZE"
 
@@ -226,7 +226,7 @@ spec:
         args:
           - |
             set -euo pipefail
-            VOL=arr-radarr
+            VOL=llama-librechat
             DEV=/host/dev/longhorn/$VOL
 
             # Tools
@@ -268,8 +268,8 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: transfer-arr-sonarr-config
-  namespace: arr
+  name: transfer-llama-mongo-data
+  namespace: llama
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
@@ -283,10 +283,10 @@ spec:
       - name: proc
         hostPath: { path: /proc }
       - name: replica
-        hostPath: { path: /srv/longhorn/replicas/pvc-d3fe9632-7d28-4c74-adac-6c40db9ff21a-4f8a80dc }
+        hostPath: { path: /srv/longhorn/replicas/pvc-e8f30a6a-0bf7-4a17-85d5-4b14b703af56-ae6db24d }
       - name: dest
         persistentVolumeClaim:
-          claimName: sonarr-config
+          claimName: mongo-data
       containers:
 
       - name: engine
@@ -300,8 +300,8 @@ spec:
         args:
           - |
             set -euo pipefail
-            VOL=arr-sonarr
-            SIZE=4294967296
+            VOL=llama-mongo
+            SIZE=17179869184
             mount --rbind /host/dev /dev
             launch-simple-longhorn "$VOL" "$SIZE"
 
@@ -315,185 +315,7 @@ spec:
         args:
           - |
             set -euo pipefail
-            VOL=arr-sonarr
-            DEV=/host/dev/longhorn/$VOL
-
-            # Tools
-            apk add --no-cache rsync util-linux e2fsprogs xfsprogs
-
-            echo "Waiting for $DEV to become a *block device* with non-zero size…"
-            for i in $(seq 1 120); do
-              if [ -b "$DEV" ]; then
-                SZ=$(blockdev --getsize64 "$DEV" 2>/dev/null || echo 0)
-                if [ "${SZ:-0}" -gt 0 ]; then
-                  echo "Device ready (size=${SZ} bytes)"; break
-                fi
-              fi
-              [ $i -eq 120 ] && { echo "Timed out waiting for device"; exit 1; }
-              sleep 2
-            done
-
-            mkdir -p /mnt/src
-            echo "Attempting read-only mount…"
-            ok=0
-            for i in $(seq 1 10); do
-              mount -o ro "$DEV" /mnt/src 2>/tmp/merr || \
-              mount -t ext4 -o ro "$DEV" /mnt/src 2>>/tmp/merr || \
-              mount -t xfs  -o ro "$DEV" /mnt/src 2>>/tmp/merr || true
-              if mountpoint -q /mnt/src; then ok=1; break; fi
-              echo "Mount attempt $i failed; retrying in 2s"; cat /tmp/merr || true; sleep 2
-            done
-            [ "$ok" = "1" ] || { echo "Mount failed after retries"; cat /tmp/merr || true; exit 1; }
-
-            echo "Source filesystem:"
-            df -hT /mnt/src || true
-            echo "Destination filesystem:"
-            df -hT /dest || true
-
-            echo "Copying (rsync -aHAXS)…"
-            rsync -aHAXS --info=progress2 /mnt/src/ /dest/
-            echo "Copy complete"
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: transfer-arr-prowlarr-config
-  namespace: arr
-  annotations:
-    argocd.argoproj.io/sync-wave: "-1"
-spec:
-  template:
-    spec:
-      nodeName: miniserver # leave this the same
-      restartPolicy: Never
-      volumes:
-      - name: dev
-        hostPath: { path: /dev }
-      - name: proc
-        hostPath: { path: /proc }
-      - name: replica
-        hostPath: { path: /srv/longhorn/replicas/pvc-ba352672-fda8-4081-bbe8-a7fefb70cc8b-1aeb0cee }
-      - name: dest
-        persistentVolumeClaim:
-          claimName: prowlarr-config
-      containers:
-
-      - name: engine
-        image: longhornio/longhorn-engine:v1.9.1
-        securityContext: { privileged: true }
-        volumeMounts:
-        - { name: dev,     mountPath: /host/dev }
-        - { name: proc,    mountPath: /host/proc }
-        - { name: replica, mountPath: /volume }
-        command: ["/bin/sh","-lc"]
-        args:
-          - |
-            set -euo pipefail
-            VOL=arr-prowlarr
-            SIZE=4294967296
-            mount --rbind /host/dev /dev
-            launch-simple-longhorn "$VOL" "$SIZE"
-
-      - name: copy
-        image: alpine:3.20
-        securityContext: { privileged: true }   # needed for mount
-        volumeMounts:
-        - { name: dev,  mountPath: /host/dev }
-        - { name: dest, mountPath: /dest }
-        command: ["/bin/sh","-lc"]
-        args:
-          - |
-            set -euo pipefail
-            VOL=arr-prowlarr
-            DEV=/host/dev/longhorn/$VOL
-
-            # Tools
-            apk add --no-cache rsync util-linux e2fsprogs xfsprogs
-
-            echo "Waiting for $DEV to become a *block device* with non-zero size…"
-            for i in $(seq 1 120); do
-              if [ -b "$DEV" ]; then
-                SZ=$(blockdev --getsize64 "$DEV" 2>/dev/null || echo 0)
-                if [ "${SZ:-0}" -gt 0 ]; then
-                  echo "Device ready (size=${SZ} bytes)"; break
-                fi
-              fi
-              [ $i -eq 120 ] && { echo "Timed out waiting for device"; exit 1; }
-              sleep 2
-            done
-
-            mkdir -p /mnt/src
-            echo "Attempting read-only mount…"
-            ok=0
-            for i in $(seq 1 10); do
-              mount -o ro "$DEV" /mnt/src 2>/tmp/merr || \
-              mount -t ext4 -o ro "$DEV" /mnt/src 2>>/tmp/merr || \
-              mount -t xfs  -o ro "$DEV" /mnt/src 2>>/tmp/merr || true
-              if mountpoint -q /mnt/src; then ok=1; break; fi
-              echo "Mount attempt $i failed; retrying in 2s"; cat /tmp/merr || true; sleep 2
-            done
-            [ "$ok" = "1" ] || { echo "Mount failed after retries"; cat /tmp/merr || true; exit 1; }
-
-            echo "Source filesystem:"
-            df -hT /mnt/src || true
-            echo "Destination filesystem:"
-            df -hT /dest || true
-
-            echo "Copying (rsync -aHAXS)…"
-            rsync -aHAXS --info=progress2 /mnt/src/ /dest/
-            echo "Copy complete"
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: transfer-arr-gluetun
-  namespace: arr
-  annotations:
-    argocd.argoproj.io/sync-wave: "-1"
-spec:
-  template:
-    spec:
-      nodeName: miniserver # leave this the same
-      restartPolicy: Never
-      volumes:
-      - name: dev
-        hostPath: { path: /dev }
-      - name: proc
-        hostPath: { path: /proc }
-      - name: replica
-        hostPath: { path: /srv/longhorn/replicas/pvc-729798b1-deb8-48b0-84d6-1911e5f7f6cd-2bd1e474 }
-      - name: dest
-        persistentVolumeClaim:
-          claimName: gluetun
-      containers:
-
-      - name: engine
-        image: longhornio/longhorn-engine:v1.9.1
-        securityContext: { privileged: true }
-        volumeMounts:
-        - { name: dev,     mountPath: /host/dev }
-        - { name: proc,    mountPath: /host/proc }
-        - { name: replica, mountPath: /volume }
-        command: ["/bin/sh","-lc"]
-        args:
-          - |
-            set -euo pipefail
-            VOL=arr-gluetun
-            SIZE=104857600
-            mount --rbind /host/dev /dev
-            launch-simple-longhorn "$VOL" "$SIZE"
-
-      - name: copy
-        image: alpine:3.20
-        securityContext: { privileged: true }   # needed for mount
-        volumeMounts:
-        - { name: dev,  mountPath: /host/dev }
-        - { name: dest, mountPath: /dest }
-        command: ["/bin/sh","-lc"]
-        args:
-          - |
-            set -euo pipefail
-            VOL=arr-gluetun
+            VOL=llama-mongo
             DEV=/host/dev/longhorn/$VOL
 
             # Tools
