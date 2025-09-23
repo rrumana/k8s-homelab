@@ -12,7 +12,6 @@ resources:
   - configmap-librechat.yaml
   - pdb.yaml
   - hpa-librechat.yaml
-  - transfer.yaml
 
 commonLabels:
   app.kubernetes.io/name: llama-stack
