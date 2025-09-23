@@ -4,7 +4,6 @@ namespace: homarr
 resources:
   - rbac.yaml
   - pvc.yaml
-  - transfer.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml
