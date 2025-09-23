@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: orphan-inspect
+  namespace: default
+spec:
+  nodeName: miniserver
+  restartPolicy: Never
+  hostPID: true
+  containers:
+  - name: inspector
+    image: longhornio/longhorn-engine:v1.9.1  # or use: {{ENG}} from above
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - { name: dev,     mountPath: /host/dev }
+    - { name: proc,    mountPath: /host/proc }
+    - { name: replica, mountPath: /volume }     # <-- the orphan dir goes here
+    command: ["/bin/sh","-lc"]
+    args:
+      - |
+        set -euo pipefail
+        VOL=inspect
+        SIZE=4294967296
+        echo "Launching Longhorn exporter for $VOL ($SIZE bytes)..."
+        launch-simple-longhorn "$VOL" "$SIZE" &
+        # Wait for /dev/longhorn to appear
+        for i in $(seq 1 30); do [ -e /host/dev/longhorn/$VOL ] && break || sleep 1; done
+        mkdir -p /mnt/src
+        mount -o ro /host/dev/longhorn/$VOL /mnt/src || { echo "mount failed"; sleep 3600; }
+        echo "Filesystem summary:"
+        df -hT /mnt/src || true
+        echo "Top-level sizes:"
+        du -sh /mnt/src/* 2>/dev/null | sort -h | tail -n 20 || true
+        echo "Quick fingerprints:"
+        test -f /mnt/src/PG_VERSION && echo "looks like Postgres"
+        test -d /mnt/src/global && test -d /mnt/src/base && echo "postgres dir layout"
+        test -f /mnt/src/ibdata1 && echo "mysql/mariadb"
+        test -f /mnt/src/config/config.php && echo "nextcloud"
+        test -f /mnt/src/appendonly.aof && echo "redis"
+        sleep 3600
+  volumes:
+  - name: dev
+    hostPath: { path: /dev }
+  - name: proc
+    hostPath: { path: /proc }
+  - name: replica
+    hostPath: { path: /srv/longhorn/replicas/pvc-1ce2c2c2-9d70-4923-8e21-928cbab1d667-484049eb }  # <-- exact orphan path
