@@ -13,7 +13,15 @@ spec:
   selector:
     app: jellyfin
   ports:
-  - name: web
+  - name: webHTTP
     port: 8096
     targetPort: 8096
+    protocol: TCP
+  - name: webHTTPS
+    port: 8920
+    targetPort: 8920
+    protocol: TCP
+  - name: Discovery
+    port: 7359
+    targetPort: 7359
     protocol: TCP
