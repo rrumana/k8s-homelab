@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jellyfin
+  labels:
+    app: jellyfin
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: jellyfin
+  template:
+    metadata:
+      labels:
+        app: jellyfin
+    spec:
+      nodeName: miniserver
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - name: jellyfin
+        image: lscr.io/linuxserver/jellyfin:latest
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "America/Los_Angeles"
+        - name: JELLYFIN_PublishedServerUrl
+          value: "https://jellyfin.rcrumana.xyz"
+        ports:
+        - name: http
+          containerPort: 8096
+          protocol: TCP
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: cache
+          mountPath: /cache
+        - name: tv
+          mountPath: /tv
+        - name: movies
+          mountPath: /movies
+        - name: music
+          mountPath: /music
+        - name: dri
+          mountPath: /dev/dri
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "8Gi"
+            cpu: "24"
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: jellyfin-config
+      - name: cache
+        emptyDir: {}
+      - name: tv
+        hostPath:
+          path: /media/Torrent/Shows
+          type: Directory
+      - name: movies
+        hostPath:
+          path: /media/Torrent/Movies
+          type: Directory
+      - name: music
+        hostPath:
+          path: /media/Torrent/Music
+          type: Directory
+      - name: dri
+        hostPath:
+          path: /dev/dri
+          type: Directory
