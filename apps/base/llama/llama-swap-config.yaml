@@ -16,6 +16,7 @@ data:
           -m /models/gemma-3-4b-it.Q4_K_M.gguf
           -a gemma3-4b
           -c 16384 -t 12 -ngl 999 -np 1
+          --jinja
           --port ${PORT} --host 0.0.0.0
 
       "qwen3-30b-thinking":
@@ -26,6 +27,7 @@ data:
           -m /models/qwen3-30b-a3b-thinking-2507.Q4_K.gguf
           -a qwen3-30b-thinking
           -c 16384 -t 12 -ngl 999 -np 1
+          --jinja
           --port ${PORT} --host 0.0.0.0
 
       "gpt-oss-20b":
@@ -36,6 +38,7 @@ data:
           -m /models/gpt-oss-20b.Q4_K_M.gguf
           -a gpt-oss-20b
           -c 16384 -t 12 -ngl 999 -np 1
+          --jinja
           --port ${PORT} --host 0.0.0.0
 
       "qwen3-coder-30b":
@@ -46,6 +49,7 @@ data:
           -m /models/Qwen3-Coder-30B-A3B-Instruct-Q4_K_M.gguf
           -a qwen3-coder-30b
           -c 16384 -t 12 -ngl 999 -np 1
+          --jinja
           --port ${PORT} --host 0.0.0.0
 
     # Later: you can also keep several models resident at once with "groups" if desired.
