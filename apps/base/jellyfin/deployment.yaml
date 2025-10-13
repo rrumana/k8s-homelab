@@ -18,6 +18,10 @@ spec:
     spec:
       nodeName: miniserver
       dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        supplementalGroups:
+          - 989   # render (from your host)
+          - 985   # video  (from your host)
       containers:
       - name: jellyfin
         image: lscr.io/linuxserver/jellyfin:latest
