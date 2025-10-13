@@ -26,9 +26,7 @@ spec:
       - name: jellyfin
         image: lscr.io/linuxserver/jellyfin:latest
         securityContext:
-          allowPrivilegeEscalation: true
-          seccompProfile:
-            type: Unconfined
+          privileged: true
         env:
         - name: PUID
           value: "1000"
