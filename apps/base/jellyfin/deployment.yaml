@@ -26,8 +26,6 @@ spec:
       - name: jellyfin
         image: lscr.io/linuxserver/jellyfin:latest
         securityContext:
-          runAsUser: 1000
-          runAsGroup: 1000
           allowPrivilegeEscalation: true
           seccompProfile:
             type: Unconfined
