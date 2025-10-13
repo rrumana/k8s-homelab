@@ -25,6 +25,12 @@ spec:
       containers:
       - name: jellyfin
         image: lscr.io/linuxserver/jellyfin:latest
+        securityContext:
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: true
+          seccompProfile:
+            type: Unconfined
         env:
         - name: PUID
           value: "1000"
@@ -34,6 +40,8 @@ spec:
           value: "America/Los_Angeles"
         - name: JELLYFIN_PublishedServerUrl
           value: "https://jellyfin.rcrumana.xyz"
+        - name: LIBVA_DRIVER_NAME
+          value: radeonsi
         ports:
         - name: http
           containerPort: 8096
