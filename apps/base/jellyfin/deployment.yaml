@@ -42,6 +42,15 @@ spec:
         - name: http
           containerPort: 8096
           protocol: TCP
+        - name: https
+          containerPort: 8920
+          protocol: TCP
+        - name: discovery
+          containerPort: 7359
+          protocol: UDP
+        - name: dlna
+          containerPort: 1900
+          protocol: UDP
         volumeMounts:
         - name: config
           mountPath: /config
