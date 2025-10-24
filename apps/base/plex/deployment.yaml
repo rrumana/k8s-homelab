@@ -60,15 +60,15 @@ spec:
           claimName: plex-config
       - name: tv
         hostPath:
-          path: /media/Torrent/Shows
+          path: /NAS/Torrent/Shows
           type: Directory
       - name: movies
         hostPath:
-          path: /media/Torrent/Movies
+          path: /NAS/Torrent/Movies
           type: Directory
       - name: music
         hostPath:
-          path: /media/Torrent/Music
+          path: /NAS/Torrent/Music
           type: Directory
       - name: dri
         hostPath:
