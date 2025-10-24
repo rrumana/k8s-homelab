@@ -11,7 +11,6 @@ spec:
     metadata:
       labels: { app: homarr }
     spec:
-      nodeName: miniserver
       serviceAccountName: homarr
       containers:
         - name: homarr
