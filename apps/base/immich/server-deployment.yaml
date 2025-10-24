@@ -63,7 +63,7 @@ spec:
       volumes:
       - name: upload
         hostPath:
-          path: /media/Cloud/Immich
+          path: /NAS/Cloud/Immich
           type: DirectoryOrCreate
       - name: localtime
         hostPath:
