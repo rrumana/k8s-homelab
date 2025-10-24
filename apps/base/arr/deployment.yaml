@@ -42,13 +42,13 @@ spec:
           persistentVolumeClaim:
             claimName: prowlarr-config
         - name: media
-          hostPath: { path: /media, type: Directory }
+          hostPath: { path: /NAS, type: Directory }
         - name: downloads
-          hostPath: { path: /media/Torrent/Downloads, type: Directory }
+          hostPath: { path: /NAS/Torrent/Downloads, type: Directory }
         - name: movies
-          hostPath: { path: /media/Torrent/Movies, type: Directory }
+          hostPath: { path: /NAS/Torrent/Movies, type: Directory }
         - name: shows
-          hostPath: { path: /media/Torrent/Shows, type: Directory }
+          hostPath: { path: /NAS/Torrent/Shows, type: Directory }
         - name: pf-state
           emptyDir: {}
         - name: pf-sync
