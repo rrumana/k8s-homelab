@@ -26,7 +26,7 @@ spec:
               value: "America/Los_Angeles"
           ports:
             - name: http
-              containerPort: 7575
+              containerPort: 3000
           volumeMounts:
             - name: appdata
               mountPath: /appdata
