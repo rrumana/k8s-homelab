@@ -84,10 +84,6 @@ cronjob:
 # --- PostgreSQL subchart (Bitnami) ---
 postgresql:
   enabled: true
-  image:
-    registry: docker.io
-    repository: bitnami/postgresql
-    tag: "16.6.0"
   auth:
     existingSecret: nextcloud-db
     username: nextcloud
