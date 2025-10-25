@@ -10,7 +10,7 @@ spec:
 
   sources:
     - repoURL: https://nextcloud.github.io/helm/
-      targetRevision: "7.0.4"
+      targetRevision: "8.0.3"
       chart: nextcloud
       helm:
         releaseName: nextcloud
