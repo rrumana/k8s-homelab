@@ -14,7 +14,7 @@ spec:
       serviceAccountName: homarr
       containers:
         - name: homarr
-          image: ghcr.io/homarr-labs/homarr:latest
+          image: ghcr.io/homarr-labs/homarr:1.136.1
           imagePullPolicy: IfNotPresent
           env:
             - name: SECRET_ENCRYPTION_KEY
