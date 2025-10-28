@@ -1,0 +1,43 @@
+# apps/base/homarr-helm/values.yaml
+# Chart: homarr-labs/homarr
+
+replicaCount: 2
+strategyType: RollingUpdate
+
+env:
+  TZ: America/Los_Angeles
+  LOG_LEVEL: debug
+  NO_EXTERNAL_CONNECTION: "true"
+
+database:
+  type: mysql
+
+envSecrets:
+  dbCredentials:
+    existingSecret: homarr-helm-db
+    dbUrlKey: db-url
+  dbEncryption:
+    existingSecret: homarr-helm-db-encryption
+    key: db-encryption-key
+
+ingress:
+  enabled: true
+  ingressClassName: haproxy-private
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: homarr-helm.rcrumana.xyz
+      paths:
+        - path: /
+  tls:
+    - secretName: homarr-helm-tls
+      hosts:
+        - homarr-helm.rcrumana.xyz
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 2Gi

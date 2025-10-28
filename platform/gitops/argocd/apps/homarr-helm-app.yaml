@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: homarr-helm
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: https://homarr-labs.github.io/charts/
+      chart: homarr
+      targetRevision: "8.2.0"
+      helm:
+        releaseName: homarr-helm
+        valueFiles:
+          - $values/apps/base/homarr-helm/values.yaml
+    - repoURL: https://github.com/rrumana/k8s-homelab
+      targetRevision: main
+      ref: values
+    - repoURL: https://github.com/rrumana/k8s-homelab
+      targetRevision: main
+      path: apps/base/homarr-helm
+      kustomize: {}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: homarr-helm
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    managedNamespaceMetadata:
+      labels:
+        app.kubernetes.io/name: homarr-helm
+        app.kubernetes.io/managed-by: argocd
