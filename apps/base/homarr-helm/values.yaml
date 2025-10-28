@@ -22,17 +22,17 @@ envSecrets:
 
 ingress:
   enabled: true
-  ingressClassName: haproxy-private
+  ingressClassName: haproxy-restricted
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
   hosts:
-    - host: homarr-helm.rcrumana.xyz
+    - host: homarr.rcrumana.xyz
       paths:
         - path: /
   tls:
-    - secretName: homarr-helm-tls
+    - secretName: homarr-tls
       hosts:
-        - homarr-helm.rcrumana.xyz
+        - homarr.rcrumana.xyz
 
 resources:
   requests:
