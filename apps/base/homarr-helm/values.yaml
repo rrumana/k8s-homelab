@@ -7,8 +7,7 @@ strategyType: RollingUpdate
 env:
   TZ: America/Los_Angeles
   LOG_LEVEL: debug
-  NO_EXTERNAL_CONNECTION: "true"
-
+  
 database:
   type: mysql
 
