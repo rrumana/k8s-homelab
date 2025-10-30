@@ -6,7 +6,7 @@ metadata:
     app: homarr-redis
 spec:
   serviceName: homarr-redis
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: homarr-redis

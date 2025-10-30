@@ -6,7 +6,7 @@ metadata:
     app: homarr-helm
     component: mysql
 spec:
-  replicas: 2
+  replicas: 1
   serviceName: homarr-helm-mysql
   selector:
     matchLabels:
