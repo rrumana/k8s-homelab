@@ -22,6 +22,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: portfolio-https
+                name: portfolio-http
                 port:
                   number: 4321
