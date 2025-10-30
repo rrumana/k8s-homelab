@@ -3,9 +3,6 @@ kind: Service
 metadata:
   name: portfolio-https
   namespace: dev
-  annotations:
-    haproxy-ingress.github.io/secure-backends: "true"
-    haproxy-ingress.github.io/backend-protocol: "h1-ssl"
 spec:
   ports:
     - name: https
