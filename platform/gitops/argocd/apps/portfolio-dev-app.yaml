@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/rrumana/k8s-homelab
     targetRevision: main
-    path: apps/other/portfolio-dev
+    path: apps/host/portfolio-dev
   destination:
     server: https://kubernetes.default.svc
     namespace: infra
