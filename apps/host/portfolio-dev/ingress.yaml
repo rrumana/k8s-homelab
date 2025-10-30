@@ -12,10 +12,10 @@ spec:
   ingressClassName: haproxy-restricted
   tls:
     - hosts:
-        - portfolio.rcrumana.xyz
-      secretName: portfolio-rcrumana-xyz-tls
+        - staging.rcrumana.xyz
+      secretName: staging-rcrumana-xyz-tls
   rules:
-    - host: portfolio.rcrumana.xyz
+    - host: staging.rcrumana.xyz
       http:
         paths:
           - path: /
