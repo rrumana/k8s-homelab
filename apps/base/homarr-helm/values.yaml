@@ -1,7 +1,7 @@
 # apps/base/homarr-helm/values.yaml
 # Chart: homarr-labs/homarr
 
-replicaCount: 1
+replicaCount: 2
 strategyType: RollingUpdate
 
 env:
