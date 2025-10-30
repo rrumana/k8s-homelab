@@ -7,6 +7,10 @@ strategyType: RollingUpdate
 env:
   TZ: America/Los_Angeles
   LOG_LEVEL: debug
+  REDIS_IS_EXTERNAL: "true"
+  REDIS_HOST: homarr-redis.homarr-helm.svc.cluster.local
+  REDIS_PORT: "6379"
+  REDIS_DATABASE_INDEX: "0"
   
 database:
   type: mysql

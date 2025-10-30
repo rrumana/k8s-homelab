@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: homarr-redis
+  labels:
+    app: homarr-redis
+spec:
+  serviceName: homarr-redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app: homarr-redis
+  template:
+    metadata:
+      labels:
+        app: homarr-redis
+    spec:
+      containers:
+        - name: redis
+          image: docker.io/library/redis:7.2
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              if [ -n "$REDIS_PASSWORD" ]; then
+                AUTH_ARGS="--requirepass \"$REDIS_PASSWORD\""
+              else
+                AUTH_ARGS=""
+              fi
+              exec redis-server --bind 0.0.0.0 --appendonly yes --dir /data $AUTH_ARGS
+          ports:
+            - name: redis
+              containerPort: 6379
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: homarr-redis
+                  key: redis-password
+                  optional: true
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  if [ -n "$REDIS_PASSWORD" ]; then
+                    redis-cli -a "$REDIS_PASSWORD" ping
+                  else
+                    redis-cli ping
+                  fi
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  if [ -n "$REDIS_PASSWORD" ]; then
+                    redis-cli -a "$REDIS_PASSWORD" ping
+                  else
+                    redis-cli ping
+                  fi
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 512Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: longhorn-protected
+        resources:
+          requests:
+            storage: 5Gi
