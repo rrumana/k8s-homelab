@@ -4,8 +4,10 @@ metadata:
   name: portfolio-http
   namespace: dev
 spec:
+  selector:
+    app: portfolio-dev
   ports:
     - name: http
-      port: 4321
-      targetPort: 4321
+      port: 8086
+      targetPort: 8085
   type: ClusterIP
