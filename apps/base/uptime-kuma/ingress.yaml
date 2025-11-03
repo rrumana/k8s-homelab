@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: uptime-kuma
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    haproxy-ingress.github.io/backend-protocol: "http"
+    haproxy-ingress.github.io/ssl-redirect: "true"
+    haproxy-ingress.github.io/whitelist-source-range: "192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
+spec:
+  ingressClassName: haproxy-restricted
+  tls:
+    - hosts:
+        - uptime.rcrumana.xyz
+      secretName: uptime-kuma-tls
+  rules:
+    - host: uptime.rcrumana.xyz
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: uptime-kuma
+                port:
+                  number: 80
