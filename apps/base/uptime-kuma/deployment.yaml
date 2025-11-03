@@ -36,7 +36,7 @@ spec:
         runAsGroup: 1000
       containers:
         - name: uptime-kuma
-          image: louislam/uptime-kuma:latest
+          image: louislam/uptime-kuma:2-rootless
           imagePullPolicy: Always
           ports:
             - name: http
