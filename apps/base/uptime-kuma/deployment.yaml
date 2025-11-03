@@ -38,6 +38,13 @@ spec:
         - name: uptime-kuma
           image: louislam/uptime-kuma:latest
           imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - CHOWN
           ports:
             - name: http
               containerPort: 3001
