@@ -28,7 +28,7 @@ spec:
       containers:
         - name: portfolio
           image: ghcr.io/rrumana/portfolio:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: RUST_LOG
               value: "info"
