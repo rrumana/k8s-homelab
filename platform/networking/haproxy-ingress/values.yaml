@@ -39,9 +39,6 @@ controller:
   logs:
     enabled: true
     level: debug
-  
-  extraArgs:
-    allow-snippet-annotations: "true"
 
 defaultBackend:
   enabled: false
