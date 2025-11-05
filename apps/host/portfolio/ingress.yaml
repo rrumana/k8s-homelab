@@ -10,8 +10,10 @@ metadata:
     haproxy-ingress.github.io/config-backend: |
       acl is_html path_reg ^/(.+)\.html$
       acl needs_html path_reg ^/([^./]+/)*[^./]+$
-      http-request redirect code 301 prefix %[path,regsub(\.html$,,)] if is_html
-      http-request set-path %[path].html if needs_html
+      acl skip_html_rewrite path_beg /.well-known/
+      http-request redirect code 301 location https://%[req.hdr(Host)]%[path,regsub(\.html$,,)]%[query,if,set(?%[query])] if is_html { ssl_fc }
+      http-request redirect code 301 location http://%[req.hdr(Host)]%[path,regsub(\.html$,,)]%[query,if,set(?%[query])] if is_html !{ ssl_fc }
+      http-request set-path %[path].html if needs_html !skip_html_rewrite !{ path -i / } !{ path_end / }
 spec:
   ingressClassName: haproxy-public
   tls:
