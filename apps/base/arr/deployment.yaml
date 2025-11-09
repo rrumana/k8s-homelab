@@ -48,6 +48,8 @@ spec:
           hostPath: { path: /NAS/Torrent/Movies, type: Directory }
         - name: shows
           hostPath: { path: /NAS/Torrent/Shows, type: Directory }
+        - name: temp
+          hostPath: { path: /tmp/arr-stack, type: DirectoryOrCreate }
         - name: pf-state
           emptyDir: {}
         - name: pf-sync
