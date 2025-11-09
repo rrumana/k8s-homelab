@@ -1,13 +1,9 @@
 apiVersion: longhorn.io/v1beta2
-kind: Setting
+kind: BackupTarget
 metadata:
-  name: backup-target
+  name: default
   namespace: longhorn-system
-value: nfs://192.168.1.10:/mnt/Cold/Longhorn_Backups
----
-apiVersion: longhorn.io/v1beta2
-kind: Setting
-metadata:
-  name: backup-target-credential-secret
-  namespace: longhorn-system
-value: ""
+spec:
+  backupTargetURL: "nfs://192.168.1.10:/mnt/Cold/Longhorn_Backups"
+  credentialSecret: ""         # NFS usually doesn't need a secret
+  pollInterval: 5m0s 
