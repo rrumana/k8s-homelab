@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: haproxy-complete
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://haproxy-ingress.github.io/charts
+      targetRevision: "0.14.9"
+      chart: haproxy-ingress
+      helm:
+        releaseName: haproxy-ingress
+        valueFiles:
+          - $values/platform/networking/haproxy-ingress/values.yaml
+    - repoURL: https://github.com/rrumana/k8s-homelab
+      targetRevision: main
+      ref: values
+    - repoURL: https://github.com/rrumana/k8s-homelab
+      targetRevision: main
+      path: platform/networking/haproxy-ingress/ingress-classes
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ingress-haproxy
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+operation:
+  initiatedBy:
+    username: manual-cli
+  sync:
+    syncStrategy:
+      hook: {}
