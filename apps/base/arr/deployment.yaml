@@ -44,12 +44,12 @@ spec:
           hostPath: { path: /NAS, type: Directory }
         - name: downloads
           hostPath: { path: /NAS/Torrent/Downloads, type: Directory }
+        - name: temp
+          hostPath: { path: /var/lib/qbit-temp, type: DirectoryOrCreate }
         - name: movies
           hostPath: { path: /NAS/Torrent/Movies, type: Directory }
         - name: shows
           hostPath: { path: /NAS/Torrent/Shows, type: Directory }
-        - name: temp
-          hostPath: { path: /Media/arr-temp, type: DirectoryOrCreate }
         - name: pf-state
           emptyDir: {}
         - name: pf-sync
@@ -153,6 +153,7 @@ spec:
             - { name: movies,      mountPath: /movies }
             - { name: shows,       mountPath: /shows }
             - { name: media,       mountPath: /media }
+            - { name: qbit-temp,   mountPath: /temp }
           resources:
             requests: { cpu: "200m", memory: "256Mi" }
             limits:   { cpu: "24", memory: "2Gi" }  
