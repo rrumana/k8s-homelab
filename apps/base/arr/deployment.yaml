@@ -81,6 +81,7 @@ spec:
               echo "fix-perms: listing /config and /gluetun (if mounted)"
               ls -la /config 2>/dev/null || true
               find /config -maxdepth 2 -type f -print 2>/dev/null || true
+              ls -la /temp 2>/dev/null || true
               # Diagnose qB config presence
               if [ -f /config/qBittorrent/qBittorrent.conf ]; then
                 echo "fix-perms: found /config/qBittorrent/qBittorrent.conf"
@@ -92,11 +93,13 @@ spec:
                 echo "fix-perms: removing empty /gluetun/servers.json"
                 rm -f /gluetun/servers.json
               fi
-              chown -R 1000:1000 /config /gluetun 2>/dev/null || true
-              chmod -R u+rwX,g+rwX /config /gluetun 2>/dev/null || true
+              mkdir -p /temp
+              chown -R 1000:1000 /config /gluetun /temp 2>/dev/null || true
+              chmod -R u+rwX,g+rwX /config /gluetun /temp 2>/dev/null || true
           volumeMounts:
             - { name: qbit-config, mountPath: /config }
             - { name: gluetun,     mountPath: /gluetun }
+            - { name: temp,        mountPath: /temp }
 
       containers:
         - name: gluetun
