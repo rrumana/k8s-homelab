@@ -30,12 +30,6 @@ spec:
             claimName: qbit-config
         - name: media
           hostPath: { path: /NAS, type: Directory }
-        - name: downloads
-          hostPath: { path: /NAS/Torrent/Downloads, type: Directory }
-        - name: movies
-          hostPath: { path: /NAS/Torrent/Movies, type: Directory }
-        - name: shows
-          hostPath: { path: /NAS/Torrent/Shows, type: Directory }
         - name: pf-state
           emptyDir: {}
         - name: pf-sync
@@ -135,9 +129,6 @@ spec:
             - { name: webui, containerPort: 8022, protocol: TCP }
           volumeMounts:
             - { name: qbit-config, mountPath: /config }
-            - { name: downloads,   mountPath: /downloads }
-            - { name: movies,      mountPath: /movies }
-            - { name: shows,       mountPath: /shows }
             - { name: media,       mountPath: /media }
           resources:
             requests: { cpu: "200m", memory: "256Mi" }
