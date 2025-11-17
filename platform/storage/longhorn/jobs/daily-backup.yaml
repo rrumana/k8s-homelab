@@ -7,5 +7,5 @@ spec:
   task: backup
   cron: "30 3 * * *"   # 03:30 every day
   retain: 3
-  concurrency: 2
+  concurrency: 6
   groups: ["default"]
