@@ -24,7 +24,7 @@ spec:
           effect: NoSchedule
       containers:
         - name: shaper
-          image: rancher/kubectl:v1.29.6
+          image: bitnami/kubectl:1.29.6
           imagePullPolicy: IfNotPresent
           securityContext:
             privileged: true
