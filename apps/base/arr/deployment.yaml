@@ -10,7 +10,9 @@ spec:
     matchLabels: { app: arr-stack }
   template:
     metadata:
-      labels: { app: arr-stack }
+      labels:
+        app: arr-stack
+        traffic-tier: bulk-seed
     spec:
       dnsPolicy: None
       dnsConfig:

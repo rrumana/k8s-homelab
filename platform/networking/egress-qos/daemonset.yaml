@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: egress-qos
+  namespace: kube-system
+  labels:
+    app: egress-qos
+spec:
+  selector:
+    matchLabels:
+      app: egress-qos
+  template:
+    metadata:
+      labels:
+        app: egress-qos
+    spec:
+      serviceAccountName: egress-qos
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      tolerations:
+        - key: "node-role.kubernetes.io/control-plane"
+          effect: NoSchedule
+        - key: "node-role.kubernetes.io/master"
+          effect: NoSchedule
+      containers:
+        - name: shaper
+          image: rancher/kubectl:v1.29.6
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["NET_ADMIN", "NET_RAW"]
+          env:
+            - name: WAN_IFACE
+              value: "enp195s0"            # set to your WAN NIC
+            - name: LINK_CEIL
+              value: "1000mbit"        # total link rate
+            - name: BULK_RATE
+              value: "500mbit"         # guaranteed rate for bulk
+            - name: BULK_CEIL
+              value: "1000mbit"        # bulk can borrow up to this
+            - name: SYNC_INTERVAL
+              value: "5"              # seconds between ipset refresh
+            - name: LABEL_SELECTOR
+              value: "traffic-tier=bulk-seed"
+          command: ["/bin/sh", "/etc/egress-qos/setup.sh"]
+          volumeMounts:
+            - name: script
+              mountPath: /etc/egress-qos/setup.sh
+              subPath: setup.sh
+              readOnly: true
+      volumes:
+        - name: script
+          configMap:
+            name: egress-qos-config
+            defaultMode: 0755
