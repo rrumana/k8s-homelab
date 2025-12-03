@@ -24,7 +24,7 @@ spec:
           effect: NoSchedule
       containers:
         - name: shaper
-          image: bitnami/kubectl:latest
+          image: alpine:3.20
           imagePullPolicy: IfNotPresent
           securityContext:
             privileged: true
@@ -43,6 +43,8 @@ spec:
               value: "5"              # seconds between ipset refresh
             - name: LABEL_SELECTOR
               value: "traffic-tier=bulk-seed"
+            - name: KUBECTL_VERSION
+              value: "v1.30.2"
           command: ["/bin/sh", "/etc/egress-qos/setup.sh"]
           volumeMounts:
             - name: script
