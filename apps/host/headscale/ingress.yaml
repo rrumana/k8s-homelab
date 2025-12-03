@@ -4,7 +4,8 @@ metadata:
   name: headscale
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    haproxy-ingress.github.io/backend-protocol: "http"
+    haproxy-ingress.github.io/backend-protocol: "h2"
+    haproxy-ingress.github.io/server-protocol: "h2"
     haproxy-ingress.github.io/ssl-redirect: "true"
     haproxy-ingress.github.io/whitelist-source-range: "192.168.0.0/16,172.16.0.0/12,10.0.0.0/8,100.64.0.0/10"
 spec:
