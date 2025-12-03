@@ -17,73 +17,17 @@ spec:
     - host: headscale.rcrumana.xyz
       http:
         paths:
-          - path: /register
+          - path: /web
             pathType: Prefix
             backend:
               service:
-                name: headscale
-                port:
-                  number: 80
-          - path: /machine
-            pathType: Prefix
-            backend:
-              service:
-                name: headscale
-                port:
-                  number: 80
-          - path: /key
-            pathType: Prefix
-            backend:
-              service:
-                name: headscale
-                port:
-                  number: 80
-          - path: /apple
-            pathType: Prefix
-            backend:
-              service:
-                name: headscale
-                port:
-                  number: 80
-          - path: /android
-            pathType: Prefix
-            backend:
-              service:
-                name: headscale
-                port:
-                  number: 80
-          - path: /windows
-            pathType: Prefix
-            backend:
-              service:
-                name: headscale
-                port:
-                  number: 80
-          - path: /login
-            pathType: Prefix
-            backend:
-              service:
-                name: headscale
-                port:
-                  number: 80
-          - path: /oidc
-            pathType: Prefix
-            backend:
-              service:
-                name: headscale
-                port:
-                  number: 80
-          - path: /api
-            pathType: Prefix
-            backend:
-              service:
-                name: headscale
+                name: headscale-ui
                 port:
                   number: 80
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: headscale-ui
+                name: headscale
                 port:
                   number: 80
