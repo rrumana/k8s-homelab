@@ -27,6 +27,9 @@ spec:
           env:
             - name: HEADSCALE_URL
               value: /api
+          volumeMounts:
+            - name: ui-data
+              mountPath: /data
           resources:
             requests:
               cpu: 50m
@@ -40,3 +43,6 @@ spec:
             capabilities:
               drop:
                 - ALL
+      volumes:
+        - name: ui-data
+          emptyDir: {}
