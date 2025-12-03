@@ -10,5 +10,7 @@ resources:
   - configmap.yaml
   - deployment.yaml
   - service.yaml
+  - ui-deployment.yaml
+  - ui-service.yaml
   - ingress.yaml
   - pvc.yaml

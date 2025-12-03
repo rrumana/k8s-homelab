@@ -17,10 +17,17 @@ spec:
     - host: headscale.rcrumana.xyz
       http:
         paths:
-          - path: /
+          - path: /api
             pathType: Prefix
             backend:
               service:
                 name: headscale
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: headscale-ui
                 port:
                   number: 80

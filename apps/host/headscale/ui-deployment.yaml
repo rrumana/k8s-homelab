@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: headscale-ui
+  labels:
+    app: headscale
+    component: ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: headscale
+      component: ui
+  template:
+    metadata:
+      labels:
+        app: headscale
+        component: ui
+    spec:
+      containers:
+        - name: headscale-ui
+          image: ghcr.io/gurucomputing/headscale-ui:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+              name: http
+          env:
+            - name: HEADSCALE_URL
+              value: /api
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
