@@ -4,15 +4,18 @@ metadata:
   name: headscale
   labels:
     app: headscale
+    component: api
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: headscale
+      component: api
   template:
     metadata:
       labels:
         app: headscale
+        component: api
     spec:
       containers:
         - name: headscale
