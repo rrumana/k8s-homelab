@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: headscale-postgres
+spec:
+  selector:
+    app: headscale
+    component: postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
