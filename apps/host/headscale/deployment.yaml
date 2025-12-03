@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: headscale
-          image: headscale/headscale:0.25.0
+          image: headscale/headscale:0.27.2-rc.1
           imagePullPolicy: IfNotPresent
           command: ["headscale"]
           args: ["serve", "--config", "/etc/headscale/config.yaml"]
