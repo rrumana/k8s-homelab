@@ -32,7 +32,9 @@ spec:
               add: ["NET_ADMIN", "NET_RAW"]
           env:
             - name: WAN_IFACE
-              value: "enp195s0"            # set to your WAN NIC
+              value: ""                # optional fixed WAN NIC; leave empty to auto-detect
+            - name: WAN_IFACE_LABEL
+              value: "egress-qos/wan-iface"  # node label override
             - name: LINK_CEIL
               value: "1000mbit"        # total link rate
             - name: BULK_RATE
@@ -43,6 +45,10 @@ spec:
               value: "5"              # seconds between ipset refresh
             - name: LABEL_SELECTOR
               value: "traffic-tier=bulk-seed"
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
             - name: KUBECTL_VERSION
               value: "v1.30.2"
           command: ["/bin/sh", "/etc/egress-qos/setup.sh"]

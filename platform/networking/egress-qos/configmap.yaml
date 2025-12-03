@@ -8,7 +8,8 @@ data:
     #!/bin/sh
     set -euo pipefail
 
-    : "${WAN_IFACE:=enp195s0}"
+    : "${WAN_IFACE:=}"                   # optional fixed iface; otherwise auto-detect
+    : "${WAN_IFACE_LABEL:=egress-qos/wan-iface}" # node label to override iface
     : "${LINK_CEIL:=1000mbit}"
     : "${BULK_RATE:=500mbit}"
     : "${BULK_CEIL:=${LINK_CEIL}}"
@@ -25,6 +26,23 @@ data:
         curl -fsSL -o /usr/local/bin/kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
         chmod +x /usr/local/bin/kubectl
       fi
+    }
+
+    detect_iface() {
+      IFACE="${WAN_IFACE:-}"
+      # Try node label if not set
+      if [ -z "$IFACE" ] && [ -n "${MY_NODE_NAME:-}" ]; then
+        IFACE=$(kubectl get node "$MY_NODE_NAME" -o "jsonpath={.metadata.labels['${WAN_IFACE_LABEL}']}" 2>/dev/null || true)
+      fi
+      # Fallback to default route device
+      if [ -z "$IFACE" ]; then
+        IFACE=$(ip route get 1.1.1.1 2>/dev/null | awk '/ dev / {for (i=1;i<=NF;i++) if ($i=="dev") {print $(i+1); exit}}')
+      fi
+      if [ -z "$IFACE" ]; then
+        echo "Unable to detect WAN interface; set WAN_IFACE or node label ${WAN_IFACE_LABEL}" >&2
+        exit 1
+      fi
+      WAN_IFACE="$IFACE"
     }
 
     ensure_ipset() {
@@ -64,6 +82,7 @@ data:
     }
 
     install_tools
+    detect_iface
     ensure_ipset
     configure_tc
     ensure_fwmark_rule
