@@ -26,7 +26,7 @@ spec:
               name: http
           env:
             - name: HEADSCALE_URL
-              value: https://headscale.rcrumana.xyz
+              value: http://headscale.headscale.svc.cluster.local:80
           volumeMounts:
             - name: ui-data
               mountPath: /data
