@@ -22,7 +22,7 @@ spec:
           image: ghcr.io/gurucomputing/headscale-ui:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 80
+            - containerPort: 8080
               name: http
           env:
             - name: HEADSCALE_URL
@@ -32,6 +32,8 @@ spec:
               mountPath: /data
             - name: ui-home
               mountPath: /home/appuser/.local
+            - name: ui-config
+              mountPath: /home/appuser/.config
           resources:
             requests:
               cpu: 50m
@@ -49,4 +51,6 @@ spec:
         - name: ui-data
           emptyDir: {}
         - name: ui-home
+          emptyDir: {}
+        - name: ui-config
           emptyDir: {}
