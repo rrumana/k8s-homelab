@@ -69,6 +69,7 @@ data:
     }
 
     configure_tc() {
+      tc qdisc del dev "${WAN_IFACE}" root 2>/dev/null || true
       tc qdisc replace dev "${WAN_IFACE}" root handle 1: htb default 10
 
       tc class replace dev "${WAN_IFACE}" parent 1: classid 1:1 htb rate "${LINK_CEIL}" ceil "${LINK_CEIL}"
@@ -83,6 +84,12 @@ data:
 
     install_tools
     detect_iface
+    load_modules() {
+      for mod in sch_htb sch_fq_codel cls_fw; do
+        modprobe "$mod" 2>/dev/null || true
+      done
+    }
+    load_modules
     ensure_ipset
     configure_tc
     ensure_fwmark_rule
