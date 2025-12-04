@@ -1,7 +1,33 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: headscale
+  name: headscale-api-public
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    haproxy-ingress.github.io/backend-protocol: "http"
+    haproxy-ingress.github.io/ssl-redirect: "true"
+spec:
+  ingressClassName: haproxy-public
+  tls:
+    - hosts:
+        - headscale.rcrumana.xyz
+      secretName: headscale-tls
+  rules:
+    - host: headscale.rcrumana.xyz
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: headscale
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: headscale-ui-restricted
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     haproxy-ingress.github.io/backend-protocol: "http"
@@ -22,12 +48,5 @@ spec:
             backend:
               service:
                 name: headscale-ui
-                port:
-                  number: 80
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: headscale
                 port:
                   number: 80
