@@ -21,8 +21,7 @@ data:
     derp:
       server:
         enabled: false
-      urls:
-        - https://controlplane.tailscale.com/derpmap/default
+      urls: []
       paths: []
       auto_update_enabled: true
       update_frequency: 3h
