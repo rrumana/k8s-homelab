@@ -68,11 +68,13 @@ data:
     randomize_client_port: false
   policy.hujson: |-
     {
-      "Groups": {},
+      "Groups": {
+        "group:admins": ["admin"]
+      },
       "ACLs": [],
       "AutoApprovers": {
         "Routes": {
-          "192.168.1.0/24": ["admin"]
+          "192.168.1.0/24": ["group:admins"]
         }
       }
     }
