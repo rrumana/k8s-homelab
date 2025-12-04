@@ -36,7 +36,85 @@ data:
           - 1.1.1.1
           - 1.0.0.1
       search_domains: []
-      extra_records: []
+      extra_records:
+        - name: argocd.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: headscale.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: nas.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: uptime.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: whiteboard.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: staging.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: router.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: immich.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: collabora.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: plex.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: homarr.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: unifi.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: nextcloud.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: n8n.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: qbit.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: qbit-lts2.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: qbit-lts.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: sonarr.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: lidarr.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: prowlarr.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: radarr.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: vault.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: jellyfin.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: llama.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
+        - name: llama-api.rcrumana.xyz
+          type: A
+          value: 192.168.1.220
 
     database:
       type: postgres
