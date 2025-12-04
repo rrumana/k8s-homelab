@@ -69,7 +69,7 @@ data:
   policy.hujson: |-
     {
       "Groups": {
-        "group:admins": ["admin"]
+        "group:admins": ["admin@local"]
       },
       "ACLs": [],
       "AutoApprovers": {
