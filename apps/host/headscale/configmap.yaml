@@ -58,7 +58,7 @@ data:
 
     policy:
       mode: file
-      path: ""
+      path: /etc/headscale/policy.hujson
 
     unix_socket: /var/run/headscale/headscale.sock
     unix_socket_permission: "0770"
@@ -66,3 +66,13 @@ data:
     disable_check_updates: false
     ephemeral_node_inactivity_timeout: 30m
     randomize_client_port: false
+  policy.hujson: |-
+    {
+      "Groups": {},
+      "ACLs": [],
+      "AutoApprovers": {
+        "Routes": {
+          "192.168.1.0/24": ["admin"]
+        }
+      }
+    }
