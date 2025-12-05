@@ -38,6 +38,8 @@ data:
         split:
           rcrumana.xyz:
             - 192.168.1.1
+          immich.rcrumana.xyz:
+            - 192.168.1.1
       search_domains: []
       extra_records: []
 
