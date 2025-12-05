@@ -33,11 +33,7 @@ data:
       override_local_dns: true
       nameservers:
         global:
-          - 1.1.1.1
-          - 1.0.0.1
-        split:
-          rcrumana.xyz:
-            - 192.168.1.1
+          - 192.168.1.1
       search_domains: []
       extra_records: []
 
