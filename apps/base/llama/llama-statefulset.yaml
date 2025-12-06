@@ -60,10 +60,12 @@ spec:
           args:
             - |
               set -euo pipefail
-              apk add --no-cache rsync findutils
               mkdir -p /models
-              # Copy models from RWX bus to this node's local RWO
-              rsync -a --delete /models-bus/ /models/ || true
+              # emulate "rsync -a --delete /models-bus/ /models/"
+              # 1) delete existing contents
+              rm -rf /models/*
+              # 2) copy everything from the bus
+              cp -a /models-bus/. /models/
               # Keep a stable symlink for the default model
               [ -f /models/primary.gguf ] || {
                 FIRST="$(find /models -maxdepth 2 -type f -name '*.gguf' | head -n1 || true)"
