@@ -54,6 +54,25 @@ spec:
           volumeMounts:
             - { name: models-bus, mountPath: /models-bus, readOnly: true }
 
+        - name: seed-models
+          image: alpine:3.20
+          command: ["sh","-lc"]
+          args:
+            - |
+              set -euo pipefail
+              apk add --no-cache rsync findutils
+              mkdir -p /models
+              # Copy models from RWX bus to this node's local RWO
+              rsync -a --delete /models-bus/ /models/ || true
+              # Keep a stable symlink for the default model
+              [ -f /models/primary.gguf ] || {
+                FIRST="$(find /models -maxdepth 2 -type f -name '*.gguf' | head -n1 || true)"
+                [ -n "$FIRST" ] && ln -sf "$FIRST" /models/primary.gguf
+              }
+          volumeMounts:
+            - { name: models-bus, mountPath: /models-bus, readOnly: true }
+            - { name: models,     mountPath: /models }
+
       containers:
         - name: llama-swap
           image: ghcr.io/mostlygeek/llama-swap:vulkan
