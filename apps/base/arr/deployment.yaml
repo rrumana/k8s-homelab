@@ -42,6 +42,9 @@ spec:
         - name: prowlarr-config
           persistentVolumeClaim:
             claimName: prowlarr-config
+        - name: jellyseerr-config
+          persistentVolumeClaim:
+            claimName: jellyseerr-config
         - name: media
           hostPath: { path: /NAS, type: Directory }
         - name: temp
@@ -106,7 +109,7 @@ spec:
           envFrom:
             - secretRef: { name: gluetun-env }
           env:
-            - { name: FIREWALL_INPUT_PORTS, value: "8020,8989,7878,9696,8686,8191" }
+            - { name: FIREWALL_INPUT_PORTS, value: "8020,8989,7878,9696,8686,8191,5055" }
             - { name: HEALTH_TARGET_ADDRESS, value: "127.0.0.1:9999" }
             - { name: VPN_PORT_FORWARDING_STATUS_FILE, value: "/pf/state/forwarded_port" }
             - { name: FIREWALL_OUTBOUND_SUBNETS, value: "10.42.0.0/16,10.43.0.0/16" }
@@ -202,6 +205,20 @@ spec:
             - { name: DOTNET_SYSTEM_NET_DISABLEIPV6, value: "1" }
           volumeMounts:
             - { name: prowlarr-config, mountPath: /config }
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "24", memory: "2Gi" }  
+
+        - name: jellyseerr
+          image: lscr.io/linuxserver/jellyseerr:latest
+          env:
+            - { name: PUID, value: "1000" }
+            - { name: PGID, value: "1000" }
+            - { name: TZ,   value: "America/Los_Angeles" }
+          ports:
+            - { name: http, containerPort: 5055, protocol: TCP }
+          volumeMounts:
+            - { name: jellyseerr-config, mountPath: /config }
           resources:
             requests: { cpu: "200m", memory: "256Mi" }
             limits:   { cpu: "24", memory: "2Gi" }  

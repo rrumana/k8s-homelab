@@ -13,6 +13,8 @@ resources:
   - ingress-lidarr.yaml
   - service-prowlarr.yaml
   - ingress-prowlarr.yaml
+  - service-jellyseerr.yaml
+  - ingress-jellyseerr.yaml
   - service-flaresolverr.yaml
   - pf-sync-configmap.yaml
   - pvc.yaml
