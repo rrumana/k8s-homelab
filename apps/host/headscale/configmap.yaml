@@ -75,13 +75,6 @@ data:
         "group:admins": ["admin@local"],
         "group:users": ["ryan@local"]
       },
-      "ACLs": [
-        {
-          "Action": "accept",
-          "Sources": ["*"],
-          "Destinations": ["*:*"]
-        }
-      ],
       "AutoApprovers": {
         "Routes": {
           "192.168.1.0/24": ["group:admins"]
