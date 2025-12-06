@@ -210,7 +210,7 @@ spec:
             limits:   { cpu: "24", memory: "2Gi" }  
 
         - name: jellyseerr
-          image: lscr.io/linuxserver/jellyseerr:latest
+          image: ghcr.io/fallenbagel/jellyseerr:latest
           env:
             - { name: PUID, value: "1000" }
             - { name: PGID, value: "1000" }
