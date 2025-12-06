@@ -54,27 +54,6 @@ spec:
           volumeMounts:
             - { name: models-bus, mountPath: /models-bus, readOnly: true }
 
-        - name: seed-models
-          image: alpine:3.20
-          command: ["sh","-lc"]
-          args:
-            - |
-              set -euo pipefail
-              mkdir -p /models
-              # emulate "rsync -a --delete /models-bus/ /models/"
-              # 1) delete existing contents
-              rm -rf /models/*
-              # 2) copy everything from the bus
-              cp -a /models-bus/. /models/
-              # Keep a stable symlink for the default model
-              [ -f /models/primary.gguf ] || {
-                FIRST="$(find /models -maxdepth 2 -type f -name '*.gguf' | head -n1 || true)"
-                [ -n "$FIRST" ] && ln -sf "$FIRST" /models/primary.gguf
-              }
-          volumeMounts:
-            - { name: models-bus, mountPath: /models-bus, readOnly: true }
-            - { name: models,     mountPath: /models }
-
       containers:
         - name: llama-swap
           image: ghcr.io/mostlygeek/llama-swap:vulkan
