@@ -4,16 +4,23 @@ metadata:
   name: copy-immich-postgres
 spec:
   restartPolicy: Never
+  # Optional: force this to a node that has /NAS mounted
+  # nodeSelector:
+  #   kubernetes.io/hostname: miniserver
   containers:
-  - name: rsync
+  - name: copy
     image: alpine:3.20
     command:
       - /bin/sh
       - -c
       - |
-        apk add --no-cache rsync \
-        && rsync -aHAXv --delete /old/ /new/ \
-        && chown -R 999:999 /new
+        set -e
+        echo "Copying Postgres data from /old to /new..."
+        # PVC should be empty, so we can just copy everything
+        cp -a /old/. /new/.
+        # Ensure ownership matches your StatefulSet (999:999)
+        chown -R 999:999 /new
+        echo "Done."
     volumeMounts:
       - name: old
         mountPath: /old
