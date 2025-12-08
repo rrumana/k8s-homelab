@@ -13,6 +13,7 @@ resources:
   - ingress.yaml
   - pvc.yaml
   - fit_perms.yaml
+  - diag-immich-pg-filenode-job.yaml
 
 commonLabels:
   app.kubernetes.io/name: immich

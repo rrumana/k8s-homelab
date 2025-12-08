@@ -1,0 +1,68 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: diag-immich-pg-filenode
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+        fsGroup: 0
+      containers:
+      - name: diag
+        image: alpine:3.20
+        command:
+          - /bin/sh
+          - -c
+          - |
+            set -eux
+
+            echo "===== WHO AM I ====="
+            id
+
+            echo "===== CHECKING PATHS ====="
+            ls -ld /new || true
+            ls -ld /new/base || true
+            ls -ld /new/base/16384 || true
+            ls -l /new/base/16384/pg_filenode.map || true
+
+            ls -ld /old || true
+            ls -ld /old/base || true
+            ls -ld /old/base/16384 || true
+            ls -l /old/base/16384/pg_filenode.map || true
+
+            echo "===== STAT PVC FILE (IF EXISTS) ====="
+            if [ -f /new/base/16384/pg_filenode.map ]; then
+              stat -c '%s bytes %a perms %U:%G %n' /new/base/16384/pg_filenode.map
+              echo "---- hexdump (PVC, first 64 bytes) ----"
+              hexdump -C /new/base/16384/pg_filenode.map | head || true
+            else
+              echo "PVC file missing"
+            fi
+
+            echo "===== STAT NFS FILE (IF EXISTS) ====="
+            if [ -f /old/base/16384/pg_filenode.map ]; then
+              stat -c '%s bytes %a perms %U:%G %n' /old/base/16384/pg_filenode.map
+              echo "---- hexdump (NFS, first 64 bytes) ----"
+              hexdump -C /old/base/16384/pg_filenode.map | head || true
+            else
+              echo "NFS file missing"
+            fi
+
+            echo "===== DONE ====="
+        volumeMounts:
+        - name: new
+          mountPath: /new
+        - name: old
+          mountPath: /old
+      volumes:
+      - name: new
+        persistentVolumeClaim:
+          claimName: immich-postgres-data
+      - name: old
+        hostPath:
+          path: /NAS/Cloud/Immich/postgres   # <-- change if you renamed the original dir
+          type: Directory
