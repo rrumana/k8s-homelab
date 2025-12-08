@@ -11,6 +11,8 @@ resources:
   - services.yaml
   - configmap.yaml
   - ingress.yaml
+  - pvc.yaml
+  - transfer.yaml
 
 commonLabels:
   app.kubernetes.io/name: immich
