@@ -37,6 +37,19 @@ replicaCount: 1
 strategy:
   type: Recreate
 
+# DNS override
+dnsPolicy: None
+dnsConfig:
+  nameservers:
+    - 10.43.0.10        # cluster DNS for service names
+  searches:
+    - nextcloud.svc.cluster.local
+    - svc.cluster.local
+    - cluster.local
+  options:
+    - name: ndots
+      value: "1"
+
 image:
   repository: nextcloud
 
