@@ -43,12 +43,14 @@ image:
 # --- Ingress (HAProxy) ---
 ingress:
   enabled: true
-  className: haproxy-public
+  className: haproxy-restricted
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     haproxy-ingress.github.io/backend-protocol: "http"
-    haproxy-ingress.github.io/timeout-client: "600s"
-    haproxy-ingress.github.io/timeout-server: "600s"
+    haproxy-ingress.github.io/timeout-client: "3600s"
+    haproxy-ingress.github.io/timeout-server: "3600s"
+    haproxy-ingress.github.io/proxy-body-size: "0"
+    haproxy-ingress.github.io/whitelist-source-range: "192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
   tls:
     - hosts: [nextcloud.rcrumana.xyz]
       secretName: nextcloud-tls
