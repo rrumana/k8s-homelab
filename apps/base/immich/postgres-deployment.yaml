@@ -80,6 +80,5 @@ spec:
           periodSeconds: 10
       volumes:
       - name: postgres-data
-        hostPath:
-          path: /NAS/Cloud/Immich/postgres
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: immich-postgres-data

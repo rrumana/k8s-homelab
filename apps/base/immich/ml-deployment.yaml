@@ -37,6 +37,5 @@ spec:
             cpu: "24"
       volumes:
       - name: model-cache
-        hostPath:
-          path: /NAS/Cloud/Immich/model-cache
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: immich-ml-cache
