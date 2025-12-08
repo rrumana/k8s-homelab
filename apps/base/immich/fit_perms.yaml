@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fix-immich-postgres-perms
+spec:
+  restartPolicy: Never
+  containers:
+  - name: fix-perms
+    image: alpine:3.20
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        echo "Fixing ownership and permissions on /var/lib/postgresql/data..."
+        # Make sure everything is owned by the postgres user (999)
+        chown -R 999:999 /var/lib/postgresql/data
+        # Set the main data dir mode to something Postgres likes
+        chmod 700 /var/lib/postgresql/data
+        # Optional: tighten everything else a bit
+        find /var/lib/postgresql/data -type d -exec chmod 700 {} \;
+        find /var/lib/postgresql/data -type f -exec chmod 600 {} \;
+        echo "Done."
+    volumeMounts:
+      - name: pgdata
+        mountPath: /var/lib/postgresql/data
+  volumes:
+  - name: pgdata
+    persistentVolumeClaim:
+      claimName: immich-postgres-data
