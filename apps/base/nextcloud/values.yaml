@@ -59,6 +59,22 @@ persistence:
   accessMode: ReadWriteOnce
   existingClaim: nextcloud-appdata
 
+internalDatabase:
+  enabled: false
+  name: nextcloud
+
+externalDatabase:
+  enabled: true
+  type: postgresql
+  host: nextcloud-postgresql
+  port: 5432
+  database: nextcloud
+  user: nextcloud
+  existingSecret:
+    enabled: true
+    secretName: nextcloud-db
+    passwordKey: password
+
 # Tighten IDs to match www-data
 podSecurityContext:
   fsGroup: 33
