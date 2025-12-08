@@ -1,12 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: copy-immich-postgres
+  name: copy-immich-ml-cache
 spec:
   restartPolicy: Never
-  # Optional: force this to a node that has /NAS mounted
-  # nodeSelector:
-  #   kubernetes.io/hostname: miniserver
   containers:
   - name: copy
     image: alpine:3.20
@@ -15,11 +12,8 @@ spec:
       - -c
       - |
         set -e
-        echo "Copying Postgres data from /old to /new..."
-        # PVC should be empty, so we can just copy everything
+        echo "Copying ML cache from /old to /new..."
         cp -a /old/. /new/.
-        # Ensure ownership matches your StatefulSet (999:999)
-        chown -R 999:999 /new
         echo "Done."
     volumeMounts:
       - name: old
@@ -29,8 +23,8 @@ spec:
   volumes:
     - name: old
       hostPath:
-        path: /NAS/Cloud/Immich/postgres
+        path: /NAS/Cloud/Immich/model-cache
         type: Directory
     - name: new
       persistentVolumeClaim:
-        claimName: immich-postgres-data
+        claimName: immich-ml-cache
