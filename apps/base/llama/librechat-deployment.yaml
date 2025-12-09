@@ -4,7 +4,7 @@ metadata:
   name: librechat
   labels: { app: llama, component: librechat }
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels: { app: llama, component: librechat }
   strategy:
