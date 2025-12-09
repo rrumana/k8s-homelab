@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: recopy-immich-postgres-from-nfs
+  name: recopy-immich-ml-cache-from-nfs
 spec:
   backoffLimit: 0
   template:
@@ -12,7 +12,7 @@ spec:
         runAsGroup: 0
         fsGroup: 0
       containers:
-      - name: recopy
+      - name: recopy-ml-cache
         image: alpine:3.20
         command:
           - /bin/sh
@@ -23,7 +23,7 @@ spec:
             echo "===== WHO AM I ====="
             id
 
-            echo "===== BEFORE WIPE ====="
+            echo "===== PVC (/new) BEFORE WIPE ====="
             df -h /new || true
             du -sh /new || true
             ls -la /new || true
@@ -31,29 +31,24 @@ spec:
             echo "===== WIPING PVC CONTENT (KEEPING MOUNTPOINT) ====="
             # Remove everything under /new, but not /new itself
             find /new -mindepth 1 -maxdepth 1 -exec rm -rf {} +
-            echo "===== AFTER WIPE ====="
+            echo "===== PVC AFTER WIPE ====="
             du -sh /new || true
             ls -la /new || true
 
-            echo "===== SOURCE (NFS) TOP LEVEL ====="
+            echo "===== SOURCE (NFS, /old) TOP LEVEL ====="
             ls -la /old || true
 
             echo "===== COPYING /old -> /new (cp -a) ====="
             cp -a /old/. /new/.
 
             echo "===== FIXING OWNERSHIP AND PERMISSIONS ====="
-            # Make sure everything belongs to the postgres UID/GID
-            chown -R 999:999 /new
-            # PG needs the data dir itself locked down
-            chmod 700 /new
-            # (Optionally tighten everything else)
-            find /new -type d -exec chmod 700 {} \; || true
-            find /new -type f -exec chmod 600 {} \; || true
+            # ML container runs as root by default, but we can keep it neat
+            chown -R 0:0 /new
+            find /new -type d -exec chmod 755 {} \; || true
+            find /new -type f -exec chmod 644 {} \; || true
 
-            echo "===== VERIFY KEY FILES ====="
-            stat -c '%s bytes %a perms %U:%G %n' /new/base/16384/pg_filenode.map || true
-            echo "---- hexdump (PVC, first 64 bytes) ----"
-            hexdump -C /new/base/16384/pg_filenode.map | head || true
+            echo "===== SAMPLE OF CONTENTS (PVC) ====="
+            find /new -maxdepth 3 -type f | head -n 50 || true
 
             echo "===== DONE SUCCESSFULLY ====="
         volumeMounts:
@@ -64,8 +59,8 @@ spec:
       volumes:
       - name: new
         persistentVolumeClaim:
-          claimName: immich-postgres-data
+          claimName: immich-ml-cache
       - name: old
         hostPath:
-          path: /NAS/Cloud/Immich/postgres   # <-- change here if your original dir was renamed
+          path: /NAS/Cloud/Immich/model-cache   # <-- change if needed
           type: Directory
