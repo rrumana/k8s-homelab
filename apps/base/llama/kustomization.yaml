@@ -11,7 +11,6 @@ resources:
   - ingress.yaml
   - configmap-librechat.yaml
   - pdb.yaml
-  - hpa-librechat.yaml
 
 commonLabels:
   app.kubernetes.io/name: llama-stack
