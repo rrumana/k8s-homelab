@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vllm-models-bus
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+  labels:
+    recurring-job.longhorn.io/source: enabled
+    recurring-job-group.longhorn.io/default: enabled
+spec:
+  storageClassName: longhorn-protected
+  accessModes: [ "ReadWriteMany" ]
+  resources:
+    requests:
+      storage: 128Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: librechat-data
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+  labels:
+    recurring-job.longhorn.io/source: enabled
+    recurring-job-group.longhorn.io/default: enabled
+spec:
+  storageClassName: longhorn-protected
+  accessModes: [ "ReadWriteMany" ]
+  resources:
+    requests:
+      storage: 8Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-data
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+  labels:
+    recurring-job.longhorn.io/source: enabled
+    recurring-job-group.longhorn.io/default: enabled
+spec:
+  storageClassName: longhorn-protected
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 16Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+  labels:
+    recurring-job.longhorn.io/source: enabled
+    recurring-job-group.longhorn.io/default: enabled
+spec:
+  storageClassName: longhorn-protected
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 16Gi

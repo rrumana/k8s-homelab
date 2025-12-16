@@ -1,0 +1,39 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pdb-librechat
+  labels: { app: vllm, component: librechat }
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels: { app: vllm, component: librechat }
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pdb-vllm
+  labels: { app: vllm, component: server }
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels: { app: vllm, component: server }
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pdb-mongo
+  labels: { app: vllm, component: database }
+spec:
+  maxUnavailable: 0
+  selector:
+    matchLabels: { app: vllm, component: database }
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pdb-postgres
+  labels: { app: vllm, component: postgres }
+spec:
+  maxUnavailable: 0
+  selector:
+    matchLabels: { app: vllm, component: postgres }

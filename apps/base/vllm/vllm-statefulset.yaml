@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vllm-server
+  labels:
+    app: vllm
+    component: server
+spec:
+  serviceName: vllm-api
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vllm
+      component: server
+  template:
+    metadata:
+      labels:
+        app: vllm
+        component: server
+    spec:
+      nodeSelector:
+        vllm.enabled: "true"
+
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: vllm
+                  component: server
+              topologyKey: kubernetes.io/hostname
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: vllm
+              component: server
+
+      initContainers:
+        - name: require-model-on-bus
+          image: alpine:3.20
+          command: ["sh","-lc"]
+          args:
+            - |
+              set -e
+              if ! find /models-bus -maxdepth 2 -type f | head -n1 | grep -q . ; then
+                echo "No model files on bus PVC; seed a model first"; exit 1
+              fi
+          volumeMounts:
+            - { name: models-bus, mountPath: /models-bus, readOnly: true }
+
+        - name: seed-models
+          image: alpine:3.20
+          command: ["sh","-lc"]
+          args:
+            - |
+              set -euo pipefail
+              apk add --no-cache rsync findutils
+              mkdir -p /models
+              rsync -a --delete /models-bus/ /models/ || true
+          volumeMounts:
+            - { name: models-bus, mountPath: /models-bus, readOnly: true }
+            - { name: models,     mountPath: /models }
+
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:latest
+          imagePullPolicy: IfNotPresent
+          command: ["bash","-lc"]
+          args:
+            - |
+              set -euo pipefail
+              EXTRA=""
+              if [ -n "${VLLM_API_KEY:-}" ]; then
+                EXTRA="--api-key ${VLLM_API_KEY}"
+              fi
+              python3 -m vllm.entrypoints.openai.api_server \
+                --host 0.0.0.0 \
+                --port 8000 \
+                --model "${MODEL_PATH:-/models}" \
+                --served-model-name "${MODEL_NAME:-primary}" \
+                ${EXTRA}
+          ports:
+            - { containerPort: 8000, name: http }
+          env:
+            - name: MODEL_PATH
+              value: "/models"
+            - name: MODEL_NAME
+              value: "primary"
+            - name: VLLM_API_KEY
+              valueFrom: { secretKeyRef: { name: vllm-env, key: api-key, optional: true } }
+          volumeMounts:
+            - { name: models,      mountPath: /models }
+            - { name: models-bus,  mountPath: /models-bus, readOnly: true }
+            - { name: dri,         mountPath: /dev/dri }
+            - { name: kfd,         mountPath: /dev/kfd }
+          resources:
+            requests: { cpu: "2",  memory: "8Gi" }
+            limits:   { cpu: "24", memory: "48Gi" }
+          startupProbe:
+            httpGet: { path: /health, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 120
+          readinessProbe:
+            httpGet: { path: /health, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+      volumes:
+        - name: models-bus
+          persistentVolumeClaim:
+            claimName: vllm-models-bus
+        - name: dri
+          hostPath: { path: /dev/dri, type: Directory }
+        - name: kfd
+          hostPath: { path: /dev/kfd, type: CharDevice }
+
+  volumeClaimTemplates:
+    - metadata:
+        name: models
+        labels:
+          recurring-job.longhorn.io/source: enabled
+          recurring-job-group.longhorn.io/default: enabled
+      spec:
+        storageClassName: longhorn-local-1r
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 128Gi

@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm-api
+  labels: { app: vllm, component: server }
+spec:
+  type: ClusterIP
+  selector: { app: vllm, component: server }
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 86400
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: librechat
+  labels: { app: vllm, component: librechat }
+spec:
+  type: ClusterIP
+  selector: { app: vllm, component: librechat }
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP: { timeoutSeconds: 86400 }
+  ports:
+    - name: http
+      port: 3080
+      targetPort: 3080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  labels: { app: vllm, component: database }
+spec:
+  type: ClusterIP
+  selector: { app: vllm, component: database }
+  ports:
+    - name: mongo
+      port: 27017
+      targetPort: 27017
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels: { app: vllm, component: postgres }
+spec:
+  type: ClusterIP
+  selector: { app: vllm, component: postgres }
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
