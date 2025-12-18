@@ -17,7 +17,7 @@ spec:
           command: ["/bin/sh", "-lc"]
           args:
             - |
-              set -euo pipefail
+              set -eu
 
               OUTDIR="/nas/unifi/mongodump"
               mkdir -p "$OUTDIR"
@@ -43,4 +43,3 @@ spec:
           hostPath:
             path: /NAS/Longhorn
             type: Directory
-
