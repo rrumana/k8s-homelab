@@ -1,0 +1,68 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-homarr-mysql-data
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: mysqldump
+          image: docker.io/library/mysql:8.4
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-lc"]
+          env:
+            - name: MYSQL_HOST
+              value: homarr-helm-mysql-0.homarr-helm-mysql
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: homarr-helm-mysql
+                  key: MYSQL_DATABASE
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: homarr-helm-mysql
+                  key: MYSQL_ROOT_PASSWORD
+          args:
+            - |
+              set -euo pipefail
+
+              OUTDIR="/nas/homarr-helm/mysqldump"
+              mkdir -p "$OUTDIR"
+
+              TS="$(date -u +%Y%m%dT%H%M%SZ)"
+              OUT="$OUTDIR/homarr-helm-${TS}.sql"
+
+              echo "Waiting for MySQL at ${MYSQL_HOST}:3306..."
+              for i in $(seq 1 180); do
+                mysqladmin ping -h "${MYSQL_HOST}" -u root -p"${MYSQL_ROOT_PASSWORD}" >/dev/null 2>&1 && break
+                [ "$i" -eq 180 ] && { echo "Timed out waiting for MySQL"; exit 1; }
+                sleep 2
+              done
+
+              mysqldump \
+                -h "${MYSQL_HOST}" \
+                -u root \
+                -p"${MYSQL_ROOT_PASSWORD}" \
+                --single-transaction \
+                --quick \
+                --routines \
+                --triggers \
+                --events \
+                --databases "${MYSQL_DATABASE}" > "${OUT}"
+
+              sha256sum "${OUT}" > "${OUT}.sha256"
+              echo "Wrote ${OUT}"
+          volumeMounts:
+            - name: nas
+              mountPath: /nas
+      volumes:
+        - name: nas
+          hostPath:
+            path: /NAS/Longhorn
+            type: Directory
+

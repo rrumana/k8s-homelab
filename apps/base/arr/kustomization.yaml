@@ -18,6 +18,13 @@ resources:
   - service-flaresolverr.yaml
   - pf-sync-configmap.yaml
   - pvc.yaml
+  - migrate-qbit-config.yaml
+  - migrate-gluetun.yaml
+  - migrate-sonarr-config.yaml
+  - migrate-radarr-config.yaml
+  - migrate-lidarr-config.yaml
+  - migrate-prowlarr-config.yaml
+  - migrate-jellyseerr-config.yaml
 
 commonLabels:
   app.kubernetes.io/name: arr

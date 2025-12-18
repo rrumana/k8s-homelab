@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-qdrant-storage
+  namespace: qdrant
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: rsync
+          image: alpine:3.20
+          command: ["/bin/sh", "-lc"]
+          args:
+            - |
+              set -euo pipefail
+              apk add --no-cache rsync
+              DEST="/nas/qdrant/qdrant-storage"
+              mkdir -p "$DEST"
+              rsync -aHAX --numeric-ids --info=progress2 /src/ "$DEST"/
+              sync
+          volumeMounts:
+            - name: src
+              mountPath: /src
+              readOnly: true
+            - name: nas
+              mountPath: /nas
+      volumes:
+        - name: src
+          persistentVolumeClaim:
+            claimName: qdrant-storage
+        - name: nas
+          hostPath:
+            path: /NAS/Longhorn
+            type: Directory
+

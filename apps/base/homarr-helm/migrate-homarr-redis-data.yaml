@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-homarr-redis-data
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: redisdump
+          image: docker.io/library/redis:7.2-alpine
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-lc"]
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: homarr-redis
+                  key: redis-password
+                  optional: true
+          args:
+            - |
+              set -euo pipefail
+
+              OUTDIR="/nas/homarr-helm/redis-rdb"
+              mkdir -p "$OUTDIR"
+
+              TS="$(date -u +%Y%m%dT%H%M%SZ)"
+              OUT="$OUTDIR/homarr-redis-${TS}.rdb"
+
+              AUTH=""
+              if [ -n "${REDIS_PASSWORD:-}" ]; then
+                AUTH="-a ${REDIS_PASSWORD}"
+              fi
+
+              echo "Waiting for Redis at homarr-redis:6379..."
+              for i in $(seq 1 180); do
+                redis-cli -h homarr-redis $AUTH ping >/dev/null 2>&1 && break
+                [ "$i" -eq 180 ] && { echo "Timed out waiting for Redis"; exit 1; }
+                sleep 2
+              done
+
+              redis-cli -h homarr-redis $AUTH --rdb "$OUT"
+              sha256sum "$OUT" > "$OUT.sha256"
+              echo "Wrote $OUT"
+          volumeMounts:
+            - name: nas
+              mountPath: /nas
+      volumes:
+        - name: nas
+          hostPath:
+            path: /NAS/Longhorn
+            type: Directory
+

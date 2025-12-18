@@ -7,3 +7,5 @@ resources:
   - mysql-statefulset.yaml
   - redis-service.yaml
   - redis-statefulset.yaml
+  - migrate-homarr-mysql-data.yaml
+  - migrate-homarr-redis-data.yaml

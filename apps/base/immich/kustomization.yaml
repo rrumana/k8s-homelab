@@ -12,6 +12,8 @@ resources:
   - configmap.yaml
   - ingress.yaml
   - pvc.yaml
+  - migrate-immich-ml-cache.yaml
+  - migrate-immich-postgres-data.yaml
 
 commonLabels:
   app.kubernetes.io/name: immich

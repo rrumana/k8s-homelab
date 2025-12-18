@@ -1,0 +1,59 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-nextcloud-postgresql-data
+  namespace: nextcloud
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: pgdump
+          image: docker.io/library/postgres:17-alpine
+          command: ["/bin/sh", "-lc"]
+          env:
+            - name: PGHOST
+              value: nextcloud-postgresql
+            - name: PGPORT
+              value: "5432"
+            - name: PGDATABASE
+              value: nextcloud
+            - name: PGUSER
+              value: nextcloud
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-db
+                  key: password
+          args:
+            - |
+              set -euo pipefail
+
+              OUTDIR="/nas/nextcloud/pgdump"
+              mkdir -p "$OUTDIR"
+
+              TS="$(date -u +%Y%m%dT%H%M%SZ)"
+              OUT="$OUTDIR/nextcloud-${TS}.dump"
+
+              echo "Waiting for Postgres at ${PGHOST}:${PGPORT}..."
+              for i in $(seq 1 180); do
+                pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" >/dev/null 2>&1 && break
+                [ "$i" -eq 180 ] && { echo "Timed out waiting for Postgres"; exit 1; }
+                sleep 2
+              done
+
+              pg_dump -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -Fc -f "$OUT"
+              sha256sum "$OUT" > "$OUT.sha256"
+              echo "Wrote $OUT"
+          volumeMounts:
+            - name: nas
+              mountPath: /nas
+      volumes:
+        - name: nas
+          hostPath:
+            path: /NAS/Longhorn
+            type: Directory
+

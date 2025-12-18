@@ -8,6 +8,7 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
+  - migrate-n8n-data.yaml
 
 commonLabels:
   app.kubernetes.io/name: n8n

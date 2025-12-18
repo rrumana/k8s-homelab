@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-unifi-db
+  namespace: unifi
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: mongodump
+          image: docker.io/library/mongo:6.0.11
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-lc"]
+          args:
+            - |
+              set -euo pipefail
+
+              OUTDIR="/nas/unifi/mongodump"
+              mkdir -p "$OUTDIR"
+
+              TS="$(date -u +%Y%m%dT%H%M%SZ)"
+              OUT="$OUTDIR/unifi-${TS}.archive.gz"
+
+              echo "Waiting for Mongo at unifi-db:27017..."
+              for i in $(seq 1 180); do
+                mongosh --host unifi-db --quiet --eval 'db.adminCommand({ ping: 1 })' >/dev/null 2>&1 && break
+                [ "$i" -eq 180 ] && { echo "Timed out waiting for Mongo"; exit 1; }
+                sleep 2
+              done
+
+              mongodump --host unifi-db --archive="$OUT" --gzip
+              sha256sum "$OUT" > "$OUT.sha256"
+              echo "Wrote $OUT"
+          volumeMounts:
+            - name: nas
+              mountPath: /nas
+      volumes:
+        - name: nas
+          hostPath:
+            path: /NAS/Longhorn
+            type: Directory
+

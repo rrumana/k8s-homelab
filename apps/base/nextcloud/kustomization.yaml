@@ -5,3 +5,6 @@ namespace: nextcloud
 
 resources:
   - pvc.yaml
+  - migrate-nextcloud-appdata.yaml
+  - migrate-nextcloud-postgresql-data.yaml
+  - migrate-nextcloud-redis-data.yaml

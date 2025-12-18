@@ -7,6 +7,8 @@ resources:
   - ingress-qbit.yaml
   - pf-sync-configmap.yaml
   - pvc.yaml
+  - migrate-qbit-config.yaml
+  - migrate-gluetun.yaml
 
 commonLabels:
   app.kubernetes.io/name: arr-lts2

@@ -14,3 +14,5 @@ resources:
   - ui-service.yaml
   - ingress.yaml
   - pvc.yaml
+  - migrate-headscale-data.yaml
+  - migrate-headscale-postgres-data.yaml

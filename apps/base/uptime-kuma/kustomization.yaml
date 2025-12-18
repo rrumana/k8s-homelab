@@ -8,6 +8,7 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
+  - migrate-uptime-kuma-data.yaml
 
 commonLabels:
   app.kubernetes.io/name: uptime-kuma

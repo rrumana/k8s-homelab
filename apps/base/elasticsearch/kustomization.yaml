@@ -5,6 +5,7 @@ resources:
   - pvc.yaml
   - deployment.yaml
   - service.yaml
+  - migrate-elasticsearch-data.yaml
 
 generatorOptions:
   disableNameSuffixHash: true

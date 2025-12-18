@@ -1,0 +1,59 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-nextcloud-redis-data
+  namespace: nextcloud
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: redisdump
+          image: docker.io/library/redis:7.2-alpine
+          command: ["/bin/sh", "-lc"]
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nextcloud-redis
+                  key: redis-password
+          args:
+            - |
+              set -euo pipefail
+
+              OUTDIR="/nas/nextcloud/redis-rdb"
+              mkdir -p "$OUTDIR"
+
+              TS="$(date -u +%Y%m%dT%H%M%SZ)"
+              OUT="$OUTDIR/nextcloud-redis-${TS}.rdb"
+
+              AUTH=""
+              if [ -n "${REDIS_PASSWORD:-}" ]; then
+                AUTH="-a ${REDIS_PASSWORD}"
+              fi
+
+              REDIS_HOST=""
+              for host in nextcloud-redis-master nextcloud-redis; do
+                if redis-cli -h "$host" $AUTH ping >/dev/null 2>&1; then
+                  REDIS_HOST="$host"
+                  break
+                fi
+              done
+              [ -n "$REDIS_HOST" ] || { echo "Could not reach Nextcloud Redis on expected service names"; exit 1; }
+
+              echo "Creating RDB via redis-cli --rdb from $REDIS_HOST..."
+              redis-cli -h "$REDIS_HOST" $AUTH --rdb "$OUT"
+              sha256sum "$OUT" > "$OUT.sha256"
+              echo "Wrote $OUT"
+          volumeMounts:
+            - name: nas
+              mountPath: /nas
+      volumes:
+        - name: nas
+          hostPath:
+            path: /NAS/Longhorn
+            type: Directory
+
