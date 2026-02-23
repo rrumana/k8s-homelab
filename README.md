@@ -1,5 +1,7 @@
 # Kubernetes Homelab
 
+## THIS PROJECT HAS BEEN DISCONTINUED. PLEASE CHECK k8s-homelab-2 FOR NEW CLUSTER.
+
 A GitOps-driven k3s cluster that runs the services I rely on every day while doubling as a platform engineering lab. The goal is to keep infrastructure repeatable, resilient, and easy to evolve while I experiment with new ideas.
 
 ## Objectives
